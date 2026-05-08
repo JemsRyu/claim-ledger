@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { VideoCard } from "./VideoCard";
 import { TranscriptView } from "./TranscriptView";
 import { Ledger } from "./Ledger";
+import { SampleGallery } from "./SampleGallery";
 import type { OembedMetadata } from "@/lib/youtube/oembed";
 import type { TranscriptSegment } from "@/lib/youtube/transcript";
 
@@ -27,9 +28,8 @@ export function UrlInput() {
   const [url, setUrl] = useState("");
   const [state, setState] = useState<FetchState>({ kind: "idle" });
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault();
-    const trimmed = url.trim();
+  async function runAudit(submittedUrl: string) {
+    const trimmed = submittedUrl.trim();
     if (!trimmed) return;
 
     setState({ kind: "loading-metadata" });
@@ -79,7 +79,8 @@ export function UrlInput() {
         | { error: string; kind?: string };
 
       if (!response.ok) {
-        const message = "error" in data ? data.error : "Failed to load transcript.";
+        const message =
+          "error" in data ? data.error : "Failed to load transcript.";
         setState({
           kind: "loaded",
           videoId,
@@ -93,7 +94,10 @@ export function UrlInput() {
           kind: "loaded",
           videoId,
           metadata,
-          transcript: { kind: "error", message: "Malformed transcript response." },
+          transcript: {
+            kind: "error",
+            message: "Malformed transcript response.",
+          },
         });
         return;
       }
@@ -116,6 +120,19 @@ export function UrlInput() {
     }
   }
 
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    void runAudit(url);
+  }
+
+  function handleSampleSelect(sampleUrl: string) {
+    setUrl(sampleUrl);
+    void runAudit(sampleUrl);
+  }
+
+  const isAuditing =
+    state.kind === "loading-metadata" ||
+    (state.kind === "loaded" && state.transcript.kind === "loading");
   const submitDisabled = state.kind === "loading-metadata" || !url.trim();
 
   return (
@@ -138,10 +155,17 @@ export function UrlInput() {
         </button>
       </form>
 
+      {state.kind === "idle" && (
+        <SampleGallery disabled={isAuditing} onSelect={handleSampleSelect} />
+      )}
+
       {state.kind === "metadata-error" && (
-        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-          {state.message}
-        </p>
+        <>
+          <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+            {state.message}
+          </p>
+          <SampleGallery disabled={isAuditing} onSelect={handleSampleSelect} />
+        </>
       )}
 
       {state.kind === "loaded" && (
