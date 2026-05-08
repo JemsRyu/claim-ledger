@@ -1,6 +1,8 @@
+import { UrlInput } from "@/components/UrlInput";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-6 py-24 text-foreground">
+    <main className="flex min-h-screen flex-col items-center px-6 pt-20 pb-16 text-foreground sm:pt-28">
       <div className="flex w-full max-w-2xl flex-col gap-10">
         <header className="flex flex-col gap-3">
           <p className="font-mono text-xs uppercase tracking-widest text-foreground/50">
@@ -16,21 +18,19 @@ export default function Home() {
           </p>
         </header>
 
+        <UrlInput />
+
         <section
           aria-label="status"
-          className="flex flex-col gap-3 rounded-lg border border-foreground/10 bg-foreground/[0.02] p-5 text-sm leading-relaxed text-foreground/70"
+          className="flex flex-col gap-2 rounded-lg border border-foreground/10 bg-foreground/[0.02] p-4 text-sm leading-relaxed text-foreground/60"
         >
           <p>
             <span className="mr-2 inline-block rounded bg-foreground/10 px-1.5 py-0.5 font-mono text-[11px] uppercase tracking-wider text-foreground/80">
               Phase 1
             </span>
-            Scaffolding in progress. The audit UI ships chunk by chunk — see{" "}
-            <code className="font-mono text-foreground/80">PLAN.md</code> for
-            the sequence.
-          </p>
-          <p>
-            Pipeline runs on mocked fixtures until Phase 2 wires live Claude
-            extraction and classification.
+            Working: URL paste → video metadata. Audit pipeline ships chunk by
+            chunk per{" "}
+            <code className="font-mono text-foreground/80">PLAN.md</code>.
           </p>
         </section>
 
