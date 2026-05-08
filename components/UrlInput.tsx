@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { VideoCard } from "./VideoCard";
 import { TranscriptView } from "./TranscriptView";
+import { Ledger } from "./Ledger";
 import type { OembedMetadata } from "@/lib/youtube/oembed";
 import type { TranscriptSegment } from "@/lib/youtube/transcript";
 
@@ -162,10 +163,13 @@ export function UrlInput() {
           )}
 
           {state.transcript.kind === "ready" && (
-            <TranscriptView
-              videoId={state.videoId}
-              segments={state.transcript.segments}
-            />
+            <>
+              <TranscriptView
+                videoId={state.videoId}
+                segments={state.transcript.segments}
+              />
+              <Ledger videoId={state.videoId} />
+            </>
           )}
         </>
       )}
