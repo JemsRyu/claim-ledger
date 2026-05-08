@@ -28,9 +28,14 @@ export default function Home() {
             <span className="mr-2 inline-block rounded bg-foreground/10 px-1.5 py-0.5 font-mono text-[11px] uppercase tracking-wider text-foreground/80">
               Phase 1
             </span>
-            Working: URL paste → video metadata. Audit pipeline ships chunk by
-            chunk per{" "}
+            Mocked end-to-end. Real claim extraction (Sonnet 4.6) and
+            classification (Haiku 4.5) lands in Phase 2 — see{" "}
             <code className="font-mono text-foreground/80">PLAN.md</code>.
+          </p>
+          <p className="text-xs text-foreground/45">
+            Click-to-verify timestamps are real even in the mock: claim
+            verbatim text is fuzzy-matched against the actual transcript and
+            the span is derived deterministically server-side.
           </p>
         </section>
 
