@@ -2,7 +2,7 @@
 
 > Claim auditor for informational video. Paste any informational YouTube URL → get a structured ledger of every factual claim being made, with verbatim quotes, click-to-verify timestamps, and adversarial flags.
 
-**Live:** https://claim-ledger.vercel.app/
+**Live:** https://claim-ledger-jemsryus-projects.vercel.app/
 
 This is a portfolio project — a recruiter-facing demo built to communicate, in 60 seconds, what disciplined LLM engineering looks like on a non-trivial problem.
 
