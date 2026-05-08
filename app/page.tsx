@@ -1,0 +1,62 @@
+export default function Home() {
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center px-6 py-24 text-foreground">
+      <div className="flex w-full max-w-2xl flex-col gap-10">
+        <header className="flex flex-col gap-3">
+          <p className="font-mono text-xs uppercase tracking-widest text-foreground/50">
+            claim-ledger
+          </p>
+          <h1 className="text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+            Claim auditor for informational video.
+          </h1>
+          <p className="text-balance text-lg leading-relaxed text-foreground/70">
+            Paste any informational YouTube URL. Get back a structured ledger of
+            every factual claim, with verbatim quotes, click-to-verify
+            timestamps, and adversarial flags.
+          </p>
+        </header>
+
+        <section
+          aria-label="status"
+          className="flex flex-col gap-3 rounded-lg border border-foreground/10 bg-foreground/[0.02] p-5 text-sm leading-relaxed text-foreground/70"
+        >
+          <p>
+            <span className="mr-2 inline-block rounded bg-foreground/10 px-1.5 py-0.5 font-mono text-[11px] uppercase tracking-wider text-foreground/80">
+              Phase 1
+            </span>
+            Scaffolding in progress. The audit UI ships chunk by chunk — see{" "}
+            <code className="font-mono text-foreground/80">PLAN.md</code> for
+            the sequence.
+          </p>
+          <p>
+            Pipeline runs on mocked fixtures until Phase 2 wires live Claude
+            extraction and classification.
+          </p>
+        </section>
+
+        <footer className="flex items-center gap-4 text-sm text-foreground/50">
+          <a
+            href="https://github.com/JemsRyu/claim-ledger"
+            className="underline decoration-foreground/30 underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground"
+          >
+            GitHub
+          </a>
+          <span aria-hidden>·</span>
+          <a
+            href="https://github.com/JemsRyu/claim-ledger/blob/master/DESIGN.md"
+            className="underline decoration-foreground/30 underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground"
+          >
+            Design
+          </a>
+          <span aria-hidden>·</span>
+          <a
+            href="https://github.com/JemsRyu/claim-ledger/blob/master/PLAN.md"
+            className="underline decoration-foreground/30 underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground"
+          >
+            Plan
+          </a>
+        </footer>
+      </div>
+    </main>
+  );
+}
