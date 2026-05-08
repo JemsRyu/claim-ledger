@@ -2,13 +2,25 @@
 
 import { useState, type FormEvent } from "react";
 import { VideoCard } from "./VideoCard";
+import { TranscriptView } from "./TranscriptView";
 import type { OembedMetadata } from "@/lib/youtube/oembed";
+import type { TranscriptSegment } from "@/lib/youtube/transcript";
+
+type TranscriptState =
+  | { kind: "loading" }
+  | { kind: "ready"; segments: TranscriptSegment[] }
+  | { kind: "error"; message: string };
 
 type FetchState =
   | { kind: "idle" }
-  | { kind: "loading" }
-  | { kind: "success"; videoId: string; metadata: OembedMetadata }
-  | { kind: "error"; message: string };
+  | { kind: "loading-metadata" }
+  | { kind: "metadata-error"; message: string }
+  | {
+      kind: "loaded";
+      videoId: string;
+      metadata: OembedMetadata;
+      transcript: TranscriptState;
+    };
 
 export function UrlInput() {
   const [url, setUrl] = useState("");
@@ -19,7 +31,10 @@ export function UrlInput() {
     const trimmed = url.trim();
     if (!trimmed) return;
 
-    setState({ kind: "loading" });
+    setState({ kind: "loading-metadata" });
+
+    let videoId: string;
+    let metadata: OembedMetadata;
     try {
       const response = await fetch(
         `/api/oembed?url=${encodeURIComponent(trimmed)}`,
@@ -30,27 +45,77 @@ export function UrlInput() {
 
       if (!response.ok) {
         const message = "error" in data ? data.error : "Unknown error.";
-        setState({ kind: "error", message });
+        setState({ kind: "metadata-error", message });
         return;
       }
       if (!("metadata" in data)) {
-        setState({ kind: "error", message: "Malformed response." });
+        setState({ kind: "metadata-error", message: "Malformed response." });
+        return;
+      }
+      videoId = data.videoId;
+      metadata = data.metadata;
+    } catch {
+      setState({
+        kind: "metadata-error",
+        message: "Network error. Please try again.",
+      });
+      return;
+    }
+
+    setState({
+      kind: "loaded",
+      videoId,
+      metadata,
+      transcript: { kind: "loading" },
+    });
+
+    try {
+      const response = await fetch(
+        `/api/transcript?videoId=${encodeURIComponent(videoId)}`,
+      );
+      const data = (await response.json()) as
+        | { segments: TranscriptSegment[] }
+        | { error: string; kind?: string };
+
+      if (!response.ok) {
+        const message = "error" in data ? data.error : "Failed to load transcript.";
+        setState({
+          kind: "loaded",
+          videoId,
+          metadata,
+          transcript: { kind: "error", message },
+        });
+        return;
+      }
+      if (!("segments" in data)) {
+        setState({
+          kind: "loaded",
+          videoId,
+          metadata,
+          transcript: { kind: "error", message: "Malformed transcript response." },
+        });
         return;
       }
       setState({
-        kind: "success",
-        videoId: data.videoId,
-        metadata: data.metadata,
+        kind: "loaded",
+        videoId,
+        metadata,
+        transcript: { kind: "ready", segments: data.segments },
       });
     } catch {
       setState({
-        kind: "error",
-        message: "Network error. Please try again.",
+        kind: "loaded",
+        videoId,
+        metadata,
+        transcript: {
+          kind: "error",
+          message: "Network error fetching transcript.",
+        },
       });
     }
   }
 
-  const submitDisabled = state.kind === "loading" || !url.trim();
+  const submitDisabled = state.kind === "loading-metadata" || !url.trim();
 
   return (
     <div className="flex flex-col gap-5">
@@ -68,21 +133,41 @@ export function UrlInput() {
           disabled={submitDisabled}
           className="rounded-md bg-foreground px-5 py-3 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {state.kind === "loading" ? "Fetching…" : "Audit"}
+          {state.kind === "loading-metadata" ? "Fetching…" : "Audit"}
         </button>
       </form>
 
-      {state.kind === "error" && (
-        <p
-          role="alert"
-          className="text-sm text-red-600 dark:text-red-400"
-        >
+      {state.kind === "metadata-error" && (
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
           {state.message}
         </p>
       )}
 
-      {state.kind === "success" && (
-        <VideoCard videoId={state.videoId} metadata={state.metadata} />
+      {state.kind === "loaded" && (
+        <>
+          <VideoCard videoId={state.videoId} metadata={state.metadata} />
+
+          {state.transcript.kind === "loading" && (
+            <p className="text-sm text-foreground/50">Loading transcript…</p>
+          )}
+
+          {state.transcript.kind === "error" && (
+            <div className="rounded-lg border border-foreground/10 bg-foreground/[0.02] p-4 text-sm">
+              <p className="text-foreground/80">{state.transcript.message}</p>
+              <p className="mt-1 text-xs text-foreground/50">
+                Auditing requires a transcript. This video can&rsquo;t be
+                audited until captions are available.
+              </p>
+            </div>
+          )}
+
+          {state.transcript.kind === "ready" && (
+            <TranscriptView
+              videoId={state.videoId}
+              segments={state.transcript.segments}
+            />
+          )}
+        </>
       )}
     </div>
   );
