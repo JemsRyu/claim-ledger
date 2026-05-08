@@ -43,14 +43,14 @@ export default function Home() {
           </a>
           <span aria-hidden>·</span>
           <a
-            href="https://github.com/JemsRyu/claim-ledger/blob/master/DESIGN.md"
+            href="https://github.com/JemsRyu/claim-ledger/blob/main/DESIGN.md"
             className="underline decoration-foreground/30 underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground"
           >
             Design
           </a>
           <span aria-hidden>·</span>
           <a
-            href="https://github.com/JemsRyu/claim-ledger/blob/master/PLAN.md"
+            href="https://github.com/JemsRyu/claim-ledger/blob/main/PLAN.md"
             className="underline decoration-foreground/30 underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground"
           >
             Plan

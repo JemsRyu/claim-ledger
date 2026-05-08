@@ -2,13 +2,15 @@
 
 > Claim auditor for informational video. Paste any informational YouTube URL → get a structured ledger of every factual claim being made, with verbatim quotes, click-to-verify timestamps, and adversarial flags.
 
+**Live:** https://claim-ledger.vercel.app/
+
 This is a portfolio project — a recruiter-facing demo built to communicate, in 60 seconds, what disciplined LLM engineering looks like on a non-trivial problem.
 
 It is **not** an AI summarizer, not a fact-checker, and not a misinformation classifier. It surfaces the *structure of claims being made* in a video, leaves judgment to the reader, and refuses to show a claim it cannot ground in a verbatim transcript span.
 
 ## Status
 
-Phase 1 — scaffolding. Pipeline runs on mocked fixtures. Live URL coming once Vercel is connected.
+Phase 1 — scaffolding. Pipeline runs on mocked fixtures. Audit UI is being built chunk by chunk per [`PLAN.md`](./PLAN.md).
 
 | Phase | What it covers | State |
 |---|---|---|
