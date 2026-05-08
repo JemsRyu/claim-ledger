@@ -6,6 +6,8 @@ import type {
   ValidatedClaim,
 } from "@/lib/lens/types";
 import { ClaimCard } from "./ClaimCard";
+import { LensProgress } from "./LensProgress";
+import { EmptyAudit } from "./EmptyAudit";
 
 type LedgerState =
   | {
@@ -159,17 +161,7 @@ export function Ledger({ videoId }: { videoId: string }) {
   }, [videoId]);
 
   if (state.status === "no-audit-applicable") {
-    return (
-      <section
-        aria-label="Audit result"
-        className="rounded-lg border border-foreground/10 bg-foreground/[0.02] p-5 text-sm leading-relaxed text-foreground/70"
-      >
-        <p className="mb-1 font-mono text-[11px] uppercase tracking-wider text-foreground/50">
-          No audit applicable
-        </p>
-        <p className="text-foreground/80">{state.message}</p>
-      </section>
-    );
+    return <EmptyAudit reason={state.message} />;
   }
 
   if (state.status === "no-transcript") {
@@ -201,19 +193,11 @@ export function Ledger({ videoId }: { videoId: string }) {
           Claim ledger
         </h2>
         <span className="font-mono text-[11px] tabular-nums text-foreground/40">
-          {state.status === "extracting" && "extracting…"}
-          {state.status === "classifying" && "classifying…"}
-          {state.status === "done" && `${state.claims.length} claims`}
+          {state.status === "done" ? `${state.claims.length} claims` : " "}
         </span>
       </header>
 
-      {state.claims.length === 0 && state.status !== "done" && (
-        <p className="text-sm text-foreground/50">
-          {state.status === "extracting"
-            ? "Reading transcript and identifying factual claims…"
-            : "Classifying claims…"}
-        </p>
-      )}
+      <LensProgress status={state.status} />
 
       {state.claims.length === 0 && state.status === "done" && (
         <p className="text-sm text-foreground/60">
