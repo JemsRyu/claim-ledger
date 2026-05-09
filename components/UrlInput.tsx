@@ -177,12 +177,26 @@ export function UrlInput() {
           )}
 
           {state.transcript.kind === "error" && (
-            <div className="rounded-lg border border-foreground/10 bg-foreground/[0.02] p-4 text-sm">
-              <p className="text-foreground/80">{state.transcript.message}</p>
-              <p className="mt-1 text-xs text-foreground/50">
-                Auditing requires a transcript. This video can&rsquo;t be
-                audited until captions are available.
-              </p>
+            <div className="flex flex-col gap-3 rounded-lg border border-foreground/10 bg-foreground/[0.02] p-4 text-sm">
+              <div>
+                <p className="text-foreground/80">
+                  {state.transcript.message}
+                </p>
+                <p className="mt-1 text-xs text-foreground/50">
+                  Auditing requires a transcript. This video can&rsquo;t be
+                  audited right now.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setUrl("");
+                  setState({ kind: "idle" });
+                }}
+                className="self-start rounded-md border border-foreground/20 bg-foreground/[0.04] px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:border-foreground/40 hover:bg-foreground/[0.08]"
+              >
+                ← Try a curated sample instead
+              </button>
             </div>
           )}
 
