@@ -6,7 +6,8 @@ import {
 } from "@/lib/lens/mock-fixtures";
 import { fetchTranscript, TranscriptError } from "@/lib/youtube/transcript";
 import { validateClaim } from "@/lib/lens/timestamp-validator";
-import type { AuditEvent, ValidatedClaim } from "@/lib/lens/types";
+import { extractClaims, ExtractionError } from "@/lib/lens/extract";
+import type { AuditEvent, RawClaim, ValidatedClaim } from "@/lib/lens/types";
 
 const VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$|^MOCK_[A-Z]+$/;
 
@@ -67,12 +68,35 @@ export async function GET(request: NextRequest) {
         send({ type: "transcript-ready", segmentCount: transcript.length });
         await sleep(200);
 
-        const rawClaims = synthesizeRawClaims(transcript, 4);
+        // Try real Sonnet 4.6 extraction first; fall back to the synthesizer
+        // on any SDK error (no key, no credits, rate limit, network).
+        // The fallback keeps the demo working regardless of API state.
+        let rawClaims: RawClaim[];
+        let extractionMode: "live" | "synthesizer" = "live";
+        try {
+          rawClaims = await extractClaims(transcript);
+        } catch (error) {
+          extractionMode = "synthesizer";
+          if (error instanceof ExtractionError) {
+            console.warn(
+              `[audit] live extraction failed (${error.kind}): ${error.message}. Falling back to synthesizer.`,
+            );
+          } else {
+            console.warn(
+              "[audit] live extraction threw unexpectedly. Falling back to synthesizer.",
+              error,
+            );
+          }
+          rawClaims = synthesizeRawClaims(transcript, 4);
+        }
+
         if (rawClaims.length === 0) {
           send({
             type: "no-audit-applicable",
             reason:
-              "Transcript is too short or sparse to identify factual claims.",
+              extractionMode === "live"
+                ? "The auditor surfaces factual claims, and none were identified. Likely non-informational content (narrative, performance, music)."
+                : "Transcript too short or sparse to demonstrate the audit on this video.",
           });
           send({ type: "done" });
           controller.close();
