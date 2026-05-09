@@ -5,6 +5,7 @@ import { ADVERSARIAL_FLAGS } from "./types";
 
 const MODEL_ID = "claude-haiku-4-5";
 const MAX_OUTPUT_TOKENS = 256;
+const REQUEST_TIMEOUT_MS = 20_000;
 
 const SYSTEM_PROMPT = `You are a classification lens for a YouTube claim auditor.
 
@@ -84,7 +85,7 @@ export async function classifyClaim(
   }
   if (transcript.length === 0) return [];
 
-  const client = new Anthropic();
+  const client = new Anthropic({ timeout: REQUEST_TIMEOUT_MS, maxRetries: 1 });
   const transcriptText = buildTranscriptText(transcript);
   const claimSection = `Claim to evaluate:\n  Paraphrase: ${claim.claim}\n  Verbatim quote: "${claim.matchedText}"`;
 

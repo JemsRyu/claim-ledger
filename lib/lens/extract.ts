@@ -4,6 +4,7 @@ import type { RawClaim } from "./types";
 
 const MODEL_ID = "claude-sonnet-4-6";
 const MAX_OUTPUT_TOKENS = 8192;
+const REQUEST_TIMEOUT_MS = 30_000;
 
 const SYSTEM_PROMPT = `You are an extraction lens for a YouTube claim auditor.
 
@@ -100,7 +101,7 @@ export async function extractClaims(
   }
   if (transcript.length === 0) return [];
 
-  const client = new Anthropic();
+  const client = new Anthropic({ timeout: REQUEST_TIMEOUT_MS, maxRetries: 1 });
   const transcriptText = buildTranscriptText(transcript);
 
   let response;
