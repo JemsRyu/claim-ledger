@@ -8,6 +8,10 @@ import {
 } from "youtube-transcript";
 import { fetchTranscriptViaIo, TranscriptIoError } from "./transcript-io";
 import { TRANSCRIPT_FIXTURES } from "@/lib/samples/transcripts";
+import {
+  getCachedTranscript,
+  setCachedTranscript,
+} from "./transcript-cache";
 
 export type TranscriptSegment = {
   text: string;
@@ -61,6 +65,21 @@ export async function fetchTranscript(
     return fixture;
   }
 
+  // In-memory cache (per warm-start function instance) — saves .io quota
+  // when the same video is audited multiple times in a session.
+  const cached = getCachedTranscript(videoId);
+  if (cached) {
+    return cached;
+  }
+
+  const segments = await fetchUncached(videoId);
+  setCachedTranscript(videoId, segments);
+  return segments;
+}
+
+async function fetchUncached(
+  videoId: string,
+): Promise<TranscriptSegment[]> {
   const hasToken = !!process.env.YT_TRANSCRIPT_IO_TOKEN;
 
   // Tier 1: youtube-transcript.io — works on Vercel
