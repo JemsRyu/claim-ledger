@@ -22,7 +22,9 @@ import WSKi8HfcxEk from "./WSKi8HfcxEk.json";
  *     import { writeFileSync } from 'fs';
  *     const ids = ['<videoId1>', '<videoId2>'];
  *     for (const id of ids) {
- *       const raw = await YoutubeTranscript.fetchTranscript(id);
+ *       // { lang: 'en' } is critical — multi-language videos default to
+ *       // alphabetically-first track (often Arabic/Bangla), not English.
+ *       const raw = await YoutubeTranscript.fetchTranscript(id, { lang: 'en' });
  *       const segments = raw.map(s => ({
  *         text: s.text,
  *         startSeconds: s.offset / 1000,
