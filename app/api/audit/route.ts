@@ -29,6 +29,25 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Race a promise against a timeout. Returns the resolved value, or rejects
+ * with a timeout error if the deadline passes first. Belt-and-suspenders
+ * guard above the per-SDK timeouts in extract.ts and classify.ts — if a
+ * downstream SDK hangs without honoring its own timeout, the audit
+ * pipeline still moves on.
+ */
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(
+        () => reject(new Error(`${label} exceeded ${ms}ms hard timeout`)),
+        ms,
+      ),
+    ),
+  ]);
+}
+
 export async function GET(request: NextRequest) {
   const videoId = request.nextUrl.searchParams.get("videoId");
   if (!videoId || !VIDEO_ID_PATTERN.test(videoId)) {
@@ -81,12 +100,16 @@ export async function GET(request: NextRequest) {
         await sleep(200);
 
         // Try real Sonnet 4.6 extraction first; fall back to the synthesizer
-        // on any SDK error (no key, no credits, rate limit, network).
-        // The fallback keeps the demo working regardless of API state.
+        // on any SDK error (no key, no credits, rate limit, network) or
+        // hard timeout. The fallback keeps the demo working regardless.
         let rawClaims: RawClaim[];
         let extractionMode: "live" | "synthesizer" = "live";
         try {
-          rawClaims = await extractClaims(transcript);
+          rawClaims = await withTimeout(
+            extractClaims(transcript),
+            45_000,
+            "extractClaims",
+          );
         } catch (error) {
           extractionMode = "synthesizer";
           if (error instanceof ExtractionError) {
@@ -141,7 +164,11 @@ export async function GET(request: NextRequest) {
         const flagResults = await Promise.all(
           validated.map(async (claim, i) => {
             try {
-              return await classifyClaim(transcript, claim);
+              return await withTimeout(
+                classifyClaim(transcript, claim),
+                30_000,
+                `classify ${claim.id}`,
+              );
             } catch (error) {
               if (error instanceof ClassificationError) {
                 console.warn(
