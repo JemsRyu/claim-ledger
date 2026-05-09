@@ -8,6 +8,22 @@ Chunked into focused work sessions. Each chunk has a single goal, named files it
 
 Total estimated effort: 16–22 hours of focused time, spread across ~12 chunks. Each chunk is committable.
 
+## Status (2026-05-09)
+
+| Phase | Chunk | State |
+|---|---|---|
+| 1 | P1.1–P1.8 | ✅ all 8 complete |
+| 2 | P2.1 — Sonnet extraction | ✅ wired with synthesizer fallback |
+| 2 | P2.2 — Haiku classification | ✅ wired with mock-flag fallback |
+| 2 | P2.3 — live run + prompt tuning | pending: needs sample-by-sample iteration with credits live |
+| 2 | P2.4 — demo recording | pending P2.3 |
+
+Bonus work that landed alongside the plan:
+- youtube-transcript.io as the primary transcript source (works on Vercel; the npm package alone fails 9-of-10 popular videos due to YouTube's cloud-IP blocking).
+- Build-time fixtures for the curated sample set (Tier 0 — instant, free, can never fail).
+- 5-minute in-memory transcript cache (saves .io quota on repeat audits).
+- /api/audit on Edge runtime (300s streaming budget vs Hobby's 10s for Node functions).
+
 ---
 
 ## Phase 1 — Scaffold to mocked end-to-end
