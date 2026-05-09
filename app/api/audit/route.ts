@@ -7,7 +7,13 @@ import {
 import { fetchTranscript, TranscriptError } from "@/lib/youtube/transcript";
 import { validateClaim } from "@/lib/lens/timestamp-validator";
 import { extractClaims, ExtractionError } from "@/lib/lens/extract";
-import type { AuditEvent, RawClaim, ValidatedClaim } from "@/lib/lens/types";
+import { classifyClaim, ClassificationError } from "@/lib/lens/classify";
+import type {
+  AdversarialFlag,
+  AuditEvent,
+  RawClaim,
+  ValidatedClaim,
+} from "@/lib/lens/types";
 
 const VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$|^MOCK_[A-Z]+$/;
 
@@ -121,11 +127,36 @@ export async function GET(request: NextRequest) {
         send({ type: "lens-start", lens: "classification" });
         await sleep(300);
 
+        // Classify all claims in parallel via Haiku 4.5. Each call is
+        // independent — one failure doesn't block the others; that claim
+        // gets mock flags as fallback. Emit events sequentially with
+        // small spacing so the UI shows the progressive-classification
+        // animation rather than a burst.
+        const flagResults = await Promise.all(
+          validated.map(async (claim, i) => {
+            try {
+              return await classifyClaim(transcript, claim);
+            } catch (error) {
+              if (error instanceof ClassificationError) {
+                console.warn(
+                  `[audit] classify ${claim.id} failed (${error.kind}): ${error.message}. Using mock flags.`,
+                );
+              } else {
+                console.warn(
+                  `[audit] classify ${claim.id} threw unexpectedly. Using mock flags.`,
+                  error,
+                );
+              }
+              return mockFlagsForIndex(i) as AdversarialFlag[];
+            }
+          }),
+        );
+
         for (let i = 0; i < validated.length; i++) {
           send({
             type: "classified",
             claimId: validated[i].id,
-            flags: mockFlagsForIndex(i),
+            flags: flagResults[i],
           });
           await sleep(150);
         }
