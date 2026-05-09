@@ -55,32 +55,58 @@ type RawSegment = {
 export async function fetchTranscript(
   videoId: string,
 ): Promise<TranscriptSegment[]> {
+  const hasToken = !!process.env.YT_TRANSCRIPT_IO_TOKEN;
+
   // Tier 1: youtube-transcript.io — works on Vercel
-  if (process.env.YT_TRANSCRIPT_IO_TOKEN) {
+  let ioError: TranscriptIoError | null = null;
+  if (hasToken) {
     try {
       return await fetchTranscriptViaIo(videoId);
     } catch (error) {
-      if (
-        error instanceof TranscriptIoError &&
-        error.kind === "no-transcript"
-      ) {
-        throw new TranscriptError(
-          "disabled",
-          404,
-          "This video has no captions available.",
+      if (error instanceof TranscriptIoError) {
+        ioError = error;
+        if (error.kind === "no-transcript") {
+          throw new TranscriptError(
+            "disabled",
+            404,
+            "This video has no captions available.",
+          );
+        }
+        console.warn(
+          `[transcript] youtube-transcript.io failed (${error.kind}): ${error.message}. Falling back to direct.`,
         );
+      } else {
+        throw error;
       }
-      // Other .io errors (rate-limited, auth, upstream) fall through to direct
-      console.warn(
-        `[transcript] youtube-transcript.io failed (${
-          error instanceof TranscriptIoError ? error.kind : "unknown"
-        }): ${error instanceof Error ? error.message : "?"}. Falling back to direct.`,
-      );
     }
   }
 
   // Tier 2: direct via youtube-transcript npm package
-  return fetchDirectly(videoId);
+  try {
+    return await fetchDirectly(videoId);
+  } catch (directError) {
+    // If both .io and direct failed, surface the .io error — it's far more
+    // informative than direct's "no captions enabled" (which on Vercel is
+    // a bot-detection masquerade, not the literal cause).
+    if (ioError) {
+      throw new TranscriptError(
+        "unknown",
+        502,
+        `Primary source (youtube-transcript.io) failed: ${ioError.kind} — ${ioError.message}`,
+      );
+    }
+    if (!hasToken) {
+      // Surface the no-token case so the user can see why the .io path was skipped.
+      if (directError instanceof TranscriptError && directError.kind === "disabled") {
+        throw new TranscriptError(
+          "disabled",
+          404,
+          "Direct fetch failed (likely YouTube blocking serverless egress) and no YT_TRANSCRIPT_IO_TOKEN env var is set to use the third-party fallback.",
+        );
+      }
+    }
+    throw directError;
+  }
 }
 
 async function fetchDirectly(
