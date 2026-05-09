@@ -1,1298 +1,1718 @@
 [
   {
-    "text": "هذه صورة للرقم ثلاثة.",
+    "text": "This is a 3.",
     "startSeconds": 4.22,
     "durationSeconds": 1.18,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "مرسومة بإهمال و مكوّنة فقط ٢٨ * ٢٨ بكسل. و لكن أريدك أن تقدّر كيف باستطاعة عقلك،",
+    "text": "It's sloppily written and rendered at an extremely low resolution of 28x28 pixels,",
     "startSeconds": 6.06,
-    "durationSeconds": 7.66,
-    "lang": "ar"
+    "durationSeconds": 4.653,
+    "lang": "en"
   },
   {
-    "text": "رغم ذلك، الإدراك أنّها الرقم ثلاثة. بكل سهولة و دون أي مجهود.",
+    "text": "but your brain has no trouble recognizing it as a 3.",
+    "startSeconds": 10.713,
+    "durationSeconds": 3.007,
+    "lang": "en"
+  },
+  {
+    "text": "And I want you to take a moment to appreciate how",
     "startSeconds": 14.34,
-    "durationSeconds": 4.62,
-    "lang": "ar"
+    "durationSeconds": 2.219,
+    "lang": "en"
   },
   {
-    "text": "مثلًا، هذه الصور جميعًا تقرأ أيضًا كالرّقم ثلاثة",
+    "text": "crazy it is that brains can do this so effortlessly.",
+    "startSeconds": 16.559,
+    "durationSeconds": 2.401,
+    "lang": "en"
+  },
+  {
+    "text": "I mean, this, this and this are also recognizable as 3s,",
     "startSeconds": 19.7,
-    "durationSeconds": 4.266,
-    "lang": "ar"
+    "durationSeconds": 3.262,
+    "lang": "en"
   },
   {
-    "text": "على الرّغم من أنّ قيم البكسلات فيها مختلفة جدّا.",
-    "startSeconds": 23.966,
-    "durationSeconds": 4.354,
-    "lang": "ar"
+    "text": "even though the specific values of each pixel is very different from one",
+    "startSeconds": 22.962,
+    "durationSeconds": 4.251,
+    "lang": "en"
   },
   {
-    "text": "الخلايا الحساسة للضّوء في عينيك التّي تفعّل عند رؤيتك",
+    "text": "image to the next.",
+    "startSeconds": 27.213,
+    "durationSeconds": 1.107,
+    "lang": "en"
+  },
+  {
+    "text": "The particular light-sensitive cells in your eye that are firing when you",
     "startSeconds": 28.9,
-    "durationSeconds": 4.02,
-    "lang": "ar"
+    "durationSeconds": 4.048,
+    "lang": "en"
   },
   {
-    "text": "لهذه الصّورة تختلف عن تلك الّتي تعمل عند رؤيتك لهذه.",
-    "startSeconds": 32.92,
-    "durationSeconds": 4.02,
-    "lang": "ar"
+    "text": "see this 3 are very different from the ones firing when you see this 3.",
+    "startSeconds": 32.948,
+    "durationSeconds": 3.992,
+    "lang": "en"
   },
   {
-    "text": "و لكن أمرًا ما في القشرة البصريّة في عقلك ذكي كفاية ليقدّر أنّ الصّورتين",
+    "text": "But something in that crazy-smart visual cortex of yours resolves these as representing",
     "startSeconds": 37.52,
-    "durationSeconds": 5.333,
-    "lang": "ar"
+    "durationSeconds": 5.22,
+    "lang": "en"
   },
   {
-    "text": "تمثّل نفس الفكرة، بينما هاتين الصّورتين هي أرقام مختلفة عن الرّقم ثلاثة.",
-    "startSeconds": 42.853,
-    "durationSeconds": 5.407,
-    "lang": "ar"
+    "text": "the same idea, while at the same time recognizing other images as their own distinct",
+    "startSeconds": 42.74,
+    "durationSeconds": 5.1,
+    "lang": "en"
   },
   {
-    "text": "مع ذلك، إذا طلبت منك أن تجلس وتكتب برنامج حاسوبي يقرأ شبكة بكسلات",
+    "text": "ideas.",
+    "startSeconds": 47.84,
+    "durationSeconds": 0.5,
+    "lang": "en"
+  },
+  {
+    "text": "But if I told you, hey, sit down and write for me a program that takes in a grid of",
     "startSeconds": 49.22,
-    "durationSeconds": 5.54,
-    "lang": "ar"
+    "durationSeconds": 5.414,
+    "lang": "en"
   },
   {
-    "text": "بحجم ٢٨ في الطول والعرض،  ومن ثمّ يستنتج الرّقم المكتوب من صفر إلى",
-    "startSeconds": 54.76,
-    "durationSeconds": 5.71,
-    "lang": "ar"
+    "text": "28x28 pixels like this and outputs a single number between 0 and 10,",
+    "startSeconds": 54.634,
+    "durationSeconds": 4.501,
+    "lang": "en"
   },
   {
-    "text": "تسعة،  تتحوّل الظاهرة من أمر يبدو بسيط إلى مهمّة في غاية الصّعوبة.",
-    "startSeconds": 60.47,
-    "durationSeconds": 5.71,
-    "lang": "ar"
+    "text": "telling you what it thinks the digit is, well the task goes from comically trivial to",
+    "startSeconds": 59.135,
+    "durationSeconds": 5.61,
+    "lang": "en"
   },
   {
-    "text": "إلّا إذا كنت من كوكب آخر، فلا داعي لأن أشرح قيمة و أهميّة",
+    "text": "dauntingly difficult.",
+    "startSeconds": 64.745,
+    "durationSeconds": 1.435,
+    "lang": "en"
+  },
+  {
+    "text": "Unless you've been living under a rock, I think I hardly need to motivate the relevance",
     "startSeconds": 67.16,
-    "durationSeconds": 3.524,
-    "lang": "ar"
+    "durationSeconds": 3.697,
+    "lang": "en"
   },
   {
-    "text": "التعلّم الآلي و الشّبكات العصبيّة على العالم الحاضر و المستقبل.",
-    "startSeconds": 70.684,
-    "durationSeconds": 3.956,
-    "lang": "ar"
+    "text": "and importance of machine learning and neural networks to the present and to the future.",
+    "startSeconds": 70.857,
+    "durationSeconds": 3.783,
+    "lang": "en"
   },
   {
-    "text": "ما أوّد فعله هو تفصيل لك معنى الشّبكة العصبيّة ، دون افتراض أي علم",
+    "text": "But what I want to do here is show you what a neural network actually is,",
     "startSeconds": 75.12,
-    "durationSeconds": 4.435,
-    "lang": "ar"
+    "durationSeconds": 3.83,
+    "lang": "en"
   },
   {
-    "text": "مسبق، ومساعدتك على فهم عملها، بلغة الرّياضيّات وليس فقط ك مصطلحات شائعة.",
-    "startSeconds": 79.555,
-    "durationSeconds": 4.905,
-    "lang": "ar"
+    "text": "assuming no background, and to help visualize what it's doing,",
+    "startSeconds": 78.95,
+    "durationSeconds": 3.306,
+    "lang": "en"
   },
   {
-    "text": "و أنا أتأمّل أن تشعر بعدها أنّ البنية بنفسها منطقية و أنّك تفهم ما يقصد",
+    "text": "not as a buzzword but as a piece of math.",
+    "startSeconds": 82.256,
+    "durationSeconds": 2.204,
+    "lang": "en"
+  },
+  {
+    "text": "My hope is that you come away feeling like the structure itself is motivated,",
     "startSeconds": 85.02,
-    "durationSeconds": 4.761,
-    "lang": "ar"
+    "durationSeconds": 3.757,
+    "lang": "en"
   },
   {
-    "text": "عندما تقرأ أو تسمع عن الشّبكات العصبيّة  وتعليمها، بالمعنى المجازي.",
-    "startSeconds": 89.781,
-    "durationSeconds": 4.559,
-    "lang": "ar"
+    "text": "and to feel like you know what it means when you read,",
+    "startSeconds": 88.777,
+    "durationSeconds": 2.684,
+    "lang": "en"
   },
   {
-    "text": "هذا الفيديو سيركّز على بنية الشّبكة العصبيّة، و",
+    "text": "or you hear about a neural network quote-unquote learning.",
+    "startSeconds": 91.461,
+    "durationSeconds": 2.879,
+    "lang": "en"
+  },
+  {
+    "text": "This video is just going to be devoted to the structure component of that,",
     "startSeconds": 95.36,
-    "durationSeconds": 2.374,
-    "lang": "ar"
+    "durationSeconds": 2.901,
+    "lang": "en"
   },
   {
-    "text": "الفيديو التّالي في السلسلة سيعالج آليّة  تعليمها.",
-    "startSeconds": 97.734,
-    "durationSeconds": 2.526,
-    "lang": "ar"
+    "text": "and the following one is going to tackle learning.",
+    "startSeconds": 98.261,
+    "durationSeconds": 1.999,
+    "lang": "en"
   },
   {
-    "text": "ما سنفعله هو بناء شبكة عصبيّة قادرة أن تتعلّم كيفيّة التعرّف إلى الأرقام المرسومة.",
+    "text": "What we're going to do is put together a neural",
     "startSeconds": 100.96,
-    "durationSeconds": 5.08,
-    "lang": "ar"
+    "durationSeconds": 2.318,
+    "lang": "en"
   },
   {
-    "text": "هذا مثال كلاسيكي لتقديم الموضوع و سأتبعه لأنّه في نهاية الفيديوهين، أريد أن أشارك بعض",
+    "text": "network that can learn to recognize handwritten digits.",
+    "startSeconds": 103.278,
+    "durationSeconds": 2.762,
+    "lang": "en"
+  },
+  {
+    "text": "This is a somewhat classic example for introducing the topic,",
     "startSeconds": 109.36,
-    "durationSeconds": 6.479,
-    "lang": "ar"
+    "durationSeconds": 2.7,
+    "lang": "en"
   },
   {
-    "text": "الموارد الجيّدة لتعلّم المزيد، وكيف يمكنك تنزيل البرامج المستعملة و اكتشافها على حاسوبك",
-    "startSeconds": 115.839,
-    "durationSeconds": 6.707,
-    "lang": "ar"
+    "text": "and I'm happy to stick with the status quo here,",
+    "startSeconds": 112.06,
+    "durationSeconds": 2.168,
+    "lang": "en"
   },
   {
-    "text": "الخاص.",
-    "startSeconds": 122.546,
-    "durationSeconds": 0.534,
-    "lang": "ar"
+    "text": "because at the end of the two videos I want to point you to a couple good",
+    "startSeconds": 114.228,
+    "durationSeconds": 3.275,
+    "lang": "en"
   },
   {
-    "text": "هناك العديد من الأشكال المختلفة للشبكات العصبيّة.",
+    "text": "resources where you can learn more, and where you can download the code that",
+    "startSeconds": 117.503,
+    "durationSeconds": 3.408,
+    "lang": "en"
+  },
+  {
+    "text": "does this and play with it on your own computer.",
+    "startSeconds": 120.911,
+    "durationSeconds": 2.169,
+    "lang": "en"
+  },
+  {
+    "text": "There are many many variants of neural networks,",
     "startSeconds": 125.04,
-    "durationSeconds": 3.347,
-    "lang": "ar"
+    "durationSeconds": 2.621,
+    "lang": "en"
   },
   {
-    "text": "وفي السّنوات الأخيرة ازدهرت الجهود المكرّسة للبحث في هذه الأشكال.",
-    "startSeconds": 128.387,
-    "durationSeconds": 4.509,
-    "lang": "ar"
+    "text": "and in recent years there's been sort of a boom in research towards these variants,",
+    "startSeconds": 127.661,
+    "durationSeconds": 4.585,
+    "lang": "en"
   },
   {
-    "text": "ولكن في هذين الفيديوهين، سنقوم بالنظر إلى أبسط بنية بدون إضافات معقّدة،",
-    "startSeconds": 132.896,
-    "durationSeconds": 4.918,
-    "lang": "ar"
+    "text": "but in these two introductory videos you and I are just going to look at the simplest",
+    "startSeconds": 132.246,
+    "durationSeconds": 4.696,
+    "lang": "en"
   },
   {
-    "text": "أي البنية الفانيلا.",
-    "startSeconds": 137.814,
-    "durationSeconds": 1.366,
-    "lang": "ar"
+    "text": "plain vanilla form with no added frills.",
+    "startSeconds": 136.942,
+    "durationSeconds": 2.238,
+    "lang": "en"
   },
   {
-    "text": "هذه خطوة ضرورية لفهم أي من البنيات الأحدث و الأقوى.",
+    "text": "This is kind of a necessary prerequisite for understanding any of the more powerful",
     "startSeconds": 139.86,
-    "durationSeconds": 3.207,
-    "lang": "ar"
+    "durationSeconds": 4.03,
+    "lang": "en"
   },
   {
-    "text": "ولكن رغم ذلك سيكون الأمر معقّدًا و يأخذ جهد لاستيعاب حتّى هذه الشّبكة العصبيّة البسيطة.",
-    "startSeconds": 143.067,
-    "durationSeconds": 5.533,
-    "lang": "ar"
+    "text": "modern variants, and trust me it still has plenty of complexity for us to wrap our minds",
+    "startSeconds": 143.89,
+    "durationSeconds": 4.322,
+    "lang": "en"
   },
   {
-    "text": "وهي تستطيع، رغم بساطتها، أن تتعلّم كيفيّة التعرّف",
+    "text": "around.",
+    "startSeconds": 148.212,
+    "durationSeconds": 0.5,
+    "lang": "en"
+  },
+  {
+    "text": "But even in this simplest form it can learn to recognize handwritten digits,",
     "startSeconds": 149.12,
-    "durationSeconds": 3.738,
-    "lang": "ar"
+    "durationSeconds": 4.075,
+    "lang": "en"
   },
   {
-    "text": "إلى أرقام مرسومة و هذه قدرة مفاجأة جدّا لحاسوب.",
-    "startSeconds": 152.858,
-    "durationSeconds": 3.662,
-    "lang": "ar"
+    "text": "which is a pretty cool thing for a computer to be able to do.",
+    "startSeconds": 153.195,
+    "durationSeconds": 3.325,
+    "lang": "en"
   },
   {
-    "text": "سنرى أيضا أين تقصّرهذة الشبكات ولا تمثّل الذكاء الفعلي الذي قد نطمح إليه.",
+    "text": "And at the same time you'll see how it does fall",
     "startSeconds": 157.48,
-    "durationSeconds": 4.8,
-    "lang": "ar"
+    "durationSeconds": 2.327,
+    "lang": "en"
   },
   {
-    "text": "الشّبكات العصبيّة مستوحاة من جهازنا العصبي، وعلى رأسه الدماغ، و لكن",
+    "text": "short of a couple hopes that we might have for it.",
+    "startSeconds": 159.807,
+    "durationSeconds": 2.473,
+    "lang": "en"
+  },
+  {
+    "text": "As the name suggests neural networks are inspired by the brain, but let's break that down.",
     "startSeconds": 163.38,
     "durationSeconds": 5.12,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "ما هي الخلايا العصبيّة و كيف ترتبط ببعضها البعض؟",
+    "text": "What are the neurons, and in what sense are they linked together?",
     "startSeconds": 168.52,
     "durationSeconds": 3.14,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "عندما أذكر خليّة عصبيّة، أريدك أن تتخيل خليّة تحمل رقمًا، وبالتحديد بين الصفر والواحد.",
+    "text": "Right now when I say neuron all I want you to think about is a thing that holds a number,",
     "startSeconds": 172.5,
-    "durationSeconds": 7.94,
-    "lang": "ar"
+    "durationSeconds": 5.521,
+    "lang": "en"
   },
   {
-    "text": "و هي بالفعل ليست أكثر من ذلك",
+    "text": "specifically a number between 0 and 1.",
+    "startSeconds": 178.021,
+    "durationSeconds": 2.419,
+    "lang": "en"
+  },
+  {
+    "text": "It's really not more than that.",
     "startSeconds": 180.68,
     "durationSeconds": 1.88,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "على سبيل المثال، شبكتنا هنا تبدأ ب ٧٨٤ خلية عصبية و",
+    "text": "For example the network starts with a bunch of neurons corresponding to",
     "startSeconds": 183.78,
-    "durationSeconds": 5.22,
-    "lang": "ar"
+    "durationSeconds": 5.042,
+    "lang": "en"
   },
   {
-    "text": "هي ترمز للبكسلات الموجودين في صورتنا من حجم ٢٨*٢٨.",
-    "startSeconds": 189,
-    "durationSeconds": 5.22,
-    "lang": "ar"
+    "text": "each of the 28x28 pixels of the input image, which is 784 neurons in total.",
+    "startSeconds": 188.822,
+    "durationSeconds": 5.398,
+    "lang": "en"
   },
   {
-    "text": "داخل كل خليّة رقم يمثّل التدرّج الرّمادي للبكسل المرتبطة بالخليّة.",
+    "text": "Each one of these holds a number that represents the grayscale value of the",
     "startSeconds": 194.7,
-    "durationSeconds": 4.376,
-    "lang": "ar"
+    "durationSeconds": 4.714,
+    "lang": "en"
   },
   {
-    "text": "وهو يمتد من الصفر في حال كانت البكسل سوداء إلى الواحد في حال كانت البكسل بيضاء.",
-    "startSeconds": 199.076,
-    "durationSeconds": 5.304,
-    "lang": "ar"
+    "text": "corresponding pixel, ranging from 0 for black pixels up to 1 for white pixels.",
+    "startSeconds": 199.414,
+    "durationSeconds": 4.966,
+    "lang": "en"
   },
   {
-    "text": "هذا الرّقم يسمّى تفعيل الخليّة، ويمكنّك التصوّر أن كل",
+    "text": "This number inside the neuron is called its activation,",
     "startSeconds": 205.3,
-    "durationSeconds": 4.515,
-    "lang": "ar"
+    "durationSeconds": 2.953,
+    "lang": "en"
   },
   {
-    "text": "خلية في الصّورة تضيء أسطع إذا ما كان تفعيلها أكبر.",
-    "startSeconds": 209.815,
-    "durationSeconds": 4.345,
-    "lang": "ar"
+    "text": "and the image you might have in mind here is that each neuron is lit up when its",
+    "startSeconds": 208.253,
+    "durationSeconds": 4.35,
+    "lang": "en"
   },
   {
-    "text": "إذاً، هذه ال٧٨٤ خليّة تشكّل الطبقة الأولى من شبكتنا العصبيّة",
+    "text": "activation is a high number.",
+    "startSeconds": 212.603,
+    "durationSeconds": 1.557,
+    "lang": "en"
+  },
+  {
+    "text": "So all of these 784 neurons make up the first layer of our network.",
     "startSeconds": 216.72,
     "durationSeconds": 5.14,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "أمّا الطبقة الأخيرة، هي تحتوي على ١٠ خلايا فقط، كلّ منها",
+    "text": "Now jumping over to the last layer, this has 10 neurons,",
     "startSeconds": 226.5,
-    "durationSeconds": 2.387,
-    "lang": "ar"
+    "durationSeconds": 2.926,
+    "lang": "en"
   },
   {
-    "text": "تشير إلى إحدى الأرقام اللّتي تهدف أن تتعرّف إليها الشبكة.",
-    "startSeconds": 228.887,
-    "durationSeconds": 2.473,
-    "lang": "ar"
+    "text": "each representing one of the digits.",
+    "startSeconds": 229.426,
+    "durationSeconds": 1.934,
+    "lang": "en"
   },
   {
-    "text": "تفعيل هذه الخلايا، و هو رقم بين ال٠ و ١  كما ذكرنا، يمثّل مدى",
+    "text": "The activation in these neurons, again some number that's between 0 and 1,",
     "startSeconds": 232.04,
-    "durationSeconds": 4.959,
-    "lang": "ar"
+    "durationSeconds": 4.576,
+    "lang": "en"
   },
   {
-    "text": "اعتقاد الشّبكة أنّ الصورة المدخلة تمثل الرقم المرتبط بالخليّة.",
-    "startSeconds": 236.999,
-    "durationSeconds": 5.121,
-    "lang": "ar"
+    "text": "represents how much the system thinks that a given image corresponds with a given digit.",
+    "startSeconds": 236.616,
+    "durationSeconds": 5.504,
+    "lang": "en"
   },
   {
-    "text": "هناك أيضًا طبقات ما بين الأولى و الأخيرة تسمّى الطبقات المخفيّة.",
+    "text": "There's also a couple layers in between called the hidden layers,",
     "startSeconds": 243.04,
-    "durationSeconds": 4.047,
-    "lang": "ar"
+    "durationSeconds": 3.381,
+    "lang": "en"
   },
   {
-    "text": "في الوقت الحاضر ستكون مجرّد علامة استفهام كبيرة نتسائل من خلالها عن كيفيّة تعرّف",
-    "startSeconds": 247.087,
-    "durationSeconds": 5.185,
-    "lang": "ar"
+    "text": "which for the time being should just be a giant question mark for",
+    "startSeconds": 246.421,
+    "durationSeconds": 3.434,
+    "lang": "en"
   },
   {
-    "text": "الشّبكة إلى الأرقام؟",
-    "startSeconds": 252.272,
-    "durationSeconds": 1.328,
-    "lang": "ar"
+    "text": "how on earth this process of recognizing digits is going to be handled.",
+    "startSeconds": 249.855,
+    "durationSeconds": 3.745,
+    "lang": "en"
   },
   {
-    "text": "هنا اخترت طبقتين مخفيتين، كلاهما من ١٦ خليّة. قد تستجوب اختياري العشوائي",
+    "text": "In this network I chose two hidden layers, each one with 16 neurons,",
     "startSeconds": 254.26,
-    "durationSeconds": 6.3,
-    "lang": "ar"
+    "durationSeconds": 3.6,
+    "lang": "en"
   },
   {
-    "text": "و لكن بصراحة اخترت طبقتين بناءً على نمط شرحي القادم",
+    "text": "and admittedly that's kind of an arbitrary choice.",
+    "startSeconds": 257.86,
+    "durationSeconds": 2.7,
+    "lang": "en"
+  },
+  {
+    "text": "To be honest I chose two layers based on how I want to motivate the structure in",
     "startSeconds": 261.02,
-    "durationSeconds": 3.98,
-    "lang": "ar"
+    "durationSeconds": 3.635,
+    "lang": "en"
   },
   {
-    "text": "و ١٦ خليّة فقط لأنّها تلائم حجم الشّاشة.",
-    "startSeconds": 265,
-    "durationSeconds": 3.2,
-    "lang": "ar"
+    "text": "just a moment, and 16, well that was just a nice number to fit on the screen.",
+    "startSeconds": 264.655,
+    "durationSeconds": 3.545,
+    "lang": "en"
   },
   {
-    "text": "عمليًّا، هناك الكثير من المجال لتجربة بنيات مختلفة هنا.",
+    "text": "In practice there is a lot of room for experiment with a specific structure here.",
     "startSeconds": 268.78,
     "durationSeconds": 3.56,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "تعمل الشّبكة بالتّوالي، التفعيلات في أي طبقة تحدد تفعيلات الطبقة اللّتي تليها.",
+    "text": "The way the network operates, activations in one",
     "startSeconds": 273.02,
-    "durationSeconds": 5.46,
-    "lang": "ar"
+    "durationSeconds": 2.647,
+    "lang": "en"
   },
   {
-    "text": "و طبعًا جوهر الشّبكة و هو في قدرتها على معالجة المعلومات",
+    "text": "layer determine the activations of the next layer.",
+    "startSeconds": 275.667,
+    "durationSeconds": 2.813,
+    "lang": "en"
+  },
+  {
+    "text": "And of course the heart of the network as an information processing mechanism comes down",
     "startSeconds": 279.2,
-    "durationSeconds": 4.49,
-    "lang": "ar"
+    "durationSeconds": 4.611,
+    "lang": "en"
   },
   {
-    "text": "يحول حول الآليّة  الدقيقة لحسابة التفعيلات من طبقة إلى أخرى.",
-    "startSeconds": 283.69,
-    "durationSeconds": 4.89,
-    "lang": "ar"
+    "text": "to exactly how those activations from one layer bring about activations in the next",
+    "startSeconds": 283.811,
+    "durationSeconds": 4.402,
+    "lang": "en"
   },
   {
-    "text": "من المفترض أن تشابه هذه الآليّة شبكات الخلايا العصبيّة",
+    "text": "layer.",
+    "startSeconds": 288.213,
+    "durationSeconds": 0.5,
+    "lang": "en"
+  },
+  {
+    "text": "It's meant to be loosely analogous to how in biological networks of neurons,",
     "startSeconds": 289.14,
-    "durationSeconds": 3.876,
-    "lang": "ar"
+    "durationSeconds": 4.493,
+    "lang": "en"
   },
   {
-    "text": "البيولوجيّة، حيث تفعيل بعض الخلايا يؤدّي إلى تفعيل غيرها.",
-    "startSeconds": 293.016,
-    "durationSeconds": 4.164,
-    "lang": "ar"
+    "text": "some groups of neurons firing cause certain others to fire.",
+    "startSeconds": 293.633,
+    "durationSeconds": 3.547,
+    "lang": "en"
   },
   {
-    "text": "الشبكة اللّتي نراها هنا قد تم تدريبها مسبقًا على",
+    "text": "Now the network I'm showing here has already been trained to recognize digits,",
     "startSeconds": 298.12,
-    "durationSeconds": 2.485,
-    "lang": "ar"
+    "durationSeconds": 3.461,
+    "lang": "en"
   },
   {
-    "text": "التعرّف على الأرقام من قبل، و دعني أريك ما أقصد بذلك.",
-    "startSeconds": 300.605,
-    "durationSeconds": 2.795,
-    "lang": "ar"
+    "text": "and let me show you what I mean by that.",
+    "startSeconds": 301.581,
+    "durationSeconds": 1.819,
+    "lang": "en"
   },
   {
-    "text": "هذا يعني أنّي إذا أدخلت إلى الشبكة صورة، و بالتالي أضئت كل من الخلايا ال٧٨٤ في الطبقة",
+    "text": "It means if you feed in an image, lighting up all 784 neurons of the input layer",
     "startSeconds": 303.64,
-    "durationSeconds": 6.346,
-    "lang": "ar"
+    "durationSeconds": 4.654,
+    "lang": "en"
   },
   {
-    "text": "الأولى حسب سطوع كل بكسل ، التّفعيلات في الطّبقة الأولى ستودّي إلى نمط تفعيل محدّد",
-    "startSeconds": 309.986,
-    "durationSeconds": 6.122,
-    "lang": "ar"
+    "text": "according to the brightness of each pixel in the image,",
+    "startSeconds": 308.294,
+    "durationSeconds": 3.257,
+    "lang": "en"
   },
   {
-    "text": "في الطّبقة الثّانية، وبالتّالي في الطّبقة الثالثة وأخيرًا في الطبقة النّهائيّة.",
-    "startSeconds": 316.108,
-    "durationSeconds": 5.972,
-    "lang": "ar"
+    "text": "that pattern of activations causes some very specific pattern in the next layer",
+    "startSeconds": 311.551,
+    "durationSeconds": 4.654,
+    "lang": "en"
   },
   {
-    "text": "و الخليّة الألمع في آخر طبقة هي، بمعنى الكلام،",
+    "text": "which causes some pattern in the one after it,",
+    "startSeconds": 316.205,
+    "durationSeconds": 2.734,
+    "lang": "en"
+  },
+  {
+    "text": "which finally gives some pattern in the output layer.",
+    "startSeconds": 318.939,
+    "durationSeconds": 3.141,
+    "lang": "en"
+  },
+  {
+    "text": "And the brightest neuron of that output layer is the network's choice,",
     "startSeconds": 322.56,
-    "durationSeconds": 3.383,
-    "lang": "ar"
+    "durationSeconds": 3.957,
+    "lang": "en"
   },
   {
-    "text": "جواب الشّبكة لما تظنّه الرقم الصحيح في الصورة.",
-    "startSeconds": 325.943,
-    "durationSeconds": 3.457,
-    "lang": "ar"
+    "text": "so to speak, for what digit this image represents.",
+    "startSeconds": 326.517,
+    "durationSeconds": 2.883,
+    "lang": "en"
   },
   {
-    "text": "قبل البدء بالرياضيّات و الشّرح المفصّل وراء التّدريب و كيف تحسب تفعيلات من طبقة إلى أخرى،",
+    "text": "And before jumping into the math for how one layer influences the next,",
     "startSeconds": 332.56,
-    "durationSeconds": 5.574,
-    "lang": "ar"
+    "durationSeconds": 3.777,
+    "lang": "en"
   },
   {
-    "text": "دعنا نتسائل ما اذا كان هدفنا منطقي. كيف نتوقّع بنية طبقية أن تتصرّف بطريقة شبه ذكيّة؟",
-    "startSeconds": 338.134,
-    "durationSeconds": 5.386,
-    "lang": "ar"
+    "text": "or how training works, let's just talk about why it's even reasonable",
+    "startSeconds": 336.337,
+    "durationSeconds": 3.725,
+    "lang": "en"
   },
   {
-    "text": "ما اللّذي ننتظره هنا ؟",
+    "text": "to expect a layered structure like this to behave intelligently.",
+    "startSeconds": 340.062,
+    "durationSeconds": 3.458,
+    "lang": "en"
+  },
+  {
+    "text": "What are we expecting here?",
     "startSeconds": 344.06,
     "durationSeconds": 1.16,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "ما الغاية فعليّا من الطبقات الوسطى؟",
+    "text": "What is the best hope for what those middle layers might be doing?",
     "startSeconds": 345.4,
     "durationSeconds": 2.2,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "عندما نقرأ الأرقام، إنًنا نجمع معًا عدّة أجزاء.",
+    "text": "Well, when you or I recognize digits, we piece together various components.",
     "startSeconds": 348.92,
     "durationSeconds": 4.6,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "مثلًا رقم ٩ مكوّن من حلقة مستديرة في الأعلى و تحتها خط على اليمين.",
+    "text": "A 9 has a loop up top and a line on the right.",
     "startSeconds": 354.2,
     "durationSeconds": 2.62,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "رقم ٨ أيضّا مكوّن من حلقة مستديرة و لكن أسفلها حلقة أخرى.",
+    "text": "An 8 also has a loop up top, but it's paired with another loop down low.",
     "startSeconds": 357.38,
     "durationSeconds": 3.8,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "رقم ٤ يتجزّأ إلى ثلاثة خطوط فقط، وما إلى آخره.",
+    "text": "A 4 basically breaks down into three specific lines, and things like that.",
     "startSeconds": 361.98,
     "durationSeconds": 4.84,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "في عالم مثالي، قد نأمل أن كل خليّة في الطّبقة ما قبل الأخيرة ترمز إلى",
+    "text": "Now in a perfect world, we might hope that each neuron in the second",
     "startSeconds": 367.6,
-    "durationSeconds": 5.393,
-    "lang": "ar"
+    "durationSeconds": 3.958,
+    "lang": "en"
   },
   {
-    "text": "واحدة من هذه الأجزاء، و أن كل مرّة ندخل إلى الشّبكة صورة مع حلقة في",
-    "startSeconds": 372.993,
-    "durationSeconds": 5.316,
-    "lang": "ar"
+    "text": "to last layer corresponds with one of these subcomponents,",
+    "startSeconds": 371.558,
+    "durationSeconds": 3.434,
+    "lang": "en"
   },
   {
-    "text": "الأعلى، مثلًا ٨ أو ٩، هناك خليّة محدّدة يصبح تفعيلها قريب إلى الواحد.",
-    "startSeconds": 378.309,
-    "durationSeconds": 5.471,
-    "lang": "ar"
+    "text": "that anytime you feed in an image with, say, a loop up top,",
+    "startSeconds": 374.992,
+    "durationSeconds": 3.492,
+    "lang": "en"
   },
   {
-    "text": "و أنا لا أقصد هذه الحلقة من البكسلات تحديدًا، بل نأمل أن أي",
+    "text": "like a 9 or an 8, there's some specific neuron whose activation is",
+    "startSeconds": 378.484,
+    "durationSeconds": 3.899,
+    "lang": "en"
+  },
+  {
+    "text": "going to be close to 1.",
+    "startSeconds": 382.383,
+    "durationSeconds": 1.397,
+    "lang": "en"
+  },
+  {
+    "text": "And I don't mean this specific loop of pixels,",
     "startSeconds": 384.5,
-    "durationSeconds": 3.591,
-    "lang": "ar"
+    "durationSeconds": 2.406,
+    "lang": "en"
   },
   {
-    "text": "شكل شبيه بالحلقة تجاه أعلى الصّورة قد يفعّل هذه الخليّة.",
-    "startSeconds": 388.091,
-    "durationSeconds": 3.469,
-    "lang": "ar"
+    "text": "the hope would be that any generally loopy pattern towards the top sets off this neuron.",
+    "startSeconds": 386.906,
+    "durationSeconds": 4.654,
+    "lang": "en"
   },
   {
-    "text": "على هذا النّسق، الانتقال من الطبقة الثالثة إلى الأخيرة",
+    "text": "That way, going from the third layer to the last one just requires",
     "startSeconds": 392.44,
-    "durationSeconds": 3.731,
-    "lang": "ar"
+    "durationSeconds": 3.609,
+    "lang": "en"
   },
   {
-    "text": "يتطلّب فقط معرفة أي مزيج من المكوّنات يتناسب مع أي رقم.",
-    "startSeconds": 396.171,
-    "durationSeconds": 3.869,
-    "lang": "ar"
+    "text": "learning which combination of subcomponents corresponds to which digits.",
+    "startSeconds": 396.049,
+    "durationSeconds": 3.991,
+    "lang": "en"
   },
   {
-    "text": "قد تعترض أنّ المشكلة ما زالت نفسها؛ كيف يمكن للشّبكة التعرّف إلى المكوّنات والأجزاء ؟",
+    "text": "Of course, that just kicks the problem down the road,",
     "startSeconds": 401,
-    "durationSeconds": 6.64,
-    "lang": "ar"
+    "durationSeconds": 2.199,
+    "lang": "en"
   },
   {
-    "text": "و لا زلت لم أشرح كيف تحتسب التفعيلات من طبقة إلى التالية ولكن جاريني للحظة بعد.",
+    "text": "because how would you recognize these subcomponents,",
+    "startSeconds": 403.199,
+    "durationSeconds": 2.2,
+    "lang": "en"
+  },
+  {
+    "text": "or even learn what the right subcomponents should be?",
+    "startSeconds": 405.399,
+    "durationSeconds": 2.241,
+    "lang": "en"
+  },
+  {
+    "text": "And I still haven't even talked about how one layer influences the next,",
     "startSeconds": 408.06,
-    "durationSeconds": 5,
-    "lang": "ar"
+    "durationSeconds": 3.158,
+    "lang": "en"
   },
   {
-    "text": "التّعرّف على شكل الحلقة مثلًا قد يجزّأ أيضًا إلى خطواتٍ أبسط.",
+    "text": "but run with me on this one for a moment.",
+    "startSeconds": 411.218,
+    "durationSeconds": 1.842,
+    "lang": "en"
+  },
+  {
+    "text": "Recognizing a loop can also break down into subproblems.",
     "startSeconds": 413.68,
     "durationSeconds": 3,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "إحدى الطّرق المنطقيّة هي التّعرّف أوّلًا إلى جميع الحافات الصغيرة التي تكوّن الحلقة.",
+    "text": "One reasonable way to do this would be to first",
     "startSeconds": 417.28,
-    "durationSeconds": 5.5,
-    "lang": "ar"
+    "durationSeconds": 2.611,
+    "lang": "en"
   },
   {
-    "text": "أو مثلًا، التعرّف إلى خط طويل في الأرقام ١ و ٤ و ٧ ليس",
+    "text": "recognize the various little edges that make it up.",
+    "startSeconds": 419.891,
+    "durationSeconds": 2.889,
+    "lang": "en"
+  },
+  {
+    "text": "Similarly, a long line, like the kind you might see in the digits 1 or 4 or 7,",
     "startSeconds": 423.78,
-    "durationSeconds": 5.037,
-    "lang": "ar"
+    "durationSeconds": 4.619,
+    "lang": "en"
   },
   {
-    "text": "سوى حافة طويلة، أو قد نراه كنمط متكرّر لعدّة حافاتٍ صغيرة.",
-    "startSeconds": 428.817,
-    "durationSeconds": 5.503,
-    "lang": "ar"
+    "text": "is really just a long edge, or maybe you think of it as a certain pattern of several",
+    "startSeconds": 428.399,
+    "durationSeconds": 5.033,
+    "lang": "en"
   },
   {
-    "text": "اذًا، لربّما نأمل أن الخلايا العصبيّة في الطبقة الثانية تمثل هذه الحافات الصغيرة المحددة.",
+    "text": "smaller edges.",
+    "startSeconds": 433.432,
+    "durationSeconds": 0.888,
+    "lang": "en"
+  },
+  {
+    "text": "So maybe our hope is that each neuron in the second layer of",
     "startSeconds": 435.14,
-    "durationSeconds": 7.58,
-    "lang": "ar"
+    "durationSeconds": 3.668,
+    "lang": "en"
   },
   {
-    "text": "ربما عندما ندخل صورة كهذه، تفعّل جميع الخلايا المرتبطة بحوالي ثمانية إلى عشرة حافات",
+    "text": "the network corresponds with the various relevant little edges.",
+    "startSeconds": 438.808,
+    "durationSeconds": 3.912,
+    "lang": "en"
+  },
+  {
+    "text": "Maybe when an image like this one comes in, it lights up all of the",
     "startSeconds": 443.54,
-    "durationSeconds": 5.287,
-    "lang": "ar"
+    "durationSeconds": 3.971,
+    "lang": "en"
   },
   {
-    "text": "صغيرة  في الطبقة الثانية و هي بالتالي تضيء في الطبقة الثالثة الخلايا المرتبطة بالحلقة",
-    "startSeconds": 448.827,
-    "durationSeconds": 5.478,
-    "lang": "ar"
+    "text": "neurons associated with around 8 to 10 specific little edges,",
+    "startSeconds": 447.511,
+    "durationSeconds": 3.674,
+    "lang": "en"
   },
   {
-    "text": "العليا والخط العامودي الطويل. عندها، يتم تفعيل في آخر طبقة الخلية المرتبطة مع وقم ٩.",
-    "startSeconds": 454.305,
-    "durationSeconds": 5.415,
-    "lang": "ar"
+    "text": "which in turn lights up the neurons associated with the upper loop",
+    "startSeconds": 451.185,
+    "durationSeconds": 3.971,
+    "lang": "en"
   },
   {
-    "text": "سواء كان ذلك ما يحصل فعلًا هو سؤال آخر، و سأعود إليه عندما نرى كيفيّة تدريب الشّبكة.",
+    "text": "and a long vertical line, and those light up the neuron associated with a 9.",
+    "startSeconds": 455.156,
+    "durationSeconds": 4.564,
+    "lang": "en"
+  },
+  {
+    "text": "Whether or not this is what our final network actually does is another question,",
     "startSeconds": 460.68,
-    "durationSeconds": 6.731,
-    "lang": "ar"
+    "durationSeconds": 4.003,
+    "lang": "en"
   },
   {
-    "text": "و لكن هذا أمل لآلية محتملة، هدف منطقي ل بنية طبقيّة مثل شبكتنا.",
-    "startSeconds": 467.411,
-    "durationSeconds": 5.129,
-    "lang": "ar"
+    "text": "one that I'll come back to once we see how to train the network,",
+    "startSeconds": 464.683,
+    "durationSeconds": 3.253,
+    "lang": "en"
   },
   {
-    "text": "بالإضافة، يمكنك التخيّل كم مفيدة القدرة على تمييز",
+    "text": "but this is a hope that we might have, a sort of goal with the layered structure",
+    "startSeconds": 467.936,
+    "durationSeconds": 4.054,
+    "lang": "en"
+  },
+  {
+    "text": "like this.",
+    "startSeconds": 471.99,
+    "durationSeconds": 0.55,
+    "lang": "en"
+  },
+  {
+    "text": "Moreover, you can imagine how being able to detect edges and patterns",
     "startSeconds": 473.16,
-    "durationSeconds": 3.301,
-    "lang": "ar"
+    "durationSeconds": 3.596,
+    "lang": "en"
   },
   {
-    "text": "الحافات والأنماط في مهمات أخرى تعالج التعّرف على الصّور.",
-    "startSeconds": 476.461,
-    "durationSeconds": 3.839,
-    "lang": "ar"
+    "text": "like this would be really useful for other image recognition tasks.",
+    "startSeconds": 476.756,
+    "durationSeconds": 3.544,
+    "lang": "en"
   },
   {
-    "text": "و حتّى أبعد من ذلك، هناك العديد من المهمّات الذكيّة",
+    "text": "And even beyond image recognition, there are all sorts of intelligent",
     "startSeconds": 480.88,
-    "durationSeconds": 3.022,
-    "lang": "ar"
+    "durationSeconds": 3.132,
+    "lang": "en"
   },
   {
-    "text": "اللّتي قد نسعى إليها يمكن تقسيمها إلى عدّة طبقات مجّردة.",
-    "startSeconds": 483.902,
-    "durationSeconds": 3.378,
-    "lang": "ar"
+    "text": "things you might want to do that break down into layers of abstraction.",
+    "startSeconds": 484.012,
+    "durationSeconds": 3.268,
+    "lang": "en"
   },
   {
-    "text": "تحليل الكلام على سبيل المثال، يعمل من خلال أخذ التّسجيل الخام، تقسيمه إلى أصوات منعزلة",
+    "text": "Parsing speech, for example, involves taking raw audio and picking out distinct sounds,",
     "startSeconds": 488.04,
-    "durationSeconds": 6.227,
-    "lang": "ar"
+    "durationSeconds": 4.689,
+    "lang": "en"
   },
   {
-    "text": "التي تجمع لتكوين مقاطع لفظيّة، من  بعدها كلمات من بعدها جمل و أفكار و إلى آخره.",
-    "startSeconds": 494.267,
-    "durationSeconds": 5.793,
-    "lang": "ar"
+    "text": "which combine to make certain syllables, which combine to form words,",
+    "startSeconds": 492.729,
+    "durationSeconds": 3.774,
+    "lang": "en"
   },
   {
-    "text": "دعنا نعود إلى كيفيّة عمل الشبكة بالتوالي. تخيّل أنك تصمم بالضبط",
+    "text": "which combine to make up phrases and more abstract thoughts, etc.",
+    "startSeconds": 496.503,
+    "durationSeconds": 3.557,
+    "lang": "en"
+  },
+  {
+    "text": "But getting back to how any of this actually works,",
     "startSeconds": 501.1,
-    "durationSeconds": 4.274,
-    "lang": "ar"
+    "durationSeconds": 2.585,
+    "lang": "en"
   },
   {
-    "text": "كيف تحدد  تفعيلات الخلايا في طبقة محدّدة  تفعيلات الطّبقة التالية.",
-    "startSeconds": 505.374,
-    "durationSeconds": 4.546,
-    "lang": "ar"
+    "text": "picture yourself right now designing how exactly the activations in one layer might",
+    "startSeconds": 503.685,
+    "durationSeconds": 4.258,
+    "lang": "en"
   },
   {
-    "text": "الهدف هو إيجاد آلية ما تستطيع أن تجمع البكسلات إلى",
+    "text": "determine the activations in the next.",
+    "startSeconds": 507.943,
+    "durationSeconds": 1.977,
+    "lang": "en"
+  },
+  {
+    "text": "The goal is to have some mechanism that could conceivably combine pixels into edges,",
     "startSeconds": 510.86,
-    "durationSeconds": 4.02,
-    "lang": "ar"
+    "durationSeconds": 5.128,
+    "lang": "en"
   },
   {
-    "text": "حافات أو الحافات إلى أنماط أو الأنماط إلى الأرقام.",
-    "startSeconds": 514.88,
-    "durationSeconds": 4.1,
-    "lang": "ar"
+    "text": "or edges into patterns, or patterns into digits.",
+    "startSeconds": 515.988,
+    "durationSeconds": 2.992,
+    "lang": "en"
   },
   {
-    "text": "لنركّز على مثل صغير جدّا. لنفترض أنّنا نسعى لخليّة واحدة في الطبقة",
+    "text": "And to zoom in on one very specific example, let's say the hope",
     "startSeconds": 519.44,
-    "durationSeconds": 5.347,
-    "lang": "ar"
+    "durationSeconds": 3.828,
+    "lang": "en"
   },
   {
-    "text": "الثانية أن تحدد ما إذا كانت الصورة تحتوي على حافاتٍ في هذه المنطقة هنا.",
-    "startSeconds": 524.787,
-    "durationSeconds": 5.833,
-    "lang": "ar"
+    "text": "is for one particular neuron in the second layer to pick up",
+    "startSeconds": 523.268,
+    "durationSeconds": 3.646,
+    "lang": "en"
   },
   {
-    "text": "و السّؤال هو ما المعايير التي ينبغي أن تستعمل في الشبكة؟",
+    "text": "on whether or not the image has an edge in this region here.",
+    "startSeconds": 526.914,
+    "durationSeconds": 3.706,
+    "lang": "en"
+  },
+  {
+    "text": "The question at hand is what parameters should the network have?",
     "startSeconds": 531.44,
     "durationSeconds": 3.66,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "أي ما هي المفاتيح القابلة ل الدوزنة بمرونة كافية لتخزين هذا النّمط  أو",
+    "text": "What dials and knobs should you be able to tweak so that it's expressive",
     "startSeconds": 535.64,
-    "durationSeconds": 5.821,
-    "lang": "ar"
+    "durationSeconds": 4.01,
+    "lang": "en"
   },
   {
-    "text": "الشكل الذي نسعى إليه وهو حافة. أو لتخزين أي نمط آخر كعدّة حافات تكوّن حلقة؟",
-    "startSeconds": 541.461,
-    "durationSeconds": 6.319,
-    "lang": "ar"
+    "text": "enough to potentially capture this pattern, or any other pixel pattern,",
+    "startSeconds": 539.65,
+    "durationSeconds": 4.009,
+    "lang": "en"
   },
   {
-    "text": "ما سنفعله هو تعيين وزن لكل رابط بين خليّتنا في",
+    "text": "or the pattern that several edges can make a loop, and other such things?",
+    "startSeconds": 543.659,
+    "durationSeconds": 4.121,
+    "lang": "en"
+  },
+  {
+    "text": "Well, what we'll do is assign a weight to each one of the",
     "startSeconds": 548.72,
-    "durationSeconds": 3.347,
-    "lang": "ar"
+    "durationSeconds": 3.094,
+    "lang": "en"
   },
   {
-    "text": "الطبقة الثانية و جميع الخلايا في الطبقة الأولى.",
-    "startSeconds": 552.067,
-    "durationSeconds": 3.493,
-    "lang": "ar"
+    "text": "connections between our neuron and the neurons from the first layer.",
+    "startSeconds": 551.814,
+    "durationSeconds": 3.746,
+    "lang": "en"
   },
   {
-    "text": "هذه الأوزان هي مجرّد أرقام.",
+    "text": "These weights are just numbers.",
     "startSeconds": 556.32,
     "durationSeconds": 1.38,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "ثمّ تأخذ جميع تفعيلات الطبقة الأولى و تجمعها حسب وزن",
+    "text": "Then take all of those activations from the first layer",
     "startSeconds": 558.54,
-    "durationSeconds": 3.382,
-    "lang": "ar"
+    "durationSeconds": 3.358,
+    "lang": "en"
   },
   {
-    "text": "الرابط  لكل خليّة للحصول على ما يسمّى المجموع الموزون.",
-    "startSeconds": 561.922,
-    "durationSeconds": 3.578,
-    "lang": "ar"
+    "text": "and compute their weighted sum according to these weights.",
+    "startSeconds": 561.898,
+    "durationSeconds": 3.602,
+    "lang": "en"
   },
   {
-    "text": "يساعدني أن أتخيّل هذه الأوزان كصورة بنفسها مكوّنة من بكسلات خضر للدل على أوزان إيجابيّة",
+    "text": "I find it helpful to think of these weights as being organized into a",
     "startSeconds": 567.7,
-    "durationSeconds": 7.164,
-    "lang": "ar"
+    "durationSeconds": 3.397,
+    "lang": "en"
   },
   {
-    "text": "و بكسلات حمر للدل على أوزان سلبيّة. هنا أيضًا سطوع كل بكسل هو تقدير تقريبي لقيمتها.",
-    "startSeconds": 574.864,
-    "durationSeconds": 6.916,
-    "lang": "ar"
+    "text": "little grid of their own, and I'm going to use green pixels to indicate",
+    "startSeconds": 571.097,
+    "durationSeconds": 3.545,
+    "lang": "en"
   },
   {
-    "text": "الآن، اذا جعلنا معظم الأوزان صفر باستثناء بعض الأوزان الإيجابية في المنطقة اللّتي تهمّنا،",
+    "text": "positive weights, and red pixels to indicate negative weights,",
+    "startSeconds": 574.642,
+    "durationSeconds": 3.101,
+    "lang": "en"
+  },
+  {
+    "text": "where the brightness of that pixel is some loose depiction of the weight's value.",
+    "startSeconds": 577.743,
+    "durationSeconds": 4.037,
+    "lang": "en"
+  },
+  {
+    "text": "Now if we made the weights associated with almost all of the pixels zero",
     "startSeconds": 582.78,
-    "durationSeconds": 7.562,
-    "lang": "ar"
+    "durationSeconds": 3.747,
+    "lang": "en"
   },
   {
-    "text": "فأخذ المجموع الموزون لجميع الخلايا يساوي فعليّا جمع تفعيلات الخلايا في هذه المنطقة فقط.",
-    "startSeconds": 590.342,
-    "durationSeconds": 7.478,
-    "lang": "ar"
+    "text": "except for some positive weights in this region that we care about,",
+    "startSeconds": 586.527,
+    "durationSeconds": 3.539,
+    "lang": "en"
   },
   {
-    "text": "و إن أردت معرفة ما إذا كانت المنطقة تحتوي على حافة، ما",
+    "text": "then taking the weighted sum of all the pixel values really just amounts",
+    "startSeconds": 590.066,
+    "durationSeconds": 3.799,
+    "lang": "en"
+  },
+  {
+    "text": "to adding up the values of the pixel just in the region that we care about.",
+    "startSeconds": 593.865,
+    "durationSeconds": 3.955,
+    "lang": "en"
+  },
+  {
+    "text": "And if you really wanted to pick up on whether there's an edge here,",
     "startSeconds": 599.14,
-    "durationSeconds": 3.565,
-    "lang": "ar"
+    "durationSeconds": 3.252,
+    "lang": "en"
   },
   {
-    "text": "يمكنك فعله هو زيادة أوزان سلبيّة للخلايا المحيطة بالمنطقة.",
-    "startSeconds": 602.705,
-    "durationSeconds": 3.895,
-    "lang": "ar"
+    "text": "what you might do is have some negative weights associated with the surrounding pixels.",
+    "startSeconds": 602.392,
+    "durationSeconds": 4.208,
+    "lang": "en"
   },
   {
-    "text": "اذا يكون المجموع الموزون أقصى عندما تكون البكسلات في قلب المنطقة فاتحة، وفي محيطها أغمق.",
+    "text": "Then the sum is largest when those middle pixels",
     "startSeconds": 607.48,
-    "durationSeconds": 5.22,
-    "lang": "ar"
+    "durationSeconds": 2.557,
+    "lang": "en"
   },
   {
-    "text": "هذا المجموع قد يكون أي رقم، و لكن في الشبكة نحن",
+    "text": "are bright but the surrounding pixels are darker.",
+    "startSeconds": 610.037,
+    "durationSeconds": 2.663,
+    "lang": "en"
+  },
+  {
+    "text": "When you compute a weighted sum like this, you might come out with any number,",
     "startSeconds": 614.26,
-    "durationSeconds": 4.741,
-    "lang": "ar"
+    "durationSeconds": 4.387,
+    "lang": "en"
   },
   {
-    "text": "نحصر التفعيلات إلى أرقام بين الصفر و الواحد.",
-    "startSeconds": 619.001,
-    "durationSeconds": 4.539,
-    "lang": "ar"
+    "text": "but for this network what we want is for activations to be some value between 0 and 1.",
+    "startSeconds": 618.647,
+    "durationSeconds": 4.893,
+    "lang": "en"
   },
   {
-    "text": "لذلك العادة هي أن نطبّق دالة ما على المجموع، تقلّص",
+    "text": "So a common thing to do is to pump this weighted sum into some function",
     "startSeconds": 624.12,
-    "durationSeconds": 3.97,
-    "lang": "ar"
+    "durationSeconds": 4.126,
+    "lang": "en"
   },
   {
-    "text": "جميع الأعداد المعقولة إلى أعداد بين الصفر والواحد.",
-    "startSeconds": 628.09,
-    "durationSeconds": 4.05,
-    "lang": "ar"
+    "text": "that squishes the real number line into the range between 0 and 1.",
+    "startSeconds": 628.246,
+    "durationSeconds": 3.894,
+    "lang": "en"
   },
   {
-    "text": "هناك دالة شائعة تسمّى sigmoid  أي الدالة السينية لأنّها تشبه حرف السين.",
+    "text": "And a common function that does this is called the sigmoid function,",
     "startSeconds": 632.46,
-    "durationSeconds": 3.261,
-    "lang": "ar"
+    "durationSeconds": 3.373,
+    "lang": "en"
   },
   {
-    "text": "وهي معروفة أيضًا بالدالة اللوجيستية.",
-    "startSeconds": 635.721,
-    "durationSeconds": 1.699,
-    "lang": "ar"
+    "text": "also known as a logistic curve.",
+    "startSeconds": 635.833,
+    "durationSeconds": 1.587,
+    "lang": "en"
   },
   {
-    "text": "هي تدل القيم السلبيّة جدّا إلى جوار الصفر، القيم الإيجابيّة",
+    "text": "Basically very negative inputs end up close to 0, positive inputs end up close to 1,",
     "startSeconds": 638,
-    "durationSeconds": 4.53,
-    "lang": "ar"
+    "durationSeconds": 5.351,
+    "lang": "en"
   },
   {
-    "text": "حدّا إلى جوار الواحد، و ترتفع باعتدال للقيم الصغيرة.",
-    "startSeconds": 642.53,
-    "durationSeconds": 4.07,
-    "lang": "ar"
+    "text": "and it just steadily increases around the input 0.",
+    "startSeconds": 643.351,
+    "durationSeconds": 3.249,
+    "lang": "en"
   },
   {
-    "text": "بالتالي، تفعيل أي خلية عصبية هنا هو قياس لمدى إيجابيّة مجموعها الموزون.",
+    "text": "So the activation of the neuron here is basically a",
     "startSeconds": 649.12,
-    "durationSeconds": 7.24,
-    "lang": "ar"
+    "durationSeconds": 3.517,
+    "lang": "en"
   },
   {
-    "text": "و لكن ربما أنت لا تريد الخليّة أن تضيء عندما يكون المجموع بالكاد إيجابي.",
+    "text": "measure of how positive the relevant weighted sum is.",
+    "startSeconds": 652.637,
+    "durationSeconds": 3.723,
+    "lang": "en"
+  },
+  {
+    "text": "But maybe it's not that you want the neuron to",
     "startSeconds": 657.54,
-    "durationSeconds": 4.34,
-    "lang": "ar"
+    "durationSeconds": 2.101,
+    "lang": "en"
   },
   {
-    "text": "لربّما تريد الخليّة أن تضيء فقط عندما يفوق المجموع ١٠.",
+    "text": "light up when the weighted sum is bigger than 0.",
+    "startSeconds": 659.641,
+    "durationSeconds": 2.239,
+    "lang": "en"
+  },
+  {
+    "text": "Maybe you only want it to be active when the sum is bigger than say 10.",
     "startSeconds": 662.28,
     "durationSeconds": 4.08,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "بالتالي أنت تريد الخلية أن تنحاز إلى عدم الإضاءة.",
+    "text": "That is, you want some bias for it to be inactive.",
     "startSeconds": 666.84,
     "durationSeconds": 3.42,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "ما تفعله هو إضافة وقم سلبي  إلى المجموع مثلًا ١٠-  قبل مرور المجموع بالدالة اللوجستية.",
+    "text": "What we'll do then is just add in some other number like negative 10 to this",
     "startSeconds": 671.38,
-    "durationSeconds": 8.28,
-    "lang": "ar"
+    "durationSeconds": 4.086,
+    "lang": "en"
   },
   {
-    "text": "هذا العدد الإضافي يسمّى الإنحياز.",
+    "text": "weighted sum before plugging it through the sigmoid squishification function.",
+    "startSeconds": 675.466,
+    "durationSeconds": 4.194,
+    "lang": "en"
+  },
+  {
+    "text": "That additional number is called the bias.",
     "startSeconds": 680.58,
     "durationSeconds": 1.86,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "اذًا لكل خلية عصبيّة في الطبقة الثانية، أوزان روابطها مع الطبقة الأولى بالإضافة",
+    "text": "So the weights tell you what pixel pattern this neuron in the second",
     "startSeconds": 683.46,
-    "durationSeconds": 5.787,
-    "lang": "ar"
+    "durationSeconds": 3.85,
+    "lang": "en"
   },
   {
-    "text": "إلى الانحياز. هذه المعايير تجسّد الشكل اللتي ترمز إليه الخليّة ومتى يتم تفعيلها.",
-    "startSeconds": 689.247,
-    "durationSeconds": 5.933,
-    "lang": "ar"
+    "text": "layer is picking up on, and the bias tells you how high the weighted",
+    "startSeconds": 687.31,
+    "durationSeconds": 3.907,
+    "lang": "en"
   },
   {
-    "text": "و هذا كلّة لخليّة واحدة فقط.",
+    "text": "sum needs to be before the neuron starts getting meaningfully active.",
+    "startSeconds": 691.217,
+    "durationSeconds": 3.963,
+    "lang": "en"
+  },
+  {
+    "text": "And that is just one neuron.",
     "startSeconds": 696.12,
     "durationSeconds": 1.56,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "كل خليّة في الطبقة الثانية سترتبط مع ال٧٨٤ خليّة في الطبقة الأولى و لكل رابط وزنه الخاص.",
+    "text": "Every other neuron in this layer is going to be connected to",
     "startSeconds": 698.28,
-    "durationSeconds": 12.66,
-    "lang": "ar"
+    "durationSeconds": 4.197,
+    "lang": "en"
   },
   {
-    "text": "كما لكل خليّة أيضًا انحيازها الخاص، أي الرقم الذي نضيفه",
+    "text": "all 784 pixel neurons from the first layer, and each one of",
+    "startSeconds": 702.477,
+    "durationSeconds": 4.196,
+    "lang": "en"
+  },
+  {
+    "text": "those 784 connections has its own weight associated with it.",
+    "startSeconds": 706.673,
+    "durationSeconds": 4.267,
+    "lang": "en"
+  },
+  {
+    "text": "Also, each one has some bias, some other number that you add",
     "startSeconds": 711.6,
-    "durationSeconds": 2.92,
-    "lang": "ar"
+    "durationSeconds": 2.975,
+    "lang": "en"
   },
   {
-    "text": "إلى المجموع الموزون قبل مرور المجموع في الدالة اللوجستية.",
-    "startSeconds": 714.52,
-    "durationSeconds": 3.08,
-    "lang": "ar"
+    "text": "on to the weighted sum before squishing it with the sigmoid.",
+    "startSeconds": 714.575,
+    "durationSeconds": 3.025,
+    "lang": "en"
   },
   {
-    "text": "هناك الكثير للتفكير به.",
+    "text": "And that's a lot to think about!",
     "startSeconds": 718.11,
     "durationSeconds": 1.43,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "اذا احتسبناها، هذه الطبقة الخفيّة مكوّنة من ١٦ خليّة أي ٧٨٤*١٦  رابط مع وزنهم الخاص",
+    "text": "With this hidden layer of 16 neurons, that's a total of 784 times 16 weights,",
     "startSeconds": 719.96,
-    "durationSeconds": 8.02,
-    "lang": "ar"
+    "durationSeconds": 6.238,
+    "lang": "en"
   },
   {
-    "text": "بالإضافة إلى ١٦ انحياز.",
+    "text": "along with 16 biases.",
+    "startSeconds": 726.198,
+    "durationSeconds": 1.782,
+    "lang": "en"
+  },
+  {
+    "text": "And all of that is just the connections from the first layer to the second.",
     "startSeconds": 728.84,
     "durationSeconds": 3.1,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "الروابط بين باقي الطبقات أيضًا لديها أوزانها الخاصة و لكل خليّة انحيازها الخاص.",
+    "text": "The connections between the other layers also have",
     "startSeconds": 732.52,
-    "durationSeconds": 4.82,
-    "lang": "ar"
+    "durationSeconds": 2.363,
+    "lang": "en"
   },
   {
-    "text": "أخذ كل ذلك بعين الاعتبار، تحتوي الشّبكة إلى ما يقارب ١٣،٠٠٠ وزن و انحياز.",
+    "text": "a bunch of weights and biases associated with them.",
+    "startSeconds": 734.883,
+    "durationSeconds": 2.457,
+    "lang": "en"
+  },
+  {
+    "text": "All said and done, this network has almost exactly 13,000 total weights and biases.",
     "startSeconds": 738.34,
     "durationSeconds": 5.46,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "أي ١٣٠٠٠ معيار و مفتاح قد تعدّل لتحديد تصرّف الآلة.",
+    "text": "13,000 knobs and dials that can be tweaked and turned",
     "startSeconds": 743.8,
-    "durationSeconds": 6.16,
-    "lang": "ar"
+    "durationSeconds": 3.265,
+    "lang": "en"
   },
   {
-    "text": "عندما نتحدّث عن التّعليم، ما نقصده هو إيجاد قيم مفيدة",
+    "text": "to make this network behave in different ways.",
+    "startSeconds": 747.065,
+    "durationSeconds": 2.895,
+    "lang": "en"
+  },
+  {
+    "text": "So when we talk about learning, what that's referring to is",
     "startSeconds": 751.04,
-    "durationSeconds": 5.064,
-    "lang": "ar"
+    "durationSeconds": 3.222,
+    "lang": "en"
   },
   {
-    "text": "لكل هذه المعايير تخوّل الشبكة على حل المسألة المطروحة.",
-    "startSeconds": 756.104,
-    "durationSeconds": 5.256,
-    "lang": "ar"
+    "text": "getting the computer to find a valid setting for all of these",
+    "startSeconds": 754.262,
+    "durationSeconds": 3.385,
+    "lang": "en"
   },
   {
-    "text": "تخيّل لمرّة، عن طريق المزح أو الرّعب، إذا كنّت لتجلس و تحدّد كل هذه",
+    "text": "many many numbers so that it'll actually solve the problem at hand.",
+    "startSeconds": 757.647,
+    "durationSeconds": 3.713,
+    "lang": "en"
+  },
+  {
+    "text": "One thought experiment that is at once fun and kind of horrifying is to imagine sitting",
     "startSeconds": 762.62,
-    "durationSeconds": 4.35,
-    "lang": "ar"
+    "durationSeconds": 4.566,
+    "lang": "en"
   },
   {
-    "text": "الأوزان و الانحيازات باليد. أي تقوم بتعديل كل رقم على حدة بشكل يدع الطبقة",
-    "startSeconds": 766.97,
-    "durationSeconds": 4.805,
-    "lang": "ar"
+    "text": "down and setting all of these weights and biases by hand,",
+    "startSeconds": 767.186,
+    "durationSeconds": 3.044,
+    "lang": "en"
   },
   {
-    "text": "الثانية ترمز للحافات، الطبقة الثالثة ترمز للأشكال، و الأنماط، و إلى آخره.",
-    "startSeconds": 771.775,
-    "durationSeconds": 4.805,
-    "lang": "ar"
+    "text": "purposefully tweaking the numbers so that the second layer picks up on edges,",
+    "startSeconds": 770.23,
+    "durationSeconds": 4.093,
+    "lang": "en"
   },
   {
-    "text": "شخصيًّا، أفضّل هذا المنظار على أن نعامل الشبكة كلغز داخل صندوق مغلق.",
+    "text": "the third layer picks up on patterns, etc.",
+    "startSeconds": 774.323,
+    "durationSeconds": 2.257,
+    "lang": "en"
+  },
+  {
+    "text": "I personally find this satisfying rather than just treating the network as a total black",
     "startSeconds": 776.98,
-    "durationSeconds": 5.415,
-    "lang": "ar"
+    "durationSeconds": 4.362,
+    "lang": "en"
   },
   {
-    "text": "عندها، اذا لم تعمل الشبكة بالطريقة اللّتي نريدها، هذه الألفة مع بعض",
-    "startSeconds": 782.395,
-    "durationSeconds": 5.415,
-    "lang": "ar"
+    "text": "box, because when the network doesn't perform the way you anticipate,",
+    "startSeconds": 781.342,
+    "durationSeconds": 3.47,
+    "lang": "en"
   },
   {
-    "text": "الأوزان و معانيها قد تساعدنا على إيجاد نقطة بدائية للتجريب و تحسين بنية الشبكة.",
-    "startSeconds": 787.81,
-    "durationSeconds": 6.37,
-    "lang": "ar"
+    "text": "if you've built up a little bit of a relationship with what those weights and biases",
+    "startSeconds": 784.812,
+    "durationSeconds": 4.213,
+    "lang": "en"
   },
   {
-    "text": "بل حتّى عندما تعمل الشّبكة و لكن لأسباب غير متوقّعة، التعمّق في معاني الأوزان",
+    "text": "actually mean, you have a starting place for experimenting with how to change the",
+    "startSeconds": 789.025,
+    "durationSeconds": 4.065,
+    "lang": "en"
+  },
+  {
+    "text": "structure to improve.",
+    "startSeconds": 793.09,
+    "durationSeconds": 1.09,
+    "lang": "en"
+  },
+  {
+    "text": "Or when the network does work but not for the reasons you might expect,",
     "startSeconds": 794.96,
-    "durationSeconds": 5.575,
-    "lang": "ar"
+    "durationSeconds": 3.473,
+    "lang": "en"
   },
   {
-    "text": "و الانحيازات يساعدنا على تحدّي افتراضياتنا، وتوسيع آفاق الحلول المعقولة.",
-    "startSeconds": 800.535,
-    "durationSeconds": 5.285,
-    "lang": "ar"
+    "text": "digging into what the weights and biases are doing is a good way to challenge",
+    "startSeconds": 798.433,
+    "durationSeconds": 3.816,
+    "lang": "en"
   },
   {
-    "text": "بالمناسبة، إذا أردنا كتابة الدالة الكاملة بالتفصيل، فهي طويلة و ملبّكة.",
+    "text": "your assumptions and really expose the full space of possible solutions.",
+    "startSeconds": 802.249,
+    "durationSeconds": 3.571,
+    "lang": "en"
+  },
+  {
+    "text": "By the way, the actual function here is a little cumbersome to write down,",
     "startSeconds": 806.84,
-    "durationSeconds": 3.84,
-    "lang": "ar"
+    "durationSeconds": 3.123,
+    "lang": "en"
   },
   {
-    "text": "ولكن هناك طريقة أبسط لتمثيلها بالرياضيات.",
+    "text": "don't you think?",
+    "startSeconds": 809.963,
+    "durationSeconds": 0.717,
+    "lang": "en"
+  },
+  {
+    "text": "So let me show you a more notationally compact way that these connections are represented.",
     "startSeconds": 812.5,
     "durationSeconds": 4.64,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "إذا اخترت الإطّلاع على الشبكات العصبيّة، سترى شيئًا أشبه بالتالي.\n160\n00:13:41,380 --> 00:13:40,520\nأوّلًا ننظّم جميع التّفعيلات في طبقة واحدة عاموديّا إلى متَجه.",
+    "text": "This is how you'd see it if you choose to read up more about neural networks.",
     "startSeconds": 817.66,
     "durationSeconds": 2.86,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "ثم تنظّم جميع الأوزان بين هذه الطبقة و الطبقة التالية إلى مصفوفة، حيث كل",
-    "startSeconds": 821.38,
-    "durationSeconds": 8.368,
-    "lang": "ar"
+    "text": "Organize all of the activations from one layer into a column as a vector.",
+    "startSeconds": 820.52,
+    "durationSeconds": 7.503,
+    "lang": "en"
   },
   {
-    "text": "صف يمثّل الروابط من الطبقة الأولى إلى خليّة محدّدة في الطّبقة التالية.",
-    "startSeconds": 829.748,
-    "durationSeconds": 8.252,
-    "lang": "ar"
+    "text": "Then organize all of the weights as a matrix, where each row of that matrix corresponds",
+    "startSeconds": 828.357,
+    "durationSeconds": 1.681,
+    "lang": "en"
   },
   {
-    "text": "أي، أخذ المجموع الموزون لتفعيلات الطبقة الأولى بحسب هذه الأوزان هو",
+    "text": "to the connections between one layer and a particular neuron in the next layer.",
+    "startSeconds": 830.038,
+    "durationSeconds": 7.962,
+    "lang": "en"
+  },
+  {
+    "text": "What that means is that taking the weighted sum of the activations in",
     "startSeconds": 838.54,
-    "durationSeconds": 5.544,
-    "lang": "ar"
+    "durationSeconds": 3.674,
+    "lang": "en"
   },
   {
-    "text": "يمثّل مكوّن واحد من المتّجه الناتج من ضرب المصفوفة بالمتّجه الأساسي.",
-    "startSeconds": 844.084,
-    "durationSeconds": 5.796,
-    "lang": "ar"
+    "text": "the first layer according to these weights corresponds to one of the",
+    "startSeconds": 842.214,
+    "durationSeconds": 3.673,
+    "lang": "en"
   },
   {
-    "text": "على فكرة، الكثير من التّعليم الآلي يتطلّب فهم مكين للجبر الخطي.",
+    "text": "terms in the matrix vector product of everything we have on the left here.",
+    "startSeconds": 845.887,
+    "durationSeconds": 3.993,
+    "lang": "en"
+  },
+  {
+    "text": "By the way, so much of machine learning just comes down to having a good",
     "startSeconds": 854,
-    "durationSeconds": 4.531,
-    "lang": "ar"
+    "durationSeconds": 3.714,
+    "lang": "en"
   },
   {
-    "text": "لذلك إذا أردت  شرح واضح لضرب المصفوفات و المتّجهات و معناها، يمكنك",
-    "startSeconds": 858.531,
-    "durationSeconds": 4.819,
-    "lang": "ar"
+    "text": "grasp of linear algebra, so for any of you who want a nice visual",
+    "startSeconds": 857.714,
+    "durationSeconds": 3.405,
+    "lang": "en"
   },
   {
-    "text": "مشاهدة السلسلة اللّتي قدّمتها عن الجبر الخطي، و بالتحديد المقطع الثّالث.",
-    "startSeconds": 863.35,
-    "durationSeconds": 5.25,
-    "lang": "ar"
+    "text": "understanding for matrices and what matrix vector multiplication means,",
+    "startSeconds": 861.119,
+    "durationSeconds": 3.715,
+    "lang": "en"
   },
   {
-    "text": "لنعود إلى الدالة، بدلًا من إضافة الانحياز إلى كل صف على حدة، يمكننا تنظيم جميع",
+    "text": "take a look at the series I did on linear algebra, especially chapter 3.",
+    "startSeconds": 864.834,
+    "durationSeconds": 3.766,
+    "lang": "en"
+  },
+  {
+    "text": "Back to our expression, instead of talking about adding the bias to each one of",
     "startSeconds": 869.24,
-    "durationSeconds": 6.572,
-    "lang": "ar"
+    "durationSeconds": 4.353,
+    "lang": "en"
   },
   {
-    "text": "الانحيازات إلى متّجه عاموديّ و من ثم نضيف هذا المتّجه إلى حاصل الضرب السابق.",
-    "startSeconds": 875.812,
-    "durationSeconds": 6.488,
-    "lang": "ar"
+    "text": "these values independently, we represent it by organizing all those biases into",
+    "startSeconds": 873.593,
+    "durationSeconds": 4.409,
+    "lang": "en"
   },
   {
-    "text": "كخطوة نخائيّة، سنضع الدالة اللوجيتسيّة حوالي المجموع، و هذا يعني أنّ",
+    "text": "a vector, and adding the entire vector to the previous matrix vector product.",
+    "startSeconds": 878.002,
+    "durationSeconds": 4.298,
+    "lang": "en"
+  },
+  {
+    "text": "Then as a final step, I'll wrap a sigmoid around the outside here,",
     "startSeconds": 883.28,
-    "durationSeconds": 5.772,
-    "lang": "ar"
+    "durationSeconds": 3.534,
+    "lang": "en"
   },
   {
-    "text": "الدالةستطبّق على كل عنصر داخل المتّجه الناتج من عمليّاتنا السابقة.",
-    "startSeconds": 889.052,
-    "durationSeconds": 5.688,
-    "lang": "ar"
+    "text": "and what that's supposed to represent is that you're going to apply the",
+    "startSeconds": 886.814,
+    "durationSeconds": 3.856,
+    "lang": "en"
   },
   {
-    "text": "عندما نلقّب مصفوفة الأوزان و المتجهات برموزها الخاصة، يمكن تدوين الآلية التي تحسب",
+    "text": "sigmoid function to each specific component of the resulting vector inside.",
+    "startSeconds": 890.67,
+    "durationSeconds": 4.07,
+    "lang": "en"
+  },
+  {
+    "text": "So once you write down this weight matrix and these vectors as their own symbols,",
     "startSeconds": 895.94,
-    "durationSeconds": 6.264,
-    "lang": "ar"
+    "durationSeconds": 4.538,
+    "lang": "en"
   },
   {
-    "text": "التفعيلات من طبقة إلى أخرى  بتعبير بسيط و صغير.",
-    "startSeconds": 902.204,
-    "durationSeconds": 3.712,
-    "lang": "ar"
+    "text": "you can communicate the full transition of activations from one layer to the next in an",
+    "startSeconds": 900.478,
+    "durationSeconds": 4.93,
+    "lang": "en"
   },
   {
-    "text": "هذا يسهّل البرامج المعنيّة لأن معظم مكاتب البرمجيّة الحديثة تجري عمليّات المصفوفات",
-    "startSeconds": 905.916,
-    "durationSeconds": 6.419,
-    "lang": "ar"
+    "text": "extremely tight and neat little expression, and this makes the relevant code both a lot",
+    "startSeconds": 905.408,
+    "durationSeconds": 4.93,
+    "lang": "en"
   },
   {
-    "text": "بشكل شبه مثالي من نحو السّرعة و الفعاليّة.",
-    "startSeconds": 912.335,
-    "durationSeconds": 3.325,
-    "lang": "ar"
+    "text": "simpler and a lot faster, since many libraries optimize the heck out of matrix",
+    "startSeconds": 910.338,
+    "durationSeconds": 4.426,
+    "lang": "en"
   },
   {
-    "text": "هل تذكر كيف عرّفنا الخلايا العصبيّة كخلايا تحمل أرقام؟",
+    "text": "multiplication.",
+    "startSeconds": 914.764,
+    "durationSeconds": 0.896,
+    "lang": "en"
+  },
+  {
+    "text": "Remember how earlier I said these neurons are simply things that hold numbers?",
     "startSeconds": 917.82,
     "durationSeconds": 3.64,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "هذه الأرقام بالطبع تعتمد على الصّورة اللّي ندخلها.",
+    "text": "Well of course the specific numbers that they hold depends on the image you feed in,",
     "startSeconds": 922.22,
-    "durationSeconds": 4.885,
-    "lang": "ar"
+    "durationSeconds": 5.11,
+    "lang": "en"
   },
   {
-    "text": "لذا لربّما أدق أن نتصوّر كل خليّة كدالة، تستقبل جميع التّفعيلات من الطبقة السابقة",
-    "startSeconds": 927.105,
-    "durationSeconds": 8.011,
-    "lang": "ar"
+    "text": "so it's actually more accurate to think of each neuron as a function,",
+    "startSeconds": 927.33,
+    "durationSeconds": 4.258,
+    "lang": "en"
   },
   {
-    "text": "و تنتج رقمًا بين الصفر و الواحد.",
-    "startSeconds": 935.116,
-    "durationSeconds": 3.224,
-    "lang": "ar"
+    "text": "one that takes in the outputs of all the neurons in the previous layer and spits out a",
+    "startSeconds": 931.588,
+    "durationSeconds": 5.292,
+    "lang": "en"
   },
   {
-    "text": "فعليّا، الشبكة بأكملها دالة واحدة، تستقبل ٧٨٤ رقًما، و تنتج ١٠ أرقام.",
+    "text": "number between 0 and 1.",
+    "startSeconds": 936.88,
+    "durationSeconds": 1.46,
+    "lang": "en"
+  },
+  {
+    "text": "Really the entire network is just a function, one that takes in",
     "startSeconds": 939.2,
-    "durationSeconds": 7.86,
-    "lang": "ar"
+    "durationSeconds": 3.93,
+    "lang": "en"
   },
   {
-    "text": "بالطبع هي دالة معقّدة للغاية تحتوي على ١٣٠٠٠ معيار بشكل أوزان و انحيازات",
+    "text": "784 numbers as an input and spits out 10 numbers as an output.",
+    "startSeconds": 943.13,
+    "durationSeconds": 3.93,
+    "lang": "en"
+  },
+  {
+    "text": "It's an absurdly complicated function, one that involves 13,000 parameters",
     "startSeconds": 947.56,
-    "durationSeconds": 5.245,
-    "lang": "ar"
+    "durationSeconds": 3.902,
+    "lang": "en"
   },
   {
-    "text": "تحفّظ أنماط محددّة، و تتضمن أيضًا الكثير من ضرب المصفوفات و من بعدها",
-    "startSeconds": 952.805,
-    "durationSeconds": 5.027,
-    "lang": "ar"
+    "text": "in the forms of these weights and biases that pick up on certain patterns,",
+    "startSeconds": 951.462,
+    "durationSeconds": 3.954,
+    "lang": "en"
   },
   {
-    "text": "فعص الأرقام بالدالة اللوجيستيّة. و لكنّها مجرّد دالة في النّهاية.",
-    "startSeconds": 957.832,
-    "durationSeconds": 4.808,
-    "lang": "ar"
+    "text": "and which involves iterating many matrix vector products and the sigmoid",
+    "startSeconds": 955.416,
+    "durationSeconds": 3.849,
+    "lang": "en"
   },
   {
-    "text": "و لربّما تعقيدها يطمئن بعض الشّيء.",
+    "text": "squishification function, but it's just a function nonetheless.",
+    "startSeconds": 959.265,
+    "durationSeconds": 3.375,
+    "lang": "en"
+  },
+  {
+    "text": "And in a way it's kind of reassuring that it looks complicated.",
     "startSeconds": 963.4,
     "durationSeconds": 3.26,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "لو كانت أبسط، ما كنّا لنأمل أنّها تستطيع التعرّف على أرقام.",
+    "text": "I mean if it were any simpler, what hope would we have",
     "startSeconds": 967.34,
-    "durationSeconds": 4.94,
-    "lang": "ar"
+    "durationSeconds": 2.361,
+    "lang": "en"
   },
   {
-    "text": "و كيف أصلًا تقوم بذلك؟",
+    "text": "that it could take on the challenge of recognizing digits?",
+    "startSeconds": 969.701,
+    "durationSeconds": 2.579,
+    "lang": "en"
+  },
+  {
+    "text": "And how does it take on that challenge?",
     "startSeconds": 973.34,
     "durationSeconds": 1.36,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "كيف تتعلّم و تجد الأوزان و الانحيازات المناسبة فقط من خلال معالجة الأمثلة؟",
+    "text": "How does this network learn the appropriate weights and biases just by looking at data?",
     "startSeconds": 975.08,
     "durationSeconds": 4.28,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "هذا ما سنراه في الفيديو القادم، كما سنتعمّق أكثر",
+    "text": "Well that's what I'll show in the next video, and I'll also dig a little",
     "startSeconds": 980.14,
-    "durationSeconds": 3.12,
-    "lang": "ar"
+    "durationSeconds": 3.054,
+    "lang": "en"
   },
   {
-    "text": "بقليل إلى ما يحصل داخل هذه الشًبكة تحديدًا.",
-    "startSeconds": 983.26,
-    "durationSeconds": 2.86,
-    "lang": "ar"
+    "text": "more into what this particular network we're seeing is really doing.",
+    "startSeconds": 983.194,
+    "durationSeconds": 2.926,
+    "lang": "en"
   },
   {
-    "text": "عادةً أقترح هنا أن تشترك في القناة لتبقى مطلعًا على الجزء الثاني أو",
+    "text": "Now is the point I suppose I should say subscribe to stay notified",
     "startSeconds": 987.58,
-    "durationSeconds": 4.92,
-    "lang": "ar"
+    "durationSeconds": 3.168,
+    "lang": "en"
   },
   {
-    "text": "أي فيديوهات أخرى، ولكن واقعيّا معظمنا لا يتلقّى إشعارات من يوتيوب.",
-    "startSeconds": 992.5,
-    "durationSeconds": 4.92,
-    "lang": "ar"
+    "text": "about when that video or any new videos come out,",
+    "startSeconds": 990.748,
+    "durationSeconds": 2.4,
+    "lang": "en"
   },
   {
-    "text": "لذلك من الأصدق أن أقول، اشترك كي تتعلّم الشبكات العصبية التي تكمن في أساس",
+    "text": "but realistically most of you don't actually receive notifications from YouTube, do you?",
+    "startSeconds": 993.148,
+    "durationSeconds": 4.272,
+    "lang": "en"
+  },
+  {
+    "text": "Maybe more honestly I should say subscribe so that the neural networks",
     "startSeconds": 998.02,
-    "durationSeconds": 4.964,
-    "lang": "ar"
+    "durationSeconds": 3.256,
+    "lang": "en"
   },
   {
-    "text": "ترشيحات يوتيوب أنّك تحب هذا المحتوي و ترشّح لك فيديوهات أخرى من القناة.",
-    "startSeconds": 1002.984,
-    "durationSeconds": 4.896,
-    "lang": "ar"
+    "text": "that underlie YouTube's recommendation algorithm are primed to believe",
+    "startSeconds": 1001.276,
+    "durationSeconds": 3.302,
+    "lang": "en"
   },
   {
-    "text": "على أي حال، ابق على الانتظار للمزيد.",
+    "text": "that you want to see content from this channel get recommended to you.",
+    "startSeconds": 1004.578,
+    "durationSeconds": 3.302,
+    "lang": "en"
+  },
+  {
+    "text": "Anyway, stay posted for more.",
     "startSeconds": 1008.56,
     "durationSeconds": 1.38,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "شكرًا جزيلًا للجميع على دعم هذه القناة من خلال Patreon",
+    "text": "Thank you very much to everyone supporting these videos on Patreon.",
     "startSeconds": 1010.76,
     "durationSeconds": 2.74,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "لقد كان العمل على سلسلة الاحتمالات بطيئ هذا الصيف و لكنّي سأعود إليها بعد هذا المشروع.",
+    "text": "I've been a little slow to progress in the probability series this summer,",
     "startSeconds": 1014,
-    "durationSeconds": 5.186,
-    "lang": "ar"
+    "durationSeconds": 3.439,
+    "lang": "en"
   },
   {
-    "text": "إلى حين، يمكنكم ترقّب أي تحديثات على الموقع.",
-    "startSeconds": 1019.186,
-    "durationSeconds": 2.714,
-    "lang": "ar"
+    "text": "but I'm jumping back into it after this project,",
+    "startSeconds": 1017.439,
+    "durationSeconds": 2.277,
+    "lang": "en"
   },
   {
-    "text": "للإنهاء، تنضم إليّ ليشا لي، و هي كتبت أطروحتها عن  التعلم الآلي.",
+    "text": "so patrons you can look out for updates there.",
+    "startSeconds": 1019.716,
+    "durationSeconds": 2.184,
+    "lang": "en"
+  },
+  {
+    "text": "To close things off here I have with me Lisha Li who did her PhD work on the",
     "startSeconds": 1023.6,
-    "durationSeconds": 4.521,
-    "lang": "ar"
+    "durationSeconds": 3.49,
+    "lang": "en"
   },
   {
-    "text": "هي الآن تعمل في شركة استثمارية Amplify Partners' وهم قدّموا جزئاً من التّمويل",
-    "startSeconds": 1028.121,
-    "durationSeconds": 5.51,
-    "lang": "ar"
+    "text": "theoretical side of deep learning and who currently works at a venture capital",
+    "startSeconds": 1027.09,
+    "durationSeconds": 3.627,
+    "lang": "en"
   },
   {
-    "text": "لهذا الفيديو.",
-    "startSeconds": 1033.631,
-    "durationSeconds": 0.989,
-    "lang": "ar"
+    "text": "firm called Amplify Partners who kindly provided some of the funding for this video.",
+    "startSeconds": 1030.717,
+    "durationSeconds": 3.903,
+    "lang": "en"
   },
   {
-    "text": "ليشا لنناقش بسرعة هذه الدالة السينيّة.",
+    "text": "So Lisha one thing I think we should quickly bring up is this sigmoid function.",
     "startSeconds": 1035.46,
     "durationSeconds": 3.66,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "بحسب فهمي، كانت تستخدم في أوّل شبكات عصبيّة لحصر المجموعات بين الصفر والواحد.",
+    "text": "As I understand it early networks use this to squish the relevant weighted",
     "startSeconds": 1039.7,
-    "durationSeconds": 4.732,
-    "lang": "ar"
+    "durationSeconds": 3.458,
+    "lang": "en"
   },
   {
-    "text": "وهي محفزة نوعًا ما ب خلايانا العصبيًة اللّتي تكمن في حالتين، إمّا مفعلّة أو غير مفعّلة.",
-    "startSeconds": 1044.432,
-    "durationSeconds": 5.408,
-    "lang": "ar"
+    "text": "sum into that interval between zero and one, you know kind of motivated",
+    "startSeconds": 1043.158,
+    "durationSeconds": 3.364,
+    "lang": "en"
   },
   {
-    "text": "ليشا: نعم.",
+    "text": "by this biological analogy of neurons either being inactive or active.",
+    "startSeconds": 1046.522,
+    "durationSeconds": 3.318,
+    "lang": "en"
+  },
+  {
+    "text": "Exactly.\nBut relatively few modern networks actually use sigmoid anymore.",
     "startSeconds": 1050.28,
-    "durationSeconds": 0.02,
-    "lang": "ar"
+    "durationSeconds": 3.76,
+    "lang": "en"
   },
   {
-    "text": "و لكن نادرًا ما تستعمل هذه الدّالة في الشبكات الأحدث.",
-    "startSeconds": 1050.56,
-    "durationSeconds": 3.48,
-    "lang": "ar"
+    "text": "Yeah.\nIt's kind of old school right?",
+    "startSeconds": 1054.32,
+    "durationSeconds": 1.44,
+    "lang": "en"
   },
   {
-    "text": "ليشا:  أو بالأحرى، يبدو أنّه من الأسهل بكثير التّدريب عند استخدام RelU",
+    "text": "Yeah or rather ReLU seems to be much easier to train.",
     "startSeconds": 1055.76,
     "durationSeconds": 3.22,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "و RelU هو مصغّر وحدة خطيّة المصحّحة؟",
+    "text": "And ReLU, ReLU stands for rectified linear unit?",
     "startSeconds": 1059.4,
     "durationSeconds": 2.94,
-    "lang": "ar"
+    "lang": "en"
   },
   {
-    "text": "ليشا: هذا صحيح، إنّها دالة تستقبل رقم ما، أ، و من ثم تنتج الرقم الأقصى بين صفر و أ.",
+    "text": "Yes it's this kind of function where you're just taking a max of zero",
     "startSeconds": 1062.68,
-    "durationSeconds": 8.86,
-    "lang": "ar"
+    "durationSeconds": 4.721,
+    "lang": "en"
   },
   {
-    "text": "لذا، اذا كان الرقم المدخل إلى الدالة إيجابي، فهو لا يتغيّر.",
-    "startSeconds": 1071.54,
-    "durationSeconds": 6.404,
-    "lang": "ar"
+    "text": "and a where a is given by what you were explaining in the video and",
+    "startSeconds": 1067.401,
+    "durationSeconds": 4.653,
+    "lang": "en"
   },
   {
-    "text": "اما اذا كان سلبيًّا، فيصبح صفر.",
-    "startSeconds": 1077.944,
-    "durationSeconds": 3.416,
-    "lang": "ar"
+    "text": "what this was sort of motivated from I think was a partially by a",
+    "startSeconds": 1072.054,
+    "durationSeconds": 4.516,
+    "lang": "en"
   },
   {
-    "text": "و هي أيضًا محفّزة بالواقع البيولوجي، حيث الخليّة أن تجتاز عتبة ما قبل أن تفعّل.",
+    "text": "biological analogy with how neurons would either be activated or not.",
+    "startSeconds": 1076.57,
+    "durationSeconds": 4.79,
+    "lang": "en"
+  },
+  {
+    "text": "And so if it passes a certain threshold it would be the identity function but if it did",
     "startSeconds": 1081.36,
-    "durationSeconds": 3.763,
-    "lang": "ar"
+    "durationSeconds": 4.66,
+    "lang": "en"
   },
   {
-    "text": "لذا اذا كان الرقم داخل الخليّة، أي التفعيل، بالحجم الكافي، تفعّل الخليّة.",
-    "startSeconds": 1085.123,
-    "durationSeconds": 3.526,
-    "lang": "ar"
+    "text": "not then it would just not be activated so it'd be zero so it's kind of a simplification.",
+    "startSeconds": 1086.02,
+    "durationSeconds": 4.82,
+    "lang": "en"
   },
   {
-    "text": "و إذا لم يكن، يصبح التفعيل صفر لتبسيط الأمور.",
-    "startSeconds": 1088.649,
-    "durationSeconds": 2.191,
-    "lang": "ar"
-  },
-  {
-    "text": "استعمال الدالة اللوجستية يصعّب التدريب و عندما جرّب بعض",
+    "text": "Using sigmoids didn't help training or it was very difficult to",
     "startSeconds": 1091.16,
-    "durationSeconds": 6.327,
-    "lang": "ar"
+    "durationSeconds": 4.535,
+    "lang": "en"
   },
   {
-    "text": "الباحثين ReLU كانت أنسب بكثير لهذه  الشبكات العصبيّة العميقة.",
-    "startSeconds": 1097.487,
-    "durationSeconds": 7.133,
-    "lang": "ar"
+    "text": "train at some point and people just tried ReLU and it happened",
+    "startSeconds": 1095.695,
+    "durationSeconds": 4.534,
+    "lang": "en"
   },
   {
-    "text": "حسنًا شكرًا ليشا",
+    "text": "to work very well for these incredibly deep neural networks.",
+    "startSeconds": 1100.229,
+    "durationSeconds": 4.391,
+    "lang": "en"
+  },
+  {
+    "text": "All right thank you Lisha.",
     "startSeconds": 1105.1,
     "durationSeconds": 0.54,
-    "lang": "ar"
+    "lang": "en"
   }
 ]
