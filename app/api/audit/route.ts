@@ -17,6 +17,12 @@ import type {
 
 const VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$|^MOCK_[A-Z]+$/;
 
+// Edge runtime: streaming budget on Vercel Hobby is 300s vs 10s for Node
+// functions. Real Sonnet extraction on a long transcript + parallel
+// Haiku classification can blow past 10s. The audit endpoint is the
+// only route that needs this — /api/transcript and /api/oembed stay
+// on Node (single-shot, fast).
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 function sleep(ms: number): Promise<void> {
