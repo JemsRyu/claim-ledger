@@ -89,14 +89,24 @@ The demo is not narrated; it's screen-recorded with subtitles. Recruiter watches
 
 | Layer | Choice | Why |
 |---|---|---|
-| Framework | Next.js 15, App Router, TypeScript | Vercel-native deploy, Server Components keep API keys off client, streaming UI is first-class |
-| Styling | Tailwind v4 + shadcn/ui | Recruiter-grade polish without bespoke design |
+| Framework | Next.js 16, App Router, TypeScript | Vercel-native deploy, Server Components keep API keys off client, streaming UI is first-class |
+| Styling | Tailwind v4 (no component library) | Plain CSS-first Tailwind; no shadcn/ui — every component is hand-rolled to match the project's restrained visual identity |
 | LLM | Anthropic SDK — Sonnet 4.6 (extraction) + Haiku 4.5 (classifier) | Two-model split: Sonnet for context-heavy extraction, Haiku for cheap per-claim classification |
-| Transcripts | `youtube-transcript` (npm) | Calls YouTube's public `timedtext` endpoint; same endpoint the YouTube web player uses |
+| Transcripts | three-tier fallback (see Transcript fetch chain below) | YouTube blocks Vercel egress; we delegate the fetch to a paid third party rather than rotate residential proxies. Curated samples ship as build-time fixtures so they never burn the third-party quota. |
 | Metadata | YouTube oEmbed | Public, no API key, no quota — kills the YouTube Data API v3 dependency |
 | Hosting | Vercel (free or hobby tier) | One-command deploy; serverless functions handle the API routes |
-| Cache | Vercel KV (optional) | Memoize results by `videoId` for demo speed; not load-bearing |
+| Cache | 5-minute in-memory Map (~64 entries, LRU) | Reduces .io quota burn for repeat audits in a warm-start window |
 | State | None client-side beyond local component state; no DB | Stateless by design |
+
+### Transcript fetch chain
+
+YouTube serves bot-detection HTML to most cloud-egress IPs (verified empirically: only 1-of-10 popular videos works from Vercel's Node and Edge runtimes, and the same fail pattern repeats across `youtube-transcript` JS, `youtube-transcript-api` Python, direct timedtext, and Innertube ANDROID with all client variants). The fetch must happen from an egress YouTube doesn't block. Three tiers:
+
+1. **Build-time fixtures** (`lib/samples/transcripts/<videoId>.json`) — for the curated sample gallery only. Instant, free, can never fail. Regeneration recipe is inlined in `lib/samples/transcripts/index.ts`.
+2. **`youtube-transcript.io`** — paid third-party service that fetches on its own infrastructure and returns transcripts via a documented API. Token via `YT_TRANSCRIPT_IO_TOKEN` env var. Free tier is 25 lifetime fetches; paid tiers are usage-based.
+3. **`youtube-transcript` npm direct** — works locally + for the rare videos YouTube doesn't block (e.g. heavily-CDN'd content like Rick Astley's "Never Gonna Give You Up"). Last-ditch fallback.
+
+**Why a paid third party rather than running our own fetcher.** The viable alternatives were (a) rotate residential proxies ourselves, (b) self-host on a residential IP via a tunnel, (c) accept a curated-only demo. (a) is anti-bot evasion infrastructure, which contradicts the project's stated ethics about working with the grain of public data. (b) requires keeping a personal device always-on, brittle for a portfolio. (c) abandons the "any URL" affordance. Delegating to a paid service (b) is a different ethical position than running rotation ourselves: we are the customer, the service handles the fetching strategy. The tradeoff is documented openly in the README rather than hidden.
 
 ### Data flow
 
@@ -277,7 +287,9 @@ We under-promise relentlessly. A claim shown without a timestamp leaks the failu
 | Transcript is auto-generated and noisy | Normalization strips noise; lower-quality output is acceptable, not catastrophic |
 | Video is non-informational (music, vlog, narrative) | Extraction pass returns 0 claims → `kind: "no-audit-applicable"` empty state |
 | Lens model hallucinates a claim | Dropped by timestamp validator |
-| Anthropic API outage | `kind: "error"` event; UI shows graceful error with retry |
+| `youtube-transcript.io` quota exhausted (free tier: 25 lifetime) or outage | Fallback to direct npm fetch (works for ~10% of videos on Vercel); on full failure, `no-transcript` event with explanation |
+| Anthropic credit balance too low | Per-claim silent fallback: synthesizer for extraction, mock round-robin for classification. Demo continues working with visibly-mocked claim text. |
+| Anthropic rate limit / API outage | Same per-claim fallback as credit-too-low |
 | Vercel function timeout (10s on hobby tier) | See §8 — open question |
 | User pastes a non-YouTube URL | URL parser rejects upstream of any network call |
 
@@ -292,14 +304,18 @@ The demo copy reflects this. The marketing copy reflects this. The README reflec
 
 ---
 
-## 8. Open questions (resolve before code, or in P1.1)
+## 8. Open questions
 
-1. **Vercel tier.** Hobby (free) gives 10s function timeout. Sonnet on a 60-min interview transcript may exceed that. Decide: (a) hobby + chunk transcripts > 10s of inference, (b) pay $20/mo for Pro tier with 60s timeout, or (c) stream from the Edge runtime (longer limits, but Anthropic SDK Edge support varies). Recommendation: start hobby + chunking; pay only if a sample needs it.
-2. **Caching.** Optional Vercel KV cache by `videoId`. Pro: demo speed on repeat plays. Con: cost + complexity. Recommendation: skip in P1; add in P2.4 if demo recording feels slow.
-3. **Sample set size.** Memory says "labeled by content type" but no count. Recommendation: 6 samples (wellness reel, tech talk, long-form interview clip, 30-sec health short, food influencer reel, music video for empty state).
-4. **Fuzzy threshold.** §6 specifies 0.90 as the floor. This needs empirical tuning on samples in P2.3 — too strict drops good claims, too loose admits hallucinations. Tune by hand-labeling the curated set's expected claim count and adjusting threshold to maximize recall *subject to zero false-grounded-claim demos*.
-5. **Opinion-as-fact.** Should extraction include statements like "I believe X is harmful" or only assertions like "X is harmful"? Recommendation: extract both; flag opinion-stated-as-fact via the `un-credentialed` flag where applicable. Revisit if it makes the ledger noisy.
-6. **Haiku for extraction.** Memory says Haiku 4.5 is "possibly" used for the classifier. We commit to Sonnet for extraction, Haiku for classifier flags. If Haiku turns out to be wrong on extraction edge cases in P2.3, fall back to Sonnet for classifier too.
+1. **Vercel tier.** Hobby (free) gives 10s function timeout. Sonnet on a 60-min interview transcript may exceed that. Decide: (a) hobby + chunk transcripts > 10s of inference, (b) pay $20/mo for Pro tier with 60s timeout, or (c) stream from the Edge runtime (longer limits, but Anthropic SDK Edge support varies). **Status: still on hobby, not yet stress-tested with a long video. Revisit in P2.3.**
+2. ~~**Caching.** Optional Vercel KV cache by `videoId`.~~ **Resolved (2026-05-09):** in-memory `Map` cache (5-min TTL, 64-entry LRU) ships in `lib/youtube/transcript-cache.ts`. KV not needed for portfolio-scale traffic.
+3. ~~**Sample set size.** Recommendation: 6 samples.~~ **Resolved (2026-05-08):** 6 curated samples ship in `lib/samples/curated.ts`. All have build-time fixture transcripts in `lib/samples/transcripts/`.
+4. **Fuzzy threshold.** §6 specifies 0.90 as the floor. **Still 0.90 in `lib/lens/timestamp-validator.ts`. Empirical tuning blocked on Anthropic credits — needs to run real extraction across the sample set in P2.3.**
+5. ~~**Opinion-as-fact.**~~ **Resolved (2026-05-09):** extraction system prompt in `lib/lens/extract.ts` extracts both. Opinion-stated-as-fact gets flagged via the classifier; pure opinion-stated-as-opinion is excluded.
+6. ~~**Haiku for extraction.**~~ **Resolved (2026-05-09):** Sonnet 4.6 for extraction (`lib/lens/extract.ts`), Haiku 4.5 for classification (`lib/lens/classify.ts`). Final.
+
+**New open question added 2026-05-09:**
+
+7. **`youtube-transcript.io` plan.** Free tier is 25 lifetime fetches. Curated samples are fixtured so they don't burn quota; only arbitrary URLs do. If portfolio traffic exceeds 25 unique non-fixtured videos, decide: pay (~$5-20/mo), or accept that arbitrary URLs become best-effort once the free tier exhausts. **Recommendation: monitor; switch to paid only when needed.**
 
 ---
 
