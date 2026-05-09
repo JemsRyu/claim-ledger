@@ -7,6 +7,7 @@ import {
   YoutubeTranscriptVideoUnavailableError,
 } from "youtube-transcript";
 import { fetchTranscriptViaIo, TranscriptIoError } from "./transcript-io";
+import { TRANSCRIPT_FIXTURES } from "@/lib/samples/transcripts";
 
 export type TranscriptSegment = {
   text: string;
@@ -42,19 +43,24 @@ type RawSegment = {
 };
 
 /**
- * Fetch a transcript with two-tier fallback:
+ * Fetch a transcript with three-tier fallback:
+ *   0. Build-time fixtures for curated sample videoIds (~150KB shipped in
+ *      the bundle; instant, doesn't burn .io quota, can't fail).
  *   1. youtube-transcript.io (works on Vercel — third-party service handles
  *      the YouTube fetch from non-blocked egress). Requires
  *      YT_TRANSCRIPT_IO_TOKEN env var.
  *   2. Direct via the youtube-transcript npm package (works locally + for
  *      the rare videos YouTube doesn't block from cloud egress).
- *
- * The .io path runs first because it's reliable on Vercel; direct is only
- * a backup for outages, missing token, or the rate-limit case.
  */
 export async function fetchTranscript(
   videoId: string,
 ): Promise<TranscriptSegment[]> {
+  // Tier 0: curated-sample fixtures — instant, free, can't fail
+  const fixture = TRANSCRIPT_FIXTURES[videoId];
+  if (fixture && fixture.length > 0) {
+    return fixture;
+  }
+
   const hasToken = !!process.env.YT_TRANSCRIPT_IO_TOKEN;
 
   // Tier 1: youtube-transcript.io — works on Vercel
