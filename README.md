@@ -22,14 +22,23 @@ A recruiter-facing portfolio demo built to communicate, in 60 seconds, what disc
 ## How it works
 
 ```
-URL ──> oEmbed metadata
-   └──> youtube-transcript (public timedtext endpoint)
-                └──> lens pipeline (extraction + classification)
-                            └──> server fuzzy-matches verbatim
-                                     against transcript ──> claim ledger
+URL ──> oEmbed metadata (public, no key)
+   │
+   └──> Transcript:
+        Tier 0: build-time fixture for curated samples (instant)
+        Tier 1: youtube-transcript.io (works on Vercel)
+        Tier 2: direct via youtube-transcript npm (fallback)
+                   │
+                   └──> Sonnet 4.6 extraction (verbatim claims, no timestamps)
+                          │
+                          └──> server fuzzy-matches verbatim ─> derives timestamp
+                                 │
+                                 └──> Haiku 4.5 classification (per-claim flags)
+                                        │
+                                        └──> SSE-streamed claim ledger
 ```
 
-The trust spine is at the server boundary. **The model never emits timestamps.** The model emits verbatim transcript substrings; the server fuzzy-matches each against the timestamped transcript and derives the timestamp deterministically. Claims that don't match are dropped silently. A wrong timestamp on a recruiter demo is fatal — better to under-show than to over-promise.
+The trust spine is at the server boundary. **The model never emits timestamps.** The extraction model emits verbatim transcript substrings; the server fuzzy-matches each against the timestamped transcript and derives the timestamp deterministically. Claims that don't match are dropped silently. A wrong timestamp on a recruiter demo is fatal — better to under-show than to over-promise.
 
 See [`DESIGN.md`](./DESIGN.md) §6 for the algorithm.
 
@@ -37,20 +46,29 @@ See [`DESIGN.md`](./DESIGN.md) §6 for the algorithm.
 
 | Phase | Scope | State |
 |---|---|---|
-| **1** | Scaffold, deploy, transcript fetch, lens UI, ledger, timestamp validator (mocked extraction) | ✅ complete |
-| **2** | Live Sonnet 4.6 extraction + Haiku 4.5 classification, prompt tuning, demo recording | not started |
+| **1** | Scaffold, deploy, transcript fetch, lens UI, ledger, timestamp validator | ✅ complete |
+| **2.1** | Live Sonnet 4.6 extraction with synthesizer fallback | ✅ wired |
+| **2.2** | Live Haiku 4.5 classification with mock-flag fallback | ✅ wired |
+| **2.3** | Prompt tuning across the curated sample set | pending Anthropic credits |
+| **2.4** | 60-second demo recording + final polish | pending 2.3 |
 
-Phase 1 currently runs against a real-transcript synthesizer + the production timestamp validator, so click-to-verify is honest even before live LLM calls land.
+Both LLM lenses fall back gracefully on any API failure (no key, no credits, rate limit) so the demo always works. When the Anthropic account has credits, real extraction and classification fire automatically — no redeploy required.
 
 ## Stack
 
-Next.js 16 App Router · React 19 · Tailwind v4 · TypeScript · Anthropic SDK (Phase 2) · `youtube-transcript` · YouTube oEmbed · Vercel.
+Next.js 16 App Router · React 19 · Tailwind v4 · TypeScript · Anthropic SDK · YouTube oEmbed · `youtube-transcript` (fallback) · `youtube-transcript.io` (primary) · Vercel.
 
-No database, no accounts, no persistence. Every audit is computed fresh from the public transcript.
+No database, no accounts, no persistence beyond a 5-minute in-memory transcript cache. Every audit is computed fresh.
+
+## Decisions worth flagging
+
+- **The transcript fetch goes through a paid third party.** YouTube blocks transcript fetches from Vercel's serverless egress IPs (and any cloud egress, as far as we tested). Originally we hit YouTube's public `timedtext` endpoint directly; that path now fails 9-of-10 popular videos when run from cloud. Options were (a) rotate residential proxies ourselves, (b) delegate the fetch to a paid service, or (c) accept that arbitrary URLs would be best-effort. We chose (b) — `youtube-transcript.io` — because being a customer is a different ethical position than running rotation infrastructure. Curated samples ship as build-time fixtures so they never burn the third-party quota.
+- **Server is stateless across the lens pipeline.** No persisted prompt artifacts, no claim history, no analytics. A claim that drops to the synthesizer fallback today produces the same output if re-audited next week.
+- **Click-to-verify timestamps are honest even when extraction is mocked.** The synthesizer pulls real transcript substrings, runs them through the same `validateClaim` the live extraction would use, and emits real spans. The "demo" prefix on synthesized claim text is the only visible signal that LLM extraction wasn't live.
 
 ## Read more
 
-- [`DESIGN.md`](./DESIGN.md) — design of record. 9 sections, including the timestamp-mitigation algorithm (§6) and 6 open questions (§8).
+- [`DESIGN.md`](./DESIGN.md) — design of record. 9 sections, including the timestamp-mitigation algorithm (§6) and the open questions list (§8).
 - [`PLAN.md`](./PLAN.md) — chunked implementation plan. 12 sessions across 2 phases.
 
 ## Local dev
@@ -59,13 +77,7 @@ No database, no accounts, no persistence. Every audit is computed fresh from the
 npm install
 npm run dev      # http://localhost:3000
 npm run build    # type-check + production build
-npm test         # vitest run — 31 tests on the timestamp validator
+npm test         # vitest — 31 tests on the timestamp validator
 ```
 
-## Hard constraints
-
-This project will never:
-
-- Defeat anti-bot measures or scrape behind login walls. Transcripts come from YouTube's public `timedtext` endpoint, the same one the YouTube web player uses.
-- Show a timestamp the model invented. Claims that don't fuzzy-match a transcript span are dropped silently rather than displayed unverified.
-- Claim claims are *true* — only that they are *made*.
+Local dev works without `YT_TRANSCRIPT_IO_TOKEN` because youtube-transcript's npm package works fine from residential IP.
