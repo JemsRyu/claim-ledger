@@ -6,6 +6,7 @@ import {
   YoutubeTranscriptTooManyRequestError,
   YoutubeTranscriptVideoUnavailableError,
 } from "youtube-transcript";
+import { fetchTranscriptViaIo, TranscriptIoError } from "./transcript-io";
 
 export type TranscriptSegment = {
   text: string;
@@ -40,7 +41,49 @@ type RawSegment = {
   lang?: string;
 };
 
+/**
+ * Fetch a transcript with two-tier fallback:
+ *   1. youtube-transcript.io (works on Vercel — third-party service handles
+ *      the YouTube fetch from non-blocked egress). Requires
+ *      YT_TRANSCRIPT_IO_TOKEN env var.
+ *   2. Direct via the youtube-transcript npm package (works locally + for
+ *      the rare videos YouTube doesn't block from cloud egress).
+ *
+ * The .io path runs first because it's reliable on Vercel; direct is only
+ * a backup for outages, missing token, or the rate-limit case.
+ */
 export async function fetchTranscript(
+  videoId: string,
+): Promise<TranscriptSegment[]> {
+  // Tier 1: youtube-transcript.io — works on Vercel
+  if (process.env.YT_TRANSCRIPT_IO_TOKEN) {
+    try {
+      return await fetchTranscriptViaIo(videoId);
+    } catch (error) {
+      if (
+        error instanceof TranscriptIoError &&
+        error.kind === "no-transcript"
+      ) {
+        throw new TranscriptError(
+          "disabled",
+          404,
+          "This video has no captions available.",
+        );
+      }
+      // Other .io errors (rate-limited, auth, upstream) fall through to direct
+      console.warn(
+        `[transcript] youtube-transcript.io failed (${
+          error instanceof TranscriptIoError ? error.kind : "unknown"
+        }): ${error instanceof Error ? error.message : "?"}. Falling back to direct.`,
+      );
+    }
+  }
+
+  // Tier 2: direct via youtube-transcript npm package
+  return fetchDirectly(videoId);
+}
+
+async function fetchDirectly(
   videoId: string,
 ): Promise<TranscriptSegment[]> {
   try {
