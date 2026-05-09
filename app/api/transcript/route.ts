@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchTranscript, TranscriptError } from "@/lib/youtube/transcript";
 
+// Edge runtime probe — Vercel Node serverless egress IPs are heavily
+// bot-filtered by YouTube; Edge runs on Cloudflare and may evade the block.
+export const runtime = "edge";
+
 const VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
 
 export async function GET(request: NextRequest) {

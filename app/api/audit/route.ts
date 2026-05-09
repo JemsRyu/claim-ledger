@@ -11,6 +11,9 @@ import type { AuditEvent, RawClaim, ValidatedClaim } from "@/lib/lens/types";
 
 const VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$|^MOCK_[A-Z]+$/;
 
+// Edge runtime probe — same reason as /api/transcript; this route also
+// fetches the transcript internally for synthesis + validation.
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 function sleep(ms: number): Promise<void> {
