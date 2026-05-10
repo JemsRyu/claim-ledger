@@ -57,12 +57,30 @@ export async function GET(request: NextRequest) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
+      // Vercel's edge proxy buffers SSE responses until ~enough bytes
+      // accumulate, which makes the audit feel chunky (events arrive in
+      // 10-15s clumps rather than streaming smoothly). Comment lines (`:`)
+      // are valid SSE per spec — clients ignore them — so we use them as
+      // a keepalive that pushes the proxy past its buffer threshold.
+      const keepalive = setInterval(() => {
+        try {
+          controller.enqueue(encoder.encode(`: keepalive\n\n`));
+        } catch {
+          // Controller already closed; the interval will be cleared below.
+        }
+      }, 3000);
+
       const send = (event: AuditEvent) => {
         controller.enqueue(
           encoder.encode(
             `event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`,
           ),
         );
+      };
+
+      const close = () => {
+        clearInterval(keepalive);
+        controller.close();
       };
 
       try {
@@ -73,12 +91,12 @@ export async function GET(request: NextRequest) {
           if (fixture.kind === "no-audit-applicable") {
             send({ type: "no-audit-applicable", reason: fixture.reason });
             send({ type: "done" });
-            controller.close();
+            close();
             return;
           }
           await streamPrefabFixture(fixture.claims, send);
           send({ type: "done" });
-          controller.close();
+          close();
           return;
         }
 
@@ -90,7 +108,7 @@ export async function GET(request: NextRequest) {
           if (error instanceof TranscriptError) {
             send({ type: "no-transcript", reason: error.message });
             send({ type: "done" });
-            controller.close();
+            close();
             return;
           }
           throw error;
@@ -134,7 +152,7 @@ export async function GET(request: NextRequest) {
                 : "Transcript too short or sparse to demonstrate the audit on this video.",
           });
           send({ type: "done" });
-          controller.close();
+          close();
           return;
         }
 
@@ -195,14 +213,14 @@ export async function GET(request: NextRequest) {
         }
 
         send({ type: "done" });
-        controller.close();
+        close();
       } catch (error) {
         send({
           type: "error",
           message:
             error instanceof Error ? error.message : "Unknown audit error.",
         });
-        controller.close();
+        close();
       }
     },
   });
