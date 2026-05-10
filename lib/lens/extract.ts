@@ -1,10 +1,11 @@
-import Anthropic from "@anthropic-ai/sdk";
 import type { TranscriptSegment } from "@/lib/youtube/transcript";
 import type { RawClaim } from "./types";
 
 const MODEL_ID = "claude-sonnet-4-6";
 const MAX_OUTPUT_TOKENS = 8192;
 const REQUEST_TIMEOUT_MS = 30_000;
+const API_URL = "https://api.anthropic.com/v1/messages";
+const API_VERSION = "2023-06-01";
 
 const SYSTEM_PROMPT = `You are an extraction lens for a YouTube claim auditor.
 
@@ -79,21 +80,27 @@ function buildTranscriptText(transcript: TranscriptSegment[]): string {
     .join(" ");
 }
 
+type MessagesResponse = {
+  content?: { type: string; text?: string }[];
+};
+
 /**
  * Extract factual claims from a timestamped transcript using Claude Sonnet 4.6.
  *
+ * Hits the Messages API directly via fetch — keeps the audit route edge-safe.
+ * The official SDK transitively imports node:fs/node:path (its credentials
+ * chain), which Vercel's edge function validator rejects on deploy.
+ *
  * Uses output_config.format with a json_schema for guaranteed structure, and
  * top-level prompt caching so repeat audits of the same video read from cache
- * (~10% of input price). Falls back to throwing ExtractionError on any
- * SDK-level failure; the audit route catches and degrades gracefully.
- *
- * The model never emits timestamps (per system prompt). All timestamps are
- * derived downstream by validateClaim against the same transcript.
+ * (~10% of input price). Throws ExtractionError on any failure; the audit
+ * route catches and degrades gracefully.
  */
 export async function extractClaims(
   transcript: TranscriptSegment[],
 ): Promise<RawClaim[]> {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
     throw new ExtractionError(
       "no-key",
       "ANTHROPIC_API_KEY is not set in the environment.",
@@ -101,57 +108,85 @@ export async function extractClaims(
   }
   if (transcript.length === 0) return [];
 
-  const client = new Anthropic({ timeout: REQUEST_TIMEOUT_MS, maxRetries: 1 });
   const transcriptText = buildTranscriptText(transcript);
-
-  let response;
-  try {
-    response = await client.messages.create({
-      model: MODEL_ID,
-      max_tokens: MAX_OUTPUT_TOKENS,
-      cache_control: { type: "ephemeral" },
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: `Transcript:\n\n${transcriptText}`,
-        },
-      ],
-      output_config: {
-        format: {
-          type: "json_schema",
-          schema: CLAIMS_SCHEMA,
-        },
+  const body = {
+    model: MODEL_ID,
+    max_tokens: MAX_OUTPUT_TOKENS,
+    cache_control: { type: "ephemeral" },
+    system: SYSTEM_PROMPT,
+    messages: [
+      {
+        role: "user",
+        content: `Transcript:\n\n${transcriptText}`,
       },
-    } as Anthropic.MessageCreateParamsNonStreaming);
+    ],
+    output_config: {
+      format: {
+        type: "json_schema",
+        schema: CLAIMS_SCHEMA,
+      },
+    },
+  };
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  let response: Response;
+  try {
+    response = await fetch(API_URL, {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": API_VERSION,
+      },
+      body: JSON.stringify(body),
+    });
   } catch (error) {
-    if (error instanceof Anthropic.BadRequestError) {
-      const message = error.message ?? "";
-      if (/credit balance/i.test(message)) {
-        throw new ExtractionError(
-          "no-credits",
-          "Anthropic account has insufficient credits.",
-        );
-      }
-      throw new ExtractionError("bad-request", `Bad request: ${message}`);
-    }
-    if (error instanceof Anthropic.AuthenticationError) {
-      throw new ExtractionError("auth", "Invalid Anthropic API key.");
-    }
-    if (error instanceof Anthropic.RateLimitError) {
+    if (error instanceof Error && error.name === "AbortError") {
       throw new ExtractionError(
-        "rate-limited",
-        "Anthropic rate limit hit. Try again shortly.",
+        "unknown",
+        `Anthropic request timed out after ${REQUEST_TIMEOUT_MS}ms.`,
       );
     }
     throw new ExtractionError(
       "unknown",
       error instanceof Error ? error.message : "Unknown extraction failure.",
     );
+  } finally {
+    clearTimeout(timeoutId);
   }
 
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    if (response.status === 401) {
+      throw new ExtractionError("auth", "Invalid Anthropic API key.");
+    }
+    if (response.status === 429) {
+      throw new ExtractionError(
+        "rate-limited",
+        "Anthropic rate limit hit. Try again shortly.",
+      );
+    }
+    if (response.status === 400) {
+      if (/credit balance/i.test(errorText)) {
+        throw new ExtractionError(
+          "no-credits",
+          "Anthropic account has insufficient credits.",
+        );
+      }
+      throw new ExtractionError("bad-request", `Bad request: ${errorText}`);
+    }
+    throw new ExtractionError(
+      "unknown",
+      `Anthropic API ${response.status}: ${errorText}`,
+    );
+  }
+
+  const data = (await response.json()) as MessagesResponse;
+  const textBlock = data.content?.find((b) => b.type === "text");
+  if (!textBlock?.text) {
     throw new ExtractionError(
       "unknown",
       "Claude returned no text content in the extraction response.",

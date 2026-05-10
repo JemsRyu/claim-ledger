@@ -1,4 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
 import type { TranscriptSegment } from "@/lib/youtube/transcript";
 import type { AdversarialFlag, ValidatedClaim } from "./types";
 import { ADVERSARIAL_FLAGS } from "./types";
@@ -6,6 +5,8 @@ import { ADVERSARIAL_FLAGS } from "./types";
 const MODEL_ID = "claude-haiku-4-5";
 const MAX_OUTPUT_TOKENS = 256;
 const REQUEST_TIMEOUT_MS = 20_000;
+const API_URL = "https://api.anthropic.com/v1/messages";
+const API_VERSION = "2023-06-01";
 
 const SYSTEM_PROMPT = `You are a classification lens for a YouTube claim auditor.
 
@@ -62,22 +63,28 @@ function buildTranscriptText(transcript: TranscriptSegment[]): string {
     .join(" ");
 }
 
+type MessagesResponse = {
+  content?: { type: string; text?: string }[];
+};
+
 /**
  * Classify a single validated claim against adversarial flags using
  * Claude Haiku 4.5.
  *
+ * Hits the Messages API directly via fetch — keeps the audit route edge-safe.
  * Prompt caching: the system prompt + transcript prefix are cached so
  * subsequent claims for the same video read at ~10% of input cost.
  * Claim-specific text comes after the cache breakpoint.
  *
- * Throws ClassificationError on any SDK-level failure; the audit route
- * catches and falls back to mockFlagsForIndex so the demo never breaks.
+ * Throws ClassificationError on any failure; the audit route catches and
+ * falls back to mockFlagsForIndex so the demo never breaks.
  */
 export async function classifyClaim(
   transcript: TranscriptSegment[],
   claim: ValidatedClaim,
 ): Promise<AdversarialFlag[]> {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
     throw new ClassificationError(
       "no-key",
       "ANTHROPIC_API_KEY is not set in the environment.",
@@ -85,68 +92,91 @@ export async function classifyClaim(
   }
   if (transcript.length === 0) return [];
 
-  const client = new Anthropic({ timeout: REQUEST_TIMEOUT_MS, maxRetries: 1 });
   const transcriptText = buildTranscriptText(transcript);
   const claimSection = `Claim to evaluate:\n  Paraphrase: ${claim.claim}\n  Verbatim quote: "${claim.matchedText}"`;
 
-  let response;
-  try {
-    response = await client.messages.create({
-      model: MODEL_ID,
-      max_tokens: MAX_OUTPUT_TOKENS,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `Transcript:\n\n${transcriptText}`,
-              cache_control: { type: "ephemeral" },
-            },
-            { type: "text", text: claimSection },
-          ],
-        },
-      ],
-      output_config: {
-        format: {
-          type: "json_schema",
-          schema: FLAGS_SCHEMA,
-        },
+  const body = {
+    model: MODEL_ID,
+    max_tokens: MAX_OUTPUT_TOKENS,
+    system: SYSTEM_PROMPT,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: `Transcript:\n\n${transcriptText}`,
+            cache_control: { type: "ephemeral" },
+          },
+          { type: "text", text: claimSection },
+        ],
       },
-    } as Anthropic.MessageCreateParamsNonStreaming);
+    ],
+    output_config: {
+      format: {
+        type: "json_schema",
+        schema: FLAGS_SCHEMA,
+      },
+    },
+  };
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  let response: Response;
+  try {
+    response = await fetch(API_URL, {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": API_VERSION,
+      },
+      body: JSON.stringify(body),
+    });
   } catch (error) {
-    if (error instanceof Anthropic.BadRequestError) {
-      const message = error.message ?? "";
-      if (/credit balance/i.test(message)) {
-        throw new ClassificationError(
-          "no-credits",
-          "Anthropic account has insufficient credits.",
-        );
-      }
-      throw new ClassificationError("bad-request", message);
-    }
-    if (error instanceof Anthropic.AuthenticationError) {
-      throw new ClassificationError("auth", "Invalid Anthropic API key.");
-    }
-    if (error instanceof Anthropic.RateLimitError) {
+    if (error instanceof Error && error.name === "AbortError") {
       throw new ClassificationError(
-        "rate-limited",
-        "Anthropic rate limit hit.",
+        "unknown",
+        `Anthropic request timed out after ${REQUEST_TIMEOUT_MS}ms.`,
       );
     }
     throw new ClassificationError(
       "unknown",
       error instanceof Error ? error.message : "Unknown classification failure.",
     );
+  } finally {
+    clearTimeout(timeoutId);
   }
 
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    if (response.status === 401) {
+      throw new ClassificationError("auth", "Invalid Anthropic API key.");
+    }
+    if (response.status === 429) {
+      throw new ClassificationError("rate-limited", "Anthropic rate limit hit.");
+    }
+    if (response.status === 400) {
+      if (/credit balance/i.test(errorText)) {
+        throw new ClassificationError(
+          "no-credits",
+          "Anthropic account has insufficient credits.",
+        );
+      }
+      throw new ClassificationError("bad-request", errorText);
+    }
     throw new ClassificationError(
       "unknown",
-      "Haiku returned no text content.",
+      `Anthropic API ${response.status}: ${errorText}`,
     );
+  }
+
+  const data = (await response.json()) as MessagesResponse;
+  const textBlock = data.content?.find((b) => b.type === "text");
+  if (!textBlock?.text) {
+    throw new ClassificationError("unknown", "Haiku returned no text content.");
   }
 
   let parsed: { flags?: unknown };
