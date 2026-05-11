@@ -5,9 +5,13 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center px-6 pt-20 pb-16 text-foreground sm:pt-28">
       <div className="flex w-full max-w-2xl flex-col gap-10">
         <header className="flex flex-col gap-3">
-          <p className="font-mono text-xs uppercase tracking-widest text-foreground/50">
+          <a
+            href="/"
+            aria-label="claim-ledger — back to home"
+            className="self-start font-mono text-xs uppercase tracking-widest text-foreground/50 transition-colors hover:text-foreground/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 rounded"
+          >
             claim-ledger
-          </p>
+          </a>
           <h1 className="text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
             Claim auditor for informational video.
           </h1>
