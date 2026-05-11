@@ -25,7 +25,12 @@ const INITIAL_STATE: LedgerState = {
   classifiedIds: new Set(),
 };
 
-export function Ledger({ videoId }: { videoId: string }) {
+type Props = {
+  videoId: string;
+  onSeek: (seconds: number) => void;
+};
+
+export function Ledger({ videoId, onSeek }: Props) {
   const [state, setState] = useState<LedgerState>(INITIAL_STATE);
 
   useEffect(() => {
@@ -210,9 +215,9 @@ export function Ledger({ videoId }: { videoId: string }) {
         {state.claims.map((claim) => (
           <ClaimCard
             key={claim.id}
-            videoId={videoId}
             claim={claim}
             classified={state.classifiedIds.has(claim.id)}
+            onSeek={onSeek}
           />
         ))}
       </div>

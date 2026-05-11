@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { VideoCard } from "./VideoCard";
+import { useCallback, useRef, useState, type FormEvent } from "react";
+import { YouTubeEmbed, type YouTubeEmbedHandle } from "./YouTubeEmbed";
 import { TranscriptView } from "./TranscriptView";
 import { Ledger } from "./Ledger";
 import { SampleGallery } from "./SampleGallery";
@@ -27,6 +27,11 @@ type FetchState =
 export function UrlInput() {
   const [url, setUrl] = useState("");
   const [state, setState] = useState<FetchState>({ kind: "idle" });
+  const playerRef = useRef<YouTubeEmbedHandle>(null);
+
+  const seek = useCallback((seconds: number) => {
+    playerRef.current?.seekTo(seconds);
+  }, []);
 
   async function runAudit(submittedUrl: string) {
     const trimmed = submittedUrl.trim();
@@ -170,7 +175,11 @@ export function UrlInput() {
 
       {state.kind === "loaded" && (
         <>
-          <VideoCard videoId={state.videoId} metadata={state.metadata} />
+          <YouTubeEmbed
+            ref={playerRef}
+            videoId={state.videoId}
+            metadata={state.metadata}
+          />
 
           {state.transcript.kind === "loading" && (
             <p className="text-sm text-foreground/50">Loading transcript…</p>
@@ -203,10 +212,10 @@ export function UrlInput() {
           {state.transcript.kind === "ready" && (
             <>
               <TranscriptView
-                videoId={state.videoId}
                 segments={state.transcript.segments}
+                onSeek={seek}
               />
-              <Ledger videoId={state.videoId} />
+              <Ledger videoId={state.videoId} onSeek={seek} />
             </>
           )}
         </>
