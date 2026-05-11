@@ -49,22 +49,24 @@ See [`DESIGN.md`](./DESIGN.md) §6 for the algorithm.
 | **1** | Scaffold, deploy, transcript fetch, lens UI, ledger, timestamp validator | ✅ complete |
 | **2.1** | Live Sonnet 4.6 extraction with synthesizer fallback | ✅ wired |
 | **2.2** | Live Haiku 4.5 classification with mock-flag fallback | ✅ wired |
-| **2.3** | Prompt tuning across the curated sample set | pending Anthropic credits |
-| **2.4** | 60-second demo recording + final polish | pending 2.3 |
+| **2.3** | Prompt tuning across the curated sample set | ✅ tuned over 5 eval iterations |
+| **2.4** | 60-second demo recording | deferred |
 
 Both LLM lenses fall back gracefully on any API failure (no key, no credits, rate limit) so the demo always works. When the Anthropic account has credits, real extraction and classification fire automatically — no redeploy required.
 
 ## Stack
 
-Next.js 16 App Router · React 19 · Tailwind v4 · TypeScript · Anthropic SDK · YouTube oEmbed · `youtube-transcript` (fallback) · `youtube-transcript.io` (primary) · Vercel.
+Next.js 16 App Router · React 19 · Tailwind v4 · TypeScript · Anthropic Messages API via raw `fetch` (Sonnet 4.6 + Haiku 4.5) · YouTube oEmbed · `youtube-transcript.io` (primary) · `youtube-transcript` (fallback) · Vercel (Edge runtime on `/api/audit`).
 
 No database, no accounts, no persistence beyond a 5-minute in-memory transcript cache. Every audit is computed fresh.
 
 ## Decisions worth flagging
 
 - **The transcript fetch goes through a paid third party.** YouTube blocks transcript fetches from Vercel's serverless egress IPs (and any cloud egress, as far as we tested). Originally we hit YouTube's public `timedtext` endpoint directly; that path now fails 9-of-10 popular videos when run from cloud. Options were (a) rotate residential proxies ourselves, (b) delegate the fetch to a paid service, or (c) accept that arbitrary URLs would be best-effort. We chose (b) — `youtube-transcript.io` — because being a customer is a different ethical position than running rotation infrastructure. Curated samples ship as build-time fixtures so they never burn the third-party quota.
+- **Lens calls bypass the Anthropic SDK.** The SDK transitively imports `node:fs`/`node:path` for its OAuth credential chain. Vercel's edge function validator static-analyzes the bundle and rejects any reference to Node-only built-ins, so the deploy failed when `/api/audit` was switched to edge runtime (needed for the 300s streaming budget on the free Hobby tier). The lens code now calls `https://api.anthropic.com/v1/messages` directly via `fetch`, preserving prompt caching and structured output via `output_config.format`. Roughly 40 lines per lens, fully edge-compatible.
 - **Server is stateless across the lens pipeline.** No persisted prompt artifacts, no claim history, no analytics. A claim that drops to the synthesizer fallback today produces the same output if re-audited next week.
-- **Click-to-verify timestamps are honest even when extraction is mocked.** The synthesizer pulls real transcript substrings, runs them through the same `validateClaim` the live extraction would use, and emits real spans. The "demo" prefix on synthesized claim text is the only visible signal that LLM extraction wasn't live.
+- **Click-to-verify timestamps are honest even when extraction degrades.** The synthesizer fallback (triggered on Anthropic API failure) pulls real transcript substrings, runs them through the same `validateClaim` the live extraction would use, and emits real spans. The "(demo)" prefix on synthesized claim text is the only visible signal that LLM extraction wasn't live.
+- **Fuzzy-match validator uses seed-anchored search.** The naive brute-force fuzzy matcher was `O(N · W · L²)` and took minutes per claim on long transcripts. The current implementation uses pigeonhole seeding (any match with ≤k edits leaves at least one of k+1 disjoint needle seeds untouched in the haystack) plus banded Levenshtein with early termination — ~100× speedup, same 31-case test suite still passes. Details in `lib/lens/timestamp-validator.ts`.
 
 ## Read more
 
