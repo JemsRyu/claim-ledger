@@ -19,6 +19,15 @@ function formatTimestamp(seconds: number): string {
 }
 
 export function ClaimCard({ claim, classified, onSeek }: Props) {
+  const hasFlags = classified && claim.flags.length > 0;
+  // Verify links go through the user's browser — we generate the search
+  // URL but the actual retrieval is a click the user makes. No model
+  // citation, no hallucinated DOI, no judgment of "supports/refutes".
+  // The auditor still surfaces; the user still judges.
+  const query = encodeURIComponent(claim.claim);
+  const scholarUrl = `https://scholar.google.com/scholar?q=${query}`;
+  const pubmedUrl = `https://pubmed.ncbi.nlm.nih.gov/?term=${query}`;
+
   return (
     <article className="flex flex-col gap-3 rounded-lg border border-foreground/10 bg-foreground/[0.02] p-4">
       <header className="flex items-start justify-between gap-3">
@@ -52,6 +61,29 @@ export function ClaimCard({ claim, classified, onSeek }: Props) {
           <span className="font-mono text-[10px] uppercase tracking-wider text-foreground/40">
             classifying…
           </span>
+        )}
+        {hasFlags && (
+          <div className="ml-auto flex items-center gap-2 text-[10px] tracking-wider text-foreground/45">
+            <span className="font-mono uppercase">verify:</span>
+            <a
+              href={scholarUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-foreground/25 underline-offset-2 transition-colors hover:text-foreground hover:decoration-foreground"
+              title="Search Google Scholar for academic sources on this claim"
+            >
+              Scholar
+            </a>
+            <a
+              href={pubmedUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-foreground/25 underline-offset-2 transition-colors hover:text-foreground hover:decoration-foreground"
+              title="Search PubMed for biomedical literature on this claim"
+            >
+              PubMed
+            </a>
+          </div>
         )}
       </footer>
     </article>
