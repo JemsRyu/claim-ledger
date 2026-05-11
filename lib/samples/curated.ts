@@ -51,11 +51,11 @@ export const CURATED_SAMPLES: CuratedSample[] = [
     expectedKind: "audit",
   },
   {
-    id: "gAjR4_CbPpQ",
-    url: "https://www.youtube.com/watch?v=gAjR4_CbPpQ",
-    label: "Short-form clip",
+    id: "lEXBxijQREo",
+    url: "https://www.youtube.com/watch?v=lEXBxijQREo",
+    label: "Health short · animated",
     description:
-      "Very short. Tests behavior on tiny transcripts where claim density is high per second.",
+      "Short health/wellness explainer with dense factual claims about neurochemistry. Tests behavior in the format where claim auditing pays the highest dividends.",
     expectedKind: "audit",
   },
   {

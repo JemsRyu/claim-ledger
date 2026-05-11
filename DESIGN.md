@@ -91,7 +91,7 @@ The demo is not narrated; it's screen-recorded with subtitles. Recruiter watches
 |---|---|---|
 | Framework | Next.js 16, App Router, TypeScript | Vercel-native deploy, Server Components keep API keys off client, streaming UI is first-class |
 | Styling | Tailwind v4 (no component library) | Plain CSS-first Tailwind; no shadcn/ui — every component is hand-rolled to match the project's restrained visual identity |
-| LLM | Anthropic SDK — Sonnet 4.6 (extraction) + Haiku 4.5 (classifier) | Two-model split: Sonnet for context-heavy extraction, Haiku for cheap per-claim classification |
+| LLM | Anthropic Messages API via raw `fetch` — Sonnet 4.6 (extraction) + Haiku 4.5 (classifier) | Two-model split: Sonnet for context-heavy extraction, Haiku for cheap per-claim classification. Raw `fetch` rather than the SDK — the SDK transitively imports `node:fs`/`node:path` for its OAuth credential chain, which Vercel's edge function validator rejects. |
 | Transcripts | three-tier fallback (see Transcript fetch chain below) | YouTube blocks Vercel egress; we delegate the fetch to a paid third party rather than rotate residential proxies. Curated samples ship as build-time fixtures so they never burn the third-party quota. |
 | Metadata | YouTube oEmbed | Public, no API key, no quota — kills the YouTube Data API v3 dependency |
 | Hosting | Vercel (free or hobby tier) | One-command deploy; serverless functions handle the API routes |
@@ -205,7 +205,7 @@ Two passes, deliberately. One-pass extraction-plus-classification was considered
 
 - **Input.** Full timestamped transcript (concatenated segment text, with segment indices preserved out-of-band so we can correlate matches back to seconds).
 - **Output.** Stream of `RawClaim` items.
-- **Prompt shape.** "Identify every factual claim made by the speaker. For each claim, return: (a) a natural-language paraphrase, and (b) the exact verbatim phrase the speaker used. Do not invent claims. Do not return timestamps." Returns structured JSON via Anthropic's `tool_use`.
+- **Prompt shape.** "Identify every factual claim made by the speaker. For each claim, return: (a) a natural-language paraphrase, and (b) the exact verbatim phrase the speaker used. Do not invent claims. Do not return timestamps." Structure is enforced via `output_config.format` with an inline JSON schema (`maxLength` on `verbatim` doubles as a length cap).
 - **Streaming.** Stream tokens; parse claims as JSON arrives. Claims emit to the timestamp validator one-by-one.
 
 Why Sonnet, not Haiku, for this pass: extraction needs broad context awareness — knowing what's a claim vs. a question vs. a personal anecdote requires reading the surrounding speech. Haiku is too lossy on this judgment.
@@ -214,8 +214,8 @@ Why Sonnet, not Haiku, for this pass: extraction needs broad context awareness �
 
 - **Input.** Each `ValidatedClaim` (post-timestamp-derivation) + a window of surrounding transcript text.
 - **Output.** `AdversarialFlag[]` for that claim.
-- **Prompt shape.** Per-flag short prompts, run in parallel. Each is a yes/no with a one-line justification: *"Does the speaker hedge this claim with words like 'might', 'could', 'I think'? Reply ONLY with `yes <one-line evidence>` or `no`."* No JSON gymnastics; one-token routing.
-- **Parallelism.** All claims × all flags fan out as parallel Haiku calls. Cheap; latency ≈ slowest single call, not sum.
+- **Prompt shape.** Single all-flags prompt per claim (not per-flag). The system prompt enumerates all five flag types with definitions and a few-shot calibration block; the model returns a JSON array via `output_config.format`. Per-flag fan-out was considered and rejected — Haiku reads the full transcript once for context, and a five-flag check fits comfortably in one call.
+- **Parallelism.** All claims run as parallel Haiku calls (`Promise.all`). Cheap; latency ≈ slowest single call, not sum. Each call has its own prompt cache (transcript prefix cached, claim-specific text after the cache breakpoint), so per-claim overhead drops sharply for videos with many claims.
 
 Why Haiku for this pass: per-claim classification is well-bounded, has narrow context, and runs hundreds of times per video. Cost-shaped.
 
@@ -306,16 +306,22 @@ The demo copy reflects this. The marketing copy reflects this. The README reflec
 
 ## 8. Open questions
 
-1. **Vercel tier.** Hobby (free) gives 10s function timeout. Sonnet on a 60-min interview transcript may exceed that. Decide: (a) hobby + chunk transcripts > 10s of inference, (b) pay $20/mo for Pro tier with 60s timeout, or (c) stream from the Edge runtime (longer limits, but Anthropic SDK Edge support varies). **Status: still on hobby, not yet stress-tested with a long video. Revisit in P2.3.**
-2. ~~**Caching.** Optional Vercel KV cache by `videoId`.~~ **Resolved (2026-05-09):** in-memory `Map` cache (5-min TTL, 64-entry LRU) ships in `lib/youtube/transcript-cache.ts`. KV not needed for portfolio-scale traffic.
-3. ~~**Sample set size.** Recommendation: 6 samples.~~ **Resolved (2026-05-08):** 6 curated samples ship in `lib/samples/curated.ts`. All have build-time fixture transcripts in `lib/samples/transcripts/`.
-4. **Fuzzy threshold.** §6 specifies 0.90 as the floor. **Still 0.90 in `lib/lens/timestamp-validator.ts`. Empirical tuning blocked on Anthropic credits — needs to run real extraction across the sample set in P2.3.**
+1. ~~**Vercel tier.**~~ **Resolved (2026-05-10):** stayed on hobby. `/api/audit` runs on the Edge runtime, which gives a 300s streaming budget on hobby vs 10s for Node functions. Real Sonnet on the longest curated transcript (TED talk, 391 segments) extracts in ~25s well within budget. Pro tier ($20/mo) not needed for the v1 demo profile. Caveat: the Anthropic SDK pulled `node:fs`/`node:path` and was rejected by Vercel's edge bundler, so the lens calls were rewritten as raw `fetch` against the Messages API — see commit `36a7593`.
+2. ~~**Caching.**~~ **Resolved (2026-05-09):** in-memory `Map` cache (5-min TTL, 64-entry LRU) ships in `lib/youtube/transcript-cache.ts`. KV not needed for portfolio-scale traffic.
+3. ~~**Sample set size.**~~ **Resolved (2026-05-08):** 6 curated samples ship in `lib/samples/curated.ts`. All have build-time fixture transcripts in `lib/samples/transcripts/`.
+4. ~~**Fuzzy threshold.**~~ **Resolved (2026-05-10):** 0.90 holds. Across all 5 informational curated samples (TED, 3Blue1Brown, Steve Jobs Stanford, Kurzgesagt, TED-Ed Sugar), the validator passes 100% of model-extracted claims with zero false-grounded matches in the eval harness (`scripts/eval.ts`). Lowering the threshold would only buy recall on claims where the model paraphrases beyond what the auditor should trust; raising it would start dropping clean matches. Documented in §6.
 5. ~~**Opinion-as-fact.**~~ **Resolved (2026-05-09):** extraction system prompt in `lib/lens/extract.ts` extracts both. Opinion-stated-as-fact gets flagged via the classifier; pure opinion-stated-as-opinion is excluded.
 6. ~~**Haiku for extraction.**~~ **Resolved (2026-05-09):** Sonnet 4.6 for extraction (`lib/lens/extract.ts`), Haiku 4.5 for classification (`lib/lens/classify.ts`). Final.
 
-**New open question added 2026-05-09:**
+**Open:**
 
 7. **`youtube-transcript.io` plan.** Free tier is 25 lifetime fetches. Curated samples are fixtured so they don't burn quota; only arbitrary URLs do. If portfolio traffic exceeds 25 unique non-fixtured videos, decide: pay (~$5-20/mo), or accept that arbitrary URLs become best-effort once the free tier exhausts. **Recommendation: monitor; switch to paid only when needed.**
+
+**Notes from P2.3 prompt-tuning:**
+
+- Verbatim length is enforced via three layers (system prompt + JSON schema `maxLength: 150` + server-side `.slice(0, 150)`). Without this, models drift toward paragraph-length verbatims (200-400+ chars), which collapses validator throughput because the fuzzy matcher's inner Levenshtein is O(L²).
+- The validator's fuzzy matcher was rewritten with seed-anchored search (pigeonhole: an `editBudget+1`-tile of the needle's seeds must appear exactly in a true match) — `O(N * editBudget * K * L)` versus the original `O(N * 0.3L * L²)`. On long transcripts this is the difference between seconds and minutes.
+- Classifier is prone to under-flagging dense-fact content (e.g., Kurzgesagt-style "GM had 800K employees in 1979" claims), reading them as "well-known common knowledge". The remedy was a five-example few-shot block in the system prompt that anchors numerical/dated claims firmly as `unsourced` when no source is cited.
 
 ---
 
