@@ -38,3 +38,6 @@ yarn-error.log*
 # Project-specific runtime noise
 excalidraw.log
 .gastown-ignore
+
+# Eval snapshots (large, regenerable, locally-iterated)
+eval-output/
