@@ -4,7 +4,7 @@
 
 **Live:** https://claim-ledger-jemsryus-projects.vercel.app/
 
-A recruiter-facing portfolio demo built to communicate, in 60 seconds, what disciplined LLM engineering looks like on a non-trivial problem.
+A tool for reading informational video adversarially — surfacing the structure of factual claims being made, instead of summarizing or fact-checking them.
 
 ## What this is
 
@@ -38,7 +38,7 @@ URL ──> oEmbed metadata (public, no key)
                                         └──> SSE-streamed claim ledger
 ```
 
-The trust spine is at the server boundary. **The model never emits timestamps.** The extraction model emits verbatim transcript substrings; the server fuzzy-matches each against the timestamped transcript and derives the timestamp deterministically. Claims that don't match are dropped silently. A wrong timestamp on a recruiter demo is fatal — better to under-show than to over-promise.
+The trust spine is at the server boundary. **The model never emits timestamps.** The extraction model emits verbatim transcript substrings; the server fuzzy-matches each against the timestamped transcript and derives the timestamp deterministically. Claims that don't match are dropped silently. A wrong timestamp breaks the product's core promise — better to under-show than to over-promise.
 
 See [`DESIGN.md`](./DESIGN.md) §6 for the algorithm.
 

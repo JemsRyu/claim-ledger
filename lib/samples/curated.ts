@@ -10,8 +10,8 @@ export type CuratedSample = {
  * Hand-picked stable, high-traffic videos with verified-good transcripts
  * (smoke-tested against the public timedtext endpoint at sample-curation
  * time). Labels intentionally describe content TYPE rather than creator —
- * the demo target is recruiters, who shouldn't be projecting taste
- * judgments on the creators they recognize.
+ * users shouldn't be projecting taste judgments onto the tool based on
+ * which creators they happen to recognize.
  *
  * The music-video sample is the empty-state proof: the auditor recognizes
  * the absence of factual claims and refuses to speak. That's a quality

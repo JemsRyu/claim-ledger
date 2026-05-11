@@ -8,14 +8,14 @@ This document is the design of record for the v1 build. Locked product decisions
 
 ## 1. Problem & audience
 
-**Audience.** AI-company recruiters reviewing a portfolio link. Attention budget ≤1 minute. They've seen 50 "AI summarizer" demos this week.
+**Audience.** A first-time visitor pasting their first URL. Attention budget is short; they've seen plenty of "AI summarizer" tools and need a clear reason this is different.
 
-**Problem the demo proves I can solve.** "AI processing video content" is a saturated demo space. The novel angle is *adversarial reading at scale*: surfacing the **structure of claims being made** in informational video — not summarizing, not fact-checking. The demo has to communicate, in 60 seconds, that I can:
+**Problem.** "AI processing video content" is a crowded space dominated by summarizers. The novel angle is *adversarial reading at scale*: surfacing the **structure of claims being made** in informational video — not summarizing, not fact-checking. The product has to communicate, on the first interaction, that it:
 
-1. Define a non-trivial AI product space ("claim auditor," not "summarizer") and stay disciplined inside it
-2. Engineer trust into an LLM pipeline (timestamps that are actually correct, claims that are actually present in the transcript)
-3. Make agentic structure legible to a viewer (multi-pass pipeline visible in UI, not hidden behind a generic spinner)
-4. Ship to a public URL on real inputs
+1. Stakes out a non-trivial AI product space ("claim auditor," not "summarizer") and stays disciplined inside it
+2. Engineers trust into an LLM pipeline (timestamps that are actually correct, claims that are actually present in the transcript)
+3. Makes its multi-pass structure legible in the UI — not hidden behind a generic spinner
+4. Works on a public URL with real inputs
 
 **One-line pitch.** *"Paste any informational video. Get back a structured ledger of every factual claim being made, with verbatim quotes, timestamps you can verify in one click, and adversarial flags."*
 
@@ -69,17 +69,16 @@ This document is the design of record for the v1 build. Locked product decisions
 5. Validated claims stream into the ledger UI as they emit. Each row has verbatim quote, timestamp link, adversarial flags.
 6. User clicks any timestamp → opens YouTube at that exact moment in a new tab.
 
-### 60-second demo arc (recruiter-facing)
+### First-run walkthrough
 
-| Beat | Time | What recruiter sees |
-|---|---|---|
-| **0–10s** | Open with a high-stakes example | Wellness influencer reel with health claims. URL paste, video preview appears. |
-| **10–25s** | Pipeline runs visibly | Lens-progress UI: "extracting claims…" → "classifying…". Claims start populating the ledger one at a time, *not* a single popping spinner. |
-| **25–45s** | Click-to-verify proof | Recruiter clicks a flagged claim's timestamp. YouTube opens at exactly that moment. Speaker is heard saying the verbatim quote. |
-| **45–55s** | Empty-state quality signal | Switch to a music video sample. App returns "Non-informational — no audit applicable." Demonstrates the tool *knows* when it shouldn't speak. |
-| **55–60s** | Sample gallery | Pan over labeled-by-content-type gallery. Implicit message: this works on the kinds of video where claims actually live. |
+| Beat | What the user sees |
+|---|---|
+| **Open** | Sample gallery labeled by content type, plus a URL input. They paste a URL or click a sample. |
+| **Pipeline runs visibly** | Lens-progress UI: "extracting claims…" → "classifying…". Claims start populating the ledger one at a time, *not* a single popping spinner. |
+| **Click-to-verify** | User clicks a flagged claim's timestamp. YouTube opens at exactly that moment. Speaker is heard saying the verbatim quote. |
+| **Empty-state quality signal** | On a non-informational sample (music video), the app returns "Non-informational — no audit applicable." The tool demonstrates that it *knows* when it shouldn't speak. |
 
-The demo is not narrated; it's screen-recorded with subtitles. Recruiter watches without sound.
+The walkthrough is designed to communicate the product's two key differentiators in the first interaction: structured claim output (not summarization) and verifiable timestamps (not hallucinated).
 
 ---
 
@@ -106,7 +105,7 @@ YouTube serves bot-detection HTML to most cloud-egress IPs (verified empirically
 2. **`youtube-transcript.io`** — paid third-party service that fetches on its own infrastructure and returns transcripts via a documented API. Token via `YT_TRANSCRIPT_IO_TOKEN` env var. Free tier is 25 lifetime fetches; paid tiers are usage-based.
 3. **`youtube-transcript` npm direct** — works locally + for the rare videos YouTube doesn't block (e.g. heavily-CDN'd content like Rick Astley's "Never Gonna Give You Up"). Last-ditch fallback.
 
-**Why a paid third party rather than running our own fetcher.** The viable alternatives were (a) rotate residential proxies ourselves, (b) self-host on a residential IP via a tunnel, (c) accept a curated-only demo. (a) is anti-bot evasion infrastructure, which contradicts the project's stated ethics about working with the grain of public data. (b) requires keeping a personal device always-on, brittle for a portfolio. (c) abandons the "any URL" affordance. Delegating to a paid service (b) is a different ethical position than running rotation ourselves: we are the customer, the service handles the fetching strategy. The tradeoff is documented openly in the README rather than hidden.
+**Why a paid third party rather than running our own fetcher.** The viable alternatives were (a) rotate residential proxies ourselves, (b) self-host on a residential IP via a tunnel, (c) accept a curated-only flow. (a) is anti-bot evasion infrastructure, which contradicts the product's stated ethics about working with the grain of public data. (b) requires keeping a personal device always-on, fragile for a hosted service. (c) abandons the "any URL" affordance. Delegating to a paid service is a different ethical position than running rotation ourselves: we are the customer, the service handles the fetching strategy. The tradeoff is documented openly in the README rather than hidden.
 
 ### Data flow
 
@@ -241,7 +240,7 @@ The UI subscribes via `EventSource` and updates the ledger reactively. Lens-star
 
 ## 6. Timestamp mitigation — the trust spine
 
-This section is load-bearing. The whole demo's credibility rides on click-to-verify being *actually correct*. A single wrong timestamp on a recruiter demo is fatal: they click, the video plays the wrong moment, and the tool looks broken on the most important interaction it has.
+This section is load-bearing. The whole product's credibility rides on click-to-verify being *actually correct*. A single wrong timestamp is fatal: the user clicks, the video plays the wrong moment, and the tool looks broken on the most important interaction it has.
 
 **Rule: the model never emits timestamps.** Period. The model emits `verbatim` strings; the server derives timestamps deterministically.
 
@@ -307,7 +306,7 @@ The demo copy reflects this. The marketing copy reflects this. The README reflec
 ## 8. Open questions
 
 1. ~~**Vercel tier.**~~ **Resolved (2026-05-10):** stayed on hobby. `/api/audit` runs on the Edge runtime, which gives a 300s streaming budget on hobby vs 10s for Node functions. Real Sonnet on the longest curated transcript (TED talk, 391 segments) extracts in ~25s well within budget. Pro tier ($20/mo) not needed for the v1 demo profile. Caveat: the Anthropic SDK pulled `node:fs`/`node:path` and was rejected by Vercel's edge bundler, so the lens calls were rewritten as raw `fetch` against the Messages API — see commit `36a7593`.
-2. ~~**Caching.**~~ **Resolved (2026-05-09):** in-memory `Map` cache (5-min TTL, 64-entry LRU) ships in `lib/youtube/transcript-cache.ts`. KV not needed for portfolio-scale traffic.
+2. ~~**Caching.**~~ **Resolved (2026-05-09):** in-memory `Map` cache (5-min TTL, 64-entry LRU) ships in `lib/youtube/transcript-cache.ts`. KV not needed at current traffic patterns.
 3. ~~**Sample set size.**~~ **Resolved (2026-05-08):** 6 curated samples ship in `lib/samples/curated.ts`. All have build-time fixture transcripts in `lib/samples/transcripts/`.
 4. ~~**Fuzzy threshold.**~~ **Resolved (2026-05-10):** 0.90 holds. Across all 5 informational curated samples (TED, 3Blue1Brown, Steve Jobs Stanford, Kurzgesagt, TED-Ed Sugar), the validator passes 100% of model-extracted claims with zero false-grounded matches in the eval harness (`scripts/eval.ts`). Lowering the threshold would only buy recall on claims where the model paraphrases beyond what the auditor should trust; raising it would start dropping clean matches. Documented in §6.
 5. ~~**Opinion-as-fact.**~~ **Resolved (2026-05-09):** extraction system prompt in `lib/lens/extract.ts` extracts both. Opinion-stated-as-fact gets flagged via the classifier; pure opinion-stated-as-opinion is excluded.
@@ -315,7 +314,7 @@ The demo copy reflects this. The marketing copy reflects this. The README reflec
 
 **Open:**
 
-7. **`youtube-transcript.io` plan.** Free tier is 25 lifetime fetches. Curated samples are fixtured so they don't burn quota; only arbitrary URLs do. If portfolio traffic exceeds 25 unique non-fixtured videos, decide: pay (~$5-20/mo), or accept that arbitrary URLs become best-effort once the free tier exhausts. **Recommendation: monitor; switch to paid only when needed.**
+7. **`youtube-transcript.io` plan.** Free tier is 25 lifetime fetches. Curated samples are fixtured so they don't burn quota; only arbitrary URLs do. If sustained traffic exceeds 25 unique non-fixtured videos, decide: pay (~$5-20/mo), or accept that arbitrary URLs become best-effort once the free tier exhausts. **Recommendation: monitor; switch to paid only when needed.**
 
 **Notes from P2.3 prompt-tuning:**
 
@@ -327,12 +326,11 @@ The demo copy reflects this. The marketing copy reflects this. The README reflec
 
 ## 9. What success looks like
 
-The demo passes if:
+The product ships if:
 
-1. A recruiter pastes a sample URL, sees the ledger build live, clicks any timestamp, and lands at the exact moment the speaker says the verbatim quote — every time, on every sample.
-2. The misinformation example surfaces ≥3 clearly-flagged claims (`hedged`, `vague-sourced`, `unsourced`).
+1. A user pastes a sample URL, sees the ledger build live, clicks any timestamp, and lands at the exact moment the speaker says the verbatim quote — every time, on every sample.
+2. The wellness/health-adjacent sample surfaces ≥3 clearly-flagged claims (`hedged`, `vague-sourced`, `unsourced`).
 3. The non-informational sample returns the empty state — the tool knows when it shouldn't speak.
-4. The 60-second demo recording embedded in the README plays the same flow against the live URL.
-5. Total LLM cost per video ≤$0.05 average across the sample set.
+4. Total LLM cost per video ≤$0.05 average across the sample set.
 
 Anything beyond that — better prompts, more flags, prettier UI — is polish, not the bar.

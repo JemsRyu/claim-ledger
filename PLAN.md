@@ -118,7 +118,7 @@ Bonus work that landed alongside the plan:
 - Empty transcript → returns null without crashing.
 - Empty verbatim → returns null without crashing.
 - Transcript with `[Music]` markers → matched correctly after normalization.
-**Why this chunk gets disproportionate testing.** This is the only place in the whole product where a bug is *fatal to the demo*. A wrong timestamp on a recruiter click = trust collapse. Coverage here is non-negotiable.
+**Why this chunk gets disproportionate testing.** This is the only place in the whole product where a bug is *fatal*. A wrong timestamp on the first click breaks the trust contract that the rest of the product depends on. Coverage here is non-negotiable.
 
 ---
 
@@ -148,7 +148,7 @@ Bonus work that landed alongside the plan:
 - Each sample's URL has a verified-good transcript (manually checked once during this chunk).
 - The music video sample is included specifically to demonstrate the `no-audit-applicable` empty state — the pipeline must return that branch on this URL.
 - Clicking a sample tile populates the URL input; user clicks Audit to run.
-**Selection criteria.** Pick by *content type* not creator — recruiters seeing one creator they recognize may project taste-judgments onto the demo. Generic content-type labels keep focus on the tool.
+**Selection criteria.** Pick by *content type* not creator — users seeing one creator they recognize may project taste-judgments onto the tool. Generic content-type labels keep focus on the auditor's behavior, not on the source.
 
 ---
 
@@ -225,7 +225,7 @@ Bonus work that landed alongside the plan:
 **Acceptance.**
 - Screen recording follows the beats in DESIGN.md §3 exactly: misinformation open → live pipeline progress → click-verify proof → empty state → sample gallery.
 - Recording is ≤60s.
-- Live URL in README opens to the same experience the recording shows; recruiter clicking through can reproduce the demo on their machine.
+- Live URL in README opens to the same experience the recording shows; a visitor clicking through can reproduce the flow on their own.
 - All open questions in DESIGN.md §8 are resolved or explicitly deferred with a one-line rationale.
 
 ---

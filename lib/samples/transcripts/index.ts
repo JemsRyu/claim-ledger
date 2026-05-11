@@ -14,7 +14,7 @@ import WSKi8HfcxEk from "./WSKi8HfcxEk.json";
  *   - youtube-transcript.io free tier is 25 lifetime fetches; the curated
  *     samples shouldn't keep eating it on every audit.
  *   - Insurance: if youtube-transcript.io has an outage, the curated
- *     demo still works (the recruiter-facing path).
+ *     gallery still works — the primary path most visitors take.
  *
  * To regenerate (e.g. when adding a curated sample):
  *   node --input-type=module -e "

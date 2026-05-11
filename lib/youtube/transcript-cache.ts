@@ -4,10 +4,9 @@ import type { TranscriptSegment } from "./transcript";
  * Module-scope LRU-style cache for transcripts, keyed by videoId.
  *
  * Why this is here: youtube-transcript.io's free tier is 25 lifetime
- * fetches. Without caching, a single recruiter who refreshes the page
- * five times burns 5 quota slots on the same video. With this cache,
- * only the first fetch counts; subsequent fetches inside the TTL hit
- * memory.
+ * fetches. Without caching, a single user who refreshes the page five
+ * times burns 5 quota slots on the same video. With this cache, only
+ * the first fetch counts; subsequent fetches inside the TTL hit memory.
  *
  * Vercel reality: serverless function instances share memory only
  * within a warm-start window (~5 min idle before cold). Same-instance
