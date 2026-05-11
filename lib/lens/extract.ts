@@ -3,7 +3,7 @@ import type { RawClaim } from "./types";
 
 const MODEL_ID = "claude-sonnet-4-6";
 const MAX_OUTPUT_TOKENS = 8192;
-const REQUEST_TIMEOUT_MS = 30_000;
+const REQUEST_TIMEOUT_MS = 60_000;
 const API_URL = "https://api.anthropic.com/v1/messages";
 const API_VERSION = "2023-06-01";
 
@@ -30,8 +30,9 @@ Critical rules:
 1. NEVER emit timestamps. Timestamps are derived server-side from your verbatim strings.
 2. NEVER invent claims. If the speaker did not assert it, do not include it.
 3. The verbatim MUST appear in the transcript word-for-word. Do not paraphrase, fix grammar, or smooth disfluencies in the verbatim field. (You may paraphrase freely in the claim field.)
-4. If the transcript contains no factual claims (music, narrative, fiction, performance), return {"claims": []}.
-5. Aim for the most informative claims. A typical 5-minute informational video yields 5-15 claims; a 30-minute interview might yield 30-60. If the video is sparse, fewer is fine.
+4. The verbatim MUST be 30-120 characters — a short distinctive phrase, not a paragraph. Pick the single most identifying sentence-fragment that locates the claim in the transcript. The verbatim is fed to a substring matcher; longer verbatims slow it to a crawl. If your verbatim exceeds 120 characters, you are doing it wrong — pick a tighter fragment of the same sentence.
+5. If the transcript contains no factual claims (music, narrative, fiction, performance), return {"claims": []}.
+6. Aim for the most informative claims. A typical 5-minute informational video yields 5-15 claims; a 30-minute interview might yield 30-60. If the video is sparse, fewer is fine. Consolidate redundant claims rather than listing each repetition.
 
 Output: JSON object with a "claims" array. Empty array is valid for non-informational content.`;
 
@@ -43,8 +44,8 @@ const CLAIMS_SCHEMA = {
       items: {
         type: "object",
         properties: {
-          claim: { type: "string" },
-          verbatim: { type: "string" },
+          claim: { type: "string", maxLength: 200 },
+          verbatim: { type: "string", maxLength: 150 },
         },
         required: ["claim", "verbatim"],
         additionalProperties: false,
@@ -207,6 +208,9 @@ export async function extractClaims(
   return claims.map((c, i) => ({
     id: `c-${i}`,
     claim: String(c.claim ?? ""),
-    verbatim: String(c.verbatim ?? ""),
+    // Defensive cap — schema says 150 but models can drift. Validator
+    // performance scales sharply with verbatim length (O(L²) hot path),
+    // so truncate at the source rather than relying on the model.
+    verbatim: String(c.verbatim ?? "").slice(0, 150),
   }));
 }

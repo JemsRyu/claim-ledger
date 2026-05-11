@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
         try {
           rawClaims = await withTimeout(
             extractClaims(transcript),
-            45_000,
+            90_000,
             "extractClaims",
           );
         } catch (error) {
