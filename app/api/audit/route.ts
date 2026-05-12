@@ -8,6 +8,7 @@ import { fetchTranscript, TranscriptError } from "@/lib/youtube/transcript";
 import { validateClaim } from "@/lib/lens/timestamp-validator";
 import { extractClaims, ExtractionError } from "@/lib/lens/extract";
 import { classifyClaim, ClassificationError } from "@/lib/lens/classify";
+import { guardHedge } from "@/lib/lens/hedge-guard";
 import type {
   AdversarialFlag,
   AuditEvent,
@@ -181,8 +182,9 @@ export async function GET(request: NextRequest) {
         // animation rather than a burst.
         const flagResults = await Promise.all(
           validated.map(async (claim, i) => {
+            let flags: AdversarialFlag[];
             try {
-              return await withTimeout(
+              flags = await withTimeout(
                 classifyClaim(transcript, claim),
                 30_000,
                 `classify ${claim.id}`,
@@ -198,8 +200,13 @@ export async function GET(request: NextRequest) {
                   error,
                 );
               }
-              return mockFlagsForIndex(i) as AdversarialFlag[];
+              flags = mockFlagsForIndex(i) as AdversarialFlag[];
             }
+            // Trust-spine guard: model emits, server enforces. Strip the
+            // "hedged" flag if no hedge token appears in the matched span,
+            // since the prompt's hedge-locality rule isn't reliably honored
+            // when the speaker hedges elsewhere in the transcript.
+            return guardHedge(flags, claim.matchedText);
           }),
         );
 
