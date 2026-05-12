@@ -20,13 +20,11 @@ function formatTimestamp(seconds: number): string {
 
 export function ClaimCard({ claim, classified, onSeek }: Props) {
   const hasFlags = classified && claim.flags.length > 0;
-  // Verify links go through the user's browser — we generate the search
+  // Verify link goes through the user's browser — we generate the search
   // URL but the actual retrieval is a click the user makes. No model
   // citation, no hallucinated DOI, no judgment of "supports/refutes".
   // The auditor still surfaces; the user still judges.
-  const query = encodeURIComponent(claim.claim);
-  const scholarUrl = `https://scholar.google.com/scholar?q=${query}`;
-  const pubmedUrl = `https://pubmed.ncbi.nlm.nih.gov/?term=${query}`;
+  const scholarUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(claim.claim)}`;
 
   return (
     <article className="flex flex-col gap-3 rounded-lg border border-foreground/10 bg-foreground/[0.02] p-4">
@@ -73,15 +71,6 @@ export function ClaimCard({ claim, classified, onSeek }: Props) {
               title="Search Google Scholar for academic sources on this claim"
             >
               Scholar
-            </a>
-            <a
-              href={pubmedUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-foreground/25 underline-offset-2 transition-colors hover:text-foreground hover:decoration-foreground"
-              title="Search PubMed for biomedical literature on this claim"
-            >
-              PubMed
             </a>
           </div>
         )}
