@@ -21,9 +21,10 @@ export default function Home() {
             Claim auditor for informational videos.
           </h1>
           <p className="text-balance text-lg leading-relaxed text-foreground/70">
-            Paste any informational YouTube URL. Get back a structured ledger of
-            every factual claim, with verbatim quotes, click-to-verify
-            timestamps, and adversarial flags.
+            Paste any YouTube URL. The auditor extracts every factual claim,
+            timestamps each one word-for-word against the transcript, and flags
+            the ones that hedge or skip sourcing. Click a timestamp to jump
+            there in the embedded player; click a flag to search Google Scholar.
           </p>
         </header>
 
