@@ -5,6 +5,7 @@ import { YouTubeEmbed, type YouTubeEmbedHandle } from "./YouTubeEmbed";
 import { TranscriptView } from "./TranscriptView";
 import { Ledger } from "./Ledger";
 import { SampleGallery } from "./SampleGallery";
+import { SampleClaimPreview } from "./SampleClaimPreview";
 import type { OembedMetadata } from "@/lib/youtube/oembed";
 import type { TranscriptSegment } from "@/lib/youtube/transcript";
 
@@ -161,7 +162,10 @@ export function UrlInput() {
       </form>
 
       {state.kind === "idle" && (
-        <SampleGallery disabled={isAuditing} onSelect={handleSampleSelect} />
+        <>
+          <SampleClaimPreview />
+          <SampleGallery disabled={isAuditing} onSelect={handleSampleSelect} />
+        </>
       )}
 
       {state.kind === "metadata-error" && (

@@ -13,13 +13,10 @@ export function SampleGallery({ disabled, onSelect }: Props) {
       aria-label="Curated samples"
       className="flex flex-col gap-2"
     >
-      <header className="flex items-baseline justify-between">
+      <header>
         <h2 className="font-mono text-xs uppercase tracking-widest text-foreground/50">
           Try a sample
         </h2>
-        <span className="text-xs text-foreground/40">
-          labeled by content type, not creator
-        </span>
       </header>
       <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {CURATED_SAMPLES.map((sample) => (
