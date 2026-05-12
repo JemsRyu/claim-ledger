@@ -22,17 +22,23 @@ What does NOT count:
 - Throwaway framing ("today we're going to talk about X", "stay tuned"). Skip.
 - Performative content (lyrics, fictional dialogue, dramatic monologue). Skip.
 
-For each claim, emit two fields:
+For each claim, emit THREE fields:
 - claim: a short paraphrase, one sentence, of what is being asserted.
 - verbatim: the EXACT substring from the transcript where the speaker says it.
+- searchQuery: a focused academic-keyword query (NOT a natural-language sentence) that a user could paste into Google Scholar to find peer-reviewed work relevant to this claim. 3-8 keywords. Prefer scientific / technical terminology over colloquialisms. Strip filler words ("the", "a", "is", "are"). Examples:
+    claim: "Humans are apex predators." → searchQuery: "human trophic level diet evolution"
+    claim: "Sugar causes dopamine release in the brain." → searchQuery: "sucrose dopamine reward pathway neural"
+    claim: "Whole-hearted people fully embrace vulnerability." → searchQuery: "self-compassion vulnerability shame research"
+    claim: "ReLU is easier to train than sigmoid in deep networks." → searchQuery: "ReLU activation function deep neural network vanishing gradient"
 
 Critical rules:
 1. NEVER emit timestamps. Timestamps are derived server-side from your verbatim strings.
 2. NEVER invent claims. If the speaker did not assert it, do not include it.
 3. The verbatim MUST appear in the transcript word-for-word. Do not paraphrase, fix grammar, or smooth disfluencies in the verbatim field. (You may paraphrase freely in the claim field.)
 4. The verbatim MUST be 30-120 characters — a short distinctive phrase, not a paragraph. Pick the single most identifying sentence-fragment that locates the claim in the transcript. The verbatim is fed to a substring matcher; longer verbatims slow it to a crawl. If your verbatim exceeds 120 characters, you are doing it wrong — pick a tighter fragment of the same sentence.
-5. If the transcript contains no factual claims (music, narrative, fiction, performance), return {"claims": []}.
-6. Aim for the most informative claims. A typical 5-minute informational video yields 5-15 claims; a 30-minute interview might yield 30-60. If the video is sparse, fewer is fine. Consolidate redundant claims rather than listing each repetition.
+5. The searchQuery is keywords, NOT a sentence. Search engines don't need natural language; they need distinguishing terms. A bad searchQuery is the claim text re-encoded; a good one is the terms a researcher would actually use.
+6. If the transcript contains no factual claims (music, narrative, fiction, performance), return {"claims": []}.
+7. Aim for the most informative claims. A typical 5-minute informational video yields 5-15 claims; a 30-minute interview might yield 30-60. If the video is sparse, fewer is fine. Consolidate redundant claims rather than listing each repetition.
 
 Output: JSON object with a "claims" array. Empty array is valid for non-informational content.`;
 
@@ -46,8 +52,9 @@ const CLAIMS_SCHEMA = {
         properties: {
           claim: { type: "string", maxLength: 200 },
           verbatim: { type: "string", maxLength: 150 },
+          searchQuery: { type: "string", maxLength: 120 },
         },
-        required: ["claim", "verbatim"],
+        required: ["claim", "verbatim", "searchQuery"],
         additionalProperties: false,
       },
     },
@@ -194,7 +201,9 @@ export async function extractClaims(
     );
   }
 
-  let parsed: { claims?: { claim: string; verbatim: string }[] };
+  let parsed: {
+    claims?: { claim: string; verbatim: string; searchQuery?: string }[];
+  };
   try {
     parsed = JSON.parse(textBlock.text);
   } catch {
@@ -205,12 +214,16 @@ export async function extractClaims(
   }
 
   const claims = parsed.claims ?? [];
-  return claims.map((c, i) => ({
-    id: `c-${i}`,
-    claim: String(c.claim ?? ""),
-    // Defensive cap — schema says 150 but models can drift. Validator
-    // performance scales sharply with verbatim length (O(L²) hot path),
-    // so truncate at the source rather than relying on the model.
-    verbatim: String(c.verbatim ?? "").slice(0, 150),
-  }));
+  return claims.map((c, i) => {
+    const searchQuery = c.searchQuery ? String(c.searchQuery).slice(0, 120) : undefined;
+    return {
+      id: `c-${i}`,
+      claim: String(c.claim ?? ""),
+      // Defensive cap — schema says 150 but models can drift. Validator
+      // performance scales sharply with verbatim length (O(L²) hot path),
+      // so truncate at the source rather than relying on the model.
+      verbatim: String(c.verbatim ?? "").slice(0, 150),
+      ...(searchQuery ? { searchQuery } : {}),
+    };
+  });
 }

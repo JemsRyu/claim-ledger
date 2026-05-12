@@ -83,6 +83,7 @@ export function validateClaim(
     },
     matchedText,
     flags: [],
+    ...(rawClaim.searchQuery ? { searchQuery: rawClaim.searchQuery } : {}),
   };
 }
 

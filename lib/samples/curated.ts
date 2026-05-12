@@ -27,19 +27,19 @@ export const CURATED_SAMPLES: CuratedSample[] = [
     expectedKind: "audit",
   },
   {
-    id: "aircAruvnKk",
-    url: "https://www.youtube.com/watch?v=aircAruvnKk",
-    label: "Tech explainer · long-form",
-    description:
-      "Technical claims about how a system works. Math, mechanism, comparisons.",
-    expectedKind: "audit",
-  },
-  {
     id: "jEPgI3RvjSU",
     url: "https://www.youtube.com/shorts/jEPgI3RvjSU",
     label: "Nutrition short · contested",
     description:
       "30-second Short with a stack of contested nutrition claims about meat and plants. The kind of fast, confident, source-free content the auditor is sharpest on.",
+    expectedKind: "audit",
+  },
+  {
+    id: "aircAruvnKk",
+    url: "https://www.youtube.com/watch?v=aircAruvnKk",
+    label: "Tech explainer · long-form",
+    description:
+      "Technical claims about how a system works. Math, mechanism, comparisons.",
     expectedKind: "audit",
   },
   {

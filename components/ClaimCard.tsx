@@ -20,11 +20,20 @@ function formatTimestamp(seconds: number): string {
 
 export function ClaimCard({ claim, classified, onSeek }: Props) {
   const hasFlags = classified && claim.flags.length > 0;
-  // Verify link goes through the user's browser — we generate the search
-  // URL but the actual retrieval is a click the user makes. No model
+  // Verify links go through the user's browser — we generate the search
+  // URLs but the actual retrieval is a click the user makes. No model
   // citation, no hallucinated DOI, no judgment of "supports/refutes".
   // The auditor still surfaces; the user still judges.
-  const scholarUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(claim.claim)}`;
+  //
+  // Scholar gets the extraction-emitted academic-keyword query
+  // (claim.searchQuery), which yields far better results than the
+  // natural-language paraphrase Scholar would otherwise match against
+  // paper titles. Google gets the natural-language claim — its index
+  // handles colloquial phrasing fine. Falls back to claim.claim for
+  // Scholar when searchQuery is absent (e.g., synthesizer fallback).
+  const scholarQuery = claim.searchQuery ?? claim.claim;
+  const scholarUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(scholarQuery)}`;
+  const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(claim.claim)}`;
 
   return (
     <article className="flex flex-col gap-3 rounded-lg border border-foreground/10 bg-foreground/[0.02] p-4">
@@ -71,6 +80,18 @@ export function ClaimCard({ claim, classified, onSeek }: Props) {
               title="Search Google Scholar for academic sources on this claim"
             >
               Scholar
+            </a>
+            <span aria-hidden className="text-foreground/30">
+              ·
+            </span>
+            <a
+              href={googleUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-foreground/25 underline-offset-2 transition-colors hover:text-foreground hover:decoration-foreground"
+              title="Search Google for context on this claim"
+            >
+              Google
             </a>
           </div>
         )}

@@ -46,6 +46,7 @@ type EvaluatedClaim = {
   id: string;
   claim: string;
   verbatim: string;
+  searchQuery?: string;
   validated: boolean;
   matchedText?: string;
   startSeconds?: number;
@@ -121,6 +122,7 @@ async function runOne(
         id: v.id,
         claim: v.claim,
         verbatim: v.verbatim,
+        searchQuery: v.searchQuery,
         validated: true,
         matchedText: v.matchedText,
         startSeconds: v.span.startSeconds,
@@ -131,6 +133,7 @@ async function runOne(
         id: raw.id,
         claim: raw.claim,
         verbatim: raw.verbatim,
+        searchQuery: raw.searchQuery,
         validated: false,
       });
     }

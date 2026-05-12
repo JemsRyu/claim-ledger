@@ -51,6 +51,12 @@ export function SampleClaimPreview() {
                   Scholar
                 </span>
               </span>
+              <span aria-hidden className="text-foreground/30">
+                ·
+              </span>
+              <span className="underline decoration-foreground/25 underline-offset-2">
+                Google
+              </span>
             </div>
           </footer>
         </article>
@@ -59,22 +65,21 @@ export function SampleClaimPreview() {
         <div
           className={`absolute right-0 top-2 hidden w-44 rotate-3 sm:block ${BUBBLE}`}
         >
-          ← yep, click! the video jumps right to that second
+          ← jumps to the moment the claim was said
         </div>
         <div
           className={`absolute bottom-2 right-0 hidden w-44 -rotate-2 sm:block ${BUBBLE}`}
         >
-          ← this one runs a Google Scholar search
+          ← searches Scholar &amp; Google for sources on the claim
         </div>
 
         {/* Mobile callouts — stacked below the card */}
         <div className="mt-3 flex flex-col gap-2 sm:hidden">
           <div className={BUBBLE}>
-            ↑ click the timestamp — the video jumps to that exact second
+            ↑ jumps to the moment the claim was said
           </div>
           <div className={BUBBLE}>
-            ↑ click &ldquo;Scholar&rdquo; to open a Google Scholar search for
-            the claim
+            ↑ searches Scholar &amp; Google for sources on the claim
           </div>
         </div>
       </div>

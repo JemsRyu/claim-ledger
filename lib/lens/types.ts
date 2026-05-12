@@ -12,6 +12,10 @@ export type RawClaim = {
   id: string;
   claim: string;
   verbatim: string;
+  // Academic-keyword query for Scholar verification. Optional so the
+  // synthesizer / mock-fallback paths still produce valid claims;
+  // ClaimCard falls back to the natural-language paraphrase when absent.
+  searchQuery?: string;
 };
 
 export type ClaimSpan = {
@@ -26,6 +30,7 @@ export type ValidatedClaim = {
   span: ClaimSpan;
   matchedText: string;
   flags: AdversarialFlag[];
+  searchQuery?: string;
 };
 
 export type AuditResult =
