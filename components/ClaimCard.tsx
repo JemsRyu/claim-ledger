@@ -25,15 +25,20 @@ export function ClaimCard({ claim, classified, onSeek }: Props) {
   // citation, no hallucinated DOI, no judgment of "supports/refutes".
   // The auditor still surfaces; the user still judges.
   //
-  // Scholar gets the extraction-emitted academic-keyword query
-  // (claim.searchQuery), which yields far better results than the
-  // natural-language paraphrase Scholar would otherwise match against
-  // paper titles. Google gets the natural-language claim — its index
-  // handles colloquial phrasing fine. Falls back to claim.claim for
-  // Scholar when searchQuery is absent (e.g., synthesizer fallback).
+  // Two different transformations from the same claim, each tuned to
+  // the engine on the receiving end:
+  //   - Scholar gets searchQuery (academic keywords, e.g. "human
+  //     trophic level diet evolution") — Scholar matches paper titles
+  //     and abstracts, so keywords beat natural language.
+  //   - Google gets verifyQuestion (a real question, e.g. "Are humans
+  //     actually apex predators?") — Google indexes journalism, Reddit,
+  //     fact-checks, and surfaces them well for question-form queries.
+  // Both fall back to claim.claim when the extraction model didn't
+  // emit them (e.g., synthesizer fallback path).
   const scholarQuery = claim.searchQuery ?? claim.claim;
+  const googleQuery = claim.verifyQuestion ?? claim.claim;
   const scholarUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(scholarQuery)}`;
-  const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(claim.claim)}`;
+  const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(googleQuery)}`;
 
   return (
     <article className="flex flex-col gap-3 rounded-lg border border-foreground/10 bg-foreground/[0.02] p-4">

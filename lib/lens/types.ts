@@ -12,10 +12,15 @@ export type RawClaim = {
   id: string;
   claim: string;
   verbatim: string;
-  // Academic-keyword query for Scholar verification. Optional so the
-  // synthesizer / mock-fallback paths still produce valid claims;
-  // ClaimCard falls back to the natural-language paraphrase when absent.
+  // Academic-keyword query for Scholar verification (e.g., "human trophic
+  // level diet evolution"). Optional so the synthesizer / mock-fallback
+  // paths still produce valid claims; ClaimCard falls back to the
+  // natural-language paraphrase when absent.
   searchQuery?: string;
+  // Natural-language verification question for Google (e.g., "Are humans
+  // actually apex predators?"). Google handles question-form well and
+  // returns fact-checks, explainers, journalism. Optional, same fallback.
+  verifyQuestion?: string;
 };
 
 export type ClaimSpan = {
@@ -31,6 +36,7 @@ export type ValidatedClaim = {
   matchedText: string;
   flags: AdversarialFlag[];
   searchQuery?: string;
+  verifyQuestion?: string;
 };
 
 export type AuditResult =

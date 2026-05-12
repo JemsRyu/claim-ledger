@@ -22,7 +22,7 @@ What does NOT count:
 - Throwaway framing ("today we're going to talk about X", "stay tuned"). Skip.
 - Performative content (lyrics, fictional dialogue, dramatic monologue). Skip.
 
-For each claim, emit THREE fields:
+For each claim, emit FOUR fields:
 - claim: a short paraphrase, one sentence, of what is being asserted.
 - verbatim: the EXACT substring from the transcript where the speaker says it.
 - searchQuery: a focused academic-keyword query (NOT a natural-language sentence) that a user could paste into Google Scholar to find peer-reviewed work relevant to this claim. 3-8 keywords. Prefer scientific / technical terminology over colloquialisms. Strip filler words ("the", "a", "is", "are"). Examples:
@@ -30,6 +30,11 @@ For each claim, emit THREE fields:
     claim: "Sugar causes dopamine release in the brain." → searchQuery: "sucrose dopamine reward pathway neural"
     claim: "Whole-hearted people fully embrace vulnerability." → searchQuery: "self-compassion vulnerability shame research"
     claim: "ReLU is easier to train than sigmoid in deep networks." → searchQuery: "ReLU activation function deep neural network vanishing gradient"
+- verifyQuestion: a natural-language YES/NO question that a curious reader would type into Google to fact-check this claim. Phrase it as a real question, not the claim flipped to a question. Aim for the question someone with healthy skepticism would actually ask. Examples:
+    claim: "Humans are apex predators." → verifyQuestion: "Are humans actually apex predators in biology?"
+    claim: "There are essential nutrients in meat that cannot be obtained from plants." → verifyQuestion: "Are there essential nutrients only found in meat?"
+    claim: "Sugar causes dopamine release in the brain." → verifyQuestion: "Does eating sugar release dopamine in the brain?"
+    claim: "ReLU is easier to train than sigmoid in deep networks." → verifyQuestion: "Is ReLU easier to train than sigmoid in deep networks?"
 
 Critical rules:
 1. NEVER emit timestamps. Timestamps are derived server-side from your verbatim strings.
@@ -37,8 +42,9 @@ Critical rules:
 3. The verbatim MUST appear in the transcript word-for-word. Do not paraphrase, fix grammar, or smooth disfluencies in the verbatim field. (You may paraphrase freely in the claim field.)
 4. The verbatim MUST be 30-120 characters — a short distinctive phrase, not a paragraph. Pick the single most identifying sentence-fragment that locates the claim in the transcript. The verbatim is fed to a substring matcher; longer verbatims slow it to a crawl. If your verbatim exceeds 120 characters, you are doing it wrong — pick a tighter fragment of the same sentence.
 5. The searchQuery is keywords, NOT a sentence. Search engines don't need natural language; they need distinguishing terms. A bad searchQuery is the claim text re-encoded; a good one is the terms a researcher would actually use.
-6. If the transcript contains no factual claims (music, narrative, fiction, performance), return {"claims": []}.
-7. Aim for the most informative claims. A typical 5-minute informational video yields 5-15 claims; a 30-minute interview might yield 30-60. If the video is sparse, fewer is fine. Consolidate redundant claims rather than listing each repetition.
+6. The verifyQuestion is a real natural-language question, NOT the claim text with a question mark appended. A reader with healthy skepticism — "wait, is that actually true?" — should sound natural asking it.
+7. If the transcript contains no factual claims (music, narrative, fiction, performance), return {"claims": []}.
+8. Aim for the most informative claims. A typical 5-minute informational video yields 5-15 claims; a 30-minute interview might yield 30-60. If the video is sparse, fewer is fine. Consolidate redundant claims rather than listing each repetition.
 
 Output: JSON object with a "claims" array. Empty array is valid for non-informational content.`;
 
@@ -53,8 +59,9 @@ const CLAIMS_SCHEMA = {
           claim: { type: "string", maxLength: 200 },
           verbatim: { type: "string", maxLength: 150 },
           searchQuery: { type: "string", maxLength: 120 },
+          verifyQuestion: { type: "string", maxLength: 200 },
         },
-        required: ["claim", "verbatim", "searchQuery"],
+        required: ["claim", "verbatim", "searchQuery", "verifyQuestion"],
         additionalProperties: false,
       },
     },
@@ -202,7 +209,12 @@ export async function extractClaims(
   }
 
   let parsed: {
-    claims?: { claim: string; verbatim: string; searchQuery?: string }[];
+    claims?: {
+      claim: string;
+      verbatim: string;
+      searchQuery?: string;
+      verifyQuestion?: string;
+    }[];
   };
   try {
     parsed = JSON.parse(textBlock.text);
@@ -215,7 +227,12 @@ export async function extractClaims(
 
   const claims = parsed.claims ?? [];
   return claims.map((c, i) => {
-    const searchQuery = c.searchQuery ? String(c.searchQuery).slice(0, 120) : undefined;
+    const searchQuery = c.searchQuery
+      ? String(c.searchQuery).slice(0, 120)
+      : undefined;
+    const verifyQuestion = c.verifyQuestion
+      ? String(c.verifyQuestion).slice(0, 200)
+      : undefined;
     return {
       id: `c-${i}`,
       claim: String(c.claim ?? ""),
@@ -224,6 +241,7 @@ export async function extractClaims(
       // so truncate at the source rather than relying on the model.
       verbatim: String(c.verbatim ?? "").slice(0, 150),
       ...(searchQuery ? { searchQuery } : {}),
+      ...(verifyQuestion ? { verifyQuestion } : {}),
     };
   });
 }
