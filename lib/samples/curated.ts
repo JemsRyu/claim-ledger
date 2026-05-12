@@ -35,11 +35,11 @@ export const CURATED_SAMPLES: CuratedSample[] = [
     expectedKind: "audit",
   },
   {
-    id: "UF8uR6Z6KLc",
-    url: "https://www.youtube.com/watch?v=UF8uR6Z6KLc",
-    label: "Public speech · long-form",
+    id: "jEPgI3RvjSU",
+    url: "https://www.youtube.com/shorts/jEPgI3RvjSU",
+    label: "Nutrition short · contested",
     description:
-      "First-person assertions about life events and personal credentials.",
+      "30-second Short with a stack of contested nutrition claims about meat and plants. The kind of fast, confident, source-free content the auditor is sharpest on.",
     expectedKind: "audit",
   },
   {
