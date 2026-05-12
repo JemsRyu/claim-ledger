@@ -70,7 +70,7 @@ export function SampleClaimPreview() {
         <div
           className={`absolute bottom-2 right-0 hidden w-44 -rotate-2 sm:block ${BUBBLE}`}
         >
-          ← searches Scholar &amp; Google for sources on the claim
+          ← links to a Scholar or Google search for the claim
         </div>
 
         {/* Mobile callouts — stacked below the card */}
@@ -79,7 +79,7 @@ export function SampleClaimPreview() {
             ↑ jumps to the moment the claim was said
           </div>
           <div className={BUBBLE}>
-            ↑ searches Scholar &amp; Google for sources on the claim
+            ↑ links to a Scholar or Google search for the claim
           </div>
         </div>
       </div>

@@ -19,19 +19,19 @@ export type CuratedSample = {
  */
 export const CURATED_SAMPLES: CuratedSample[] = [
   {
-    id: "iCvmsMzlF7o",
-    url: "https://www.youtube.com/watch?v=iCvmsMzlF7o",
-    label: "TED talk · psychology",
-    description:
-      "Long-form talk with substantive claims about emotion, vulnerability, research methodology.",
-    expectedKind: "audit",
-  },
-  {
     id: "jEPgI3RvjSU",
     url: "https://www.youtube.com/shorts/jEPgI3RvjSU",
     label: "Nutrition short · contested",
     description:
       "30-second Short with a stack of contested nutrition claims about meat and plants. The kind of fast, confident, source-free content the auditor is sharpest on.",
+    expectedKind: "audit",
+  },
+  {
+    id: "iCvmsMzlF7o",
+    url: "https://www.youtube.com/watch?v=iCvmsMzlF7o",
+    label: "TED talk · psychology",
+    description:
+      "Long-form talk with substantive claims about emotion, vulnerability, research methodology.",
     expectedKind: "audit",
   },
   {
