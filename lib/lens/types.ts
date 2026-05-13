@@ -60,6 +60,13 @@ export type ResearchedPaper = {
   url: string; // DOI URL or Semantic Scholar URL
   verdict: PaperVerdict;
   reasoning: string; // one-line model justification
+  // The verbatim sentence/phrase from the abstract that supports or
+  // contradicts the claim. Server-validated against the source abstract
+  // (same trust-spine pattern as the verbatim timestamp check); if the
+  // model emits a quote that doesn't appear in the abstract for a
+  // supports/contradicts verdict, the verdict is demoted to tangential
+  // and the quote is dropped.
+  quote?: string;
 };
 
 export type ResearchResult = {

@@ -52,6 +52,11 @@ function PaperRow({ paper }: { paper: ResearchedPaper }) {
           {VERDICT_LABEL[paper.verdict]}
         </span>
       </div>
+      {paper.quote && (
+        <blockquote className="border-l-2 border-foreground/15 pl-2 text-[11px] italic leading-relaxed text-foreground/70">
+          &ldquo;{paper.quote}&rdquo;
+        </blockquote>
+      )}
       <p className="text-[11px] leading-relaxed text-foreground/55">
         {paper.reasoning}
       </p>

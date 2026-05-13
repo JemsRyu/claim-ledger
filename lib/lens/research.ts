@@ -1,3 +1,4 @@
+import { normalizeForMatching } from "./normalize";
 import {
   PAPER_VERDICTS,
   type PaperVerdict,
@@ -23,7 +24,7 @@ const OPENALEX_TIMEOUT_MS = 12_000;
 
 const SYSTEM_PROMPT = `You are a research lens for a YouTube claim auditor.
 
-You will receive one factual claim made by a speaker, plus a short list of academic papers (title + abstract) retrieved via an academic-keyword search. Your job: judge whether each paper supports, contradicts, or is merely tangential to the claim.
+You will receive one factual claim made by a speaker, plus a short list of academic papers (title + abstract) retrieved via an academic-keyword search. Your job: judge whether each paper supports, contradicts, or is merely tangential to the claim — and for the ones that support or contradict, point to the specific sentence in the abstract that justifies the verdict.
 
 Verdicts:
 - "supports": The paper's findings, methods, or conclusions align with the claim.
@@ -32,7 +33,13 @@ Verdicts:
 
 Be conservative. When the abstract is ambiguous, prefer "tangential" over "supports" or "contradicts". An abstract that mentions related concepts but doesn't directly address the claim is tangential, not supportive.
 
-For each paper, also emit a SHORT one-line reasoning (≤140 characters) that names the specific finding or methodology you keyed on. No hedging language in your reasoning — just say what the paper found.
+For each paper, emit THREE fields:
+
+- verdict: one of "supports" / "contradicts" / "tangential".
+- reasoning: a SHORT one-line model summary (≤140 characters) naming the specific finding or methodology you keyed on. No hedging — just state what the paper found.
+- quote: when the verdict is "supports" or "contradicts", emit the EXACT VERBATIM sentence (or contiguous phrase) from the paper's abstract that justifies the verdict. The quote MUST appear in the abstract word-for-word — do not paraphrase, do not stitch fragments from different sentences, do not edit grammar or punctuation. 30-250 characters. If you cannot point to a specific sentence in the abstract that justifies the verdict, change the verdict to "tangential" and omit the quote.
+
+The quote is the load-bearing evidence. A "supports" or "contradicts" verdict without a real verbatim quote will be downgraded server-side to "tangential" — so don't hedge: either there's a sentence in the abstract that justifies your call, or there isn't.
 
 Output: a JSON object with a "verdicts" array, one entry per paper in the order given. Length MUST match the number of papers provided.`;
 
@@ -46,6 +53,7 @@ const VERDICTS_SCHEMA = {
         properties: {
           verdict: { type: "string", enum: [...PAPER_VERDICTS] },
           reasoning: { type: "string", maxLength: 200 },
+          quote: { type: "string", maxLength: 300 },
         },
         required: ["verdict", "reasoning"],
         additionalProperties: false,
@@ -209,11 +217,31 @@ function formatAuthors(authors: { name?: string }[]): string {
   return `${names[0]} et al.`;
 }
 
+type RawVerdict = {
+  verdict: PaperVerdict;
+  reasoning: string;
+  quote?: string;
+};
+
+/**
+ * Trust-spine check on the model's quote: it must actually appear in the
+ * abstract. Normalize both sides (lowercase, strip punctuation, collapse
+ * whitespace) before substring match — Haiku sometimes smooths
+ * punctuation but it's still cited the source. If the quote doesn't
+ * appear, we treat it as missing and demote the verdict downstream.
+ */
+function quoteAppearsInAbstract(quote: string, abstract: string): boolean {
+  const normQuote = normalizeForMatching(quote);
+  const normAbstract = normalizeForMatching(abstract);
+  if (normQuote.length < 20) return false; // too short to be load-bearing
+  return normAbstract.includes(normQuote);
+}
+
 async function judgePapers(
   claim: string,
   verbatim: string,
   papers: SearchedPaper[],
-): Promise<{ verdict: PaperVerdict; reasoning: string }[]> {
+): Promise<RawVerdict[]> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     throw new ResearchError(
@@ -293,9 +321,7 @@ async function judgePapers(
     throw new ResearchError("haiku-failed", "Haiku returned no text content.");
   }
 
-  let parsed: {
-    verdicts?: { verdict: PaperVerdict; reasoning: string }[];
-  };
+  let parsed: { verdicts?: RawVerdict[] };
   try {
     parsed = JSON.parse(textBlock.text);
   } catch {
@@ -346,15 +372,38 @@ export async function researchClaim(input: {
 
   const verdicts = await judgePapers(claim, verbatim, papers);
 
-  const researched: ResearchedPaper[] = papers.map((p, i) => ({
-    title: p.title,
-    authors: formatAuthors(p.authors),
-    year: p.year,
-    citationCount: p.citationCount,
-    url: p.url,
-    verdict: verdicts[i].verdict,
-    reasoning: verdicts[i].reasoning,
-  }));
+  const researched: ResearchedPaper[] = papers.map((p, i) => {
+    const raw = verdicts[i];
+    let verdict = raw.verdict;
+    let quote: string | undefined =
+      typeof raw.quote === "string" && raw.quote.trim().length > 0
+        ? raw.quote.trim()
+        : undefined;
+
+    // Trust-spine check: a supports/contradicts verdict must be backed
+    // by a verbatim quote that actually appears in the abstract.
+    //   - missing quote → demote to tangential
+    //   - quote present but not in the abstract → drop the quote AND
+    //     demote (model invented or paraphrased the "evidence")
+    // Tangential verdicts don't need a quote, so they pass through.
+    if (verdict === "supports" || verdict === "contradicts") {
+      if (!quote || !quoteAppearsInAbstract(quote, p.abstract)) {
+        verdict = "tangential";
+        quote = undefined;
+      }
+    }
+
+    return {
+      title: p.title,
+      authors: formatAuthors(p.authors),
+      year: p.year,
+      citationCount: p.citationCount,
+      url: p.url,
+      verdict,
+      reasoning: raw.reasoning,
+      ...(quote ? { quote } : {}),
+    };
+  });
 
   return { papers: researched };
 }
