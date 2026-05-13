@@ -47,8 +47,14 @@ export default function Home() {
             quotes — for locating the claim in the transcript and for citing
             evidence in the research lens — are server-validated before
             display. Click any timestamp to verify; click{" "}
-            <code className="font-mono text-foreground/70">research</code> on a
-            flagged claim to see real papers with quoted evidence.
+            <span className="font-mono font-semibold text-foreground/80 underline decoration-foreground/40 underline-offset-2">
+              research
+            </span>{" "}
+            for AI-judged papers with quoted evidence, or{" "}
+            <span className="font-mono font-semibold text-foreground/80 underline decoration-foreground/40 underline-offset-2">
+              Google
+            </span>{" "}
+            for a quick context search.
           </p>
         </section>
 
