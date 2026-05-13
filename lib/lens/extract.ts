@@ -25,11 +25,35 @@ What does NOT count:
 For each claim, emit FOUR fields:
 - claim: a short paraphrase, one sentence, of what is being asserted.
 - verbatim: the EXACT substring from the transcript where the speaker says it.
-- searchQuery: a focused academic-keyword query (NOT a natural-language sentence) that a user could paste into Google Scholar to find peer-reviewed work relevant to this claim. 3-8 keywords. Prefer scientific / technical terminology over colloquialisms. Strip filler words ("the", "a", "is", "are"). Examples:
-    claim: "Humans are apex predators." → searchQuery: "human trophic level diet evolution"
-    claim: "Sugar causes dopamine release in the brain." → searchQuery: "sucrose dopamine reward pathway neural"
-    claim: "Whole-hearted people fully embrace vulnerability." → searchQuery: "self-compassion vulnerability shame research"
-    claim: "ReLU is easier to train than sigmoid in deep networks." → searchQuery: "ReLU activation function deep neural network vanishing gradient"
+- searchQuery: a DISCRIMINATING academic-keyword query (NOT a natural-language sentence) that a user could paste into Google Scholar / OpenAlex to find peer-reviewed work specifically on this claim. The query must single out this claim's phenomenon, not match generic words.
+
+  Quality rules:
+  • Use multi-word compound phrases over single words. "plant-based diet" beats "plant diet"; "neural plasticity" beats "neural learning".
+  • Use the exact academic terminology researchers use, not colloquial paraphrase. "phytochemicals" not "plant chemicals"; "macronutrient adequacy" not "balanced eating"; "trophic level" not "food chain spot".
+  • When applicable, add methodology or outcome terms: "meta-analysis", "randomized trial", "cohort study", "longitudinal", "mortality", "deficiency", "biomarker". Skip these if they don't fit.
+  • Strip filler ("the", "a", "is") and avoid generic single words ("research", "study", "health", "diet" alone — these match anything).
+  • 4-10 terms total. Specificity beats length.
+
+  Examples (BAD versus GOOD for the same claim):
+    claim: "Humans are apex predators."
+      BAD: "humans predators food chain"  (matches anything about food chains)
+      GOOD: "human trophic level Homo sapiens dietary ecology"
+
+    claim: "Sugar causes dopamine release in the brain."
+      BAD: "sugar dopamine brain"  (single generic words)
+      GOOD: "sucrose dopamine reward pathway mesolimbic nucleus accumbens"
+
+    claim: "You do not need to eat plants to be healthy."
+      BAD: "plant-based diet health"  (matches mammal welfare research, plant biology — too broad)
+      GOOD: "carnivore diet nutritional adequacy plant-free human health"
+
+    claim: "ReLU is easier to train than sigmoid in deep networks."
+      BAD: "ReLU sigmoid deep learning"
+      GOOD: "ReLU activation function vanishing gradient deep neural network training"
+
+    claim: "Whole-hearted people fully embrace vulnerability."
+      BAD: "vulnerability research"
+      GOOD: "self-compassion vulnerability shame qualitative grounded theory"
 - verifyQuestion: a natural-language YES/NO question that a curious reader would type into Google to fact-check this claim. Phrase it as a real question, not the claim flipped to a question. Aim for the question someone with healthy skepticism would actually ask. Examples:
     claim: "Humans are apex predators." → verifyQuestion: "Are humans actually apex predators in biology?"
     claim: "There are essential nutrients in meat that cannot be obtained from plants." → verifyQuestion: "Are there essential nutrients only found in meat?"
@@ -41,7 +65,7 @@ Critical rules:
 2. NEVER invent claims. If the speaker did not assert it, do not include it.
 3. The verbatim MUST appear in the transcript word-for-word. Do not paraphrase, fix grammar, or smooth disfluencies in the verbatim field. (You may paraphrase freely in the claim field.)
 4. The verbatim MUST be 30-120 characters — a short distinctive phrase, not a paragraph. Pick the single most identifying sentence-fragment that locates the claim in the transcript. The verbatim is fed to a substring matcher; longer verbatims slow it to a crawl. If your verbatim exceeds 120 characters, you are doing it wrong — pick a tighter fragment of the same sentence.
-5. The searchQuery is keywords, NOT a sentence. Search engines don't need natural language; they need distinguishing terms. A bad searchQuery is the claim text re-encoded; a good one is the terms a researcher would actually use.
+5. The searchQuery must be DISCRIMINATING — it should match the specific phenomenon in this claim, not the generic words that appear in it. Prefer multi-word academic phrases ("plant-based diet" not "plant diet"), exact field terminology over colloquialisms, and methodology / outcome terms when they fit ("meta-analysis", "longitudinal", "deficiency"). A bad searchQuery is the claim text re-encoded; a good one is the terms a researcher would actually use to find this work.
 6. The verifyQuestion is a real natural-language question, NOT the claim text with a question mark appended. A reader with healthy skepticism — "wait, is that actually true?" — should sound natural asking it.
 7. If the transcript contains no factual claims (music, narrative, fiction, performance), return {"claims": []}.
 8. Aim for the most informative claims. A typical 5-minute informational video yields 5-15 claims; a 30-minute interview might yield 30-60. If the video is sparse, fewer is fine. Consolidate redundant claims rather than listing each repetition.
