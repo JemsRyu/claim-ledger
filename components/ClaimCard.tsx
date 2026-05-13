@@ -1,11 +1,21 @@
-import type { ValidatedClaim } from "@/lib/lens/types";
+"use client";
+
+import { useState } from "react";
+import type { ResearchResult, ValidatedClaim } from "@/lib/lens/types";
 import { FlagBadge } from "./FlagBadge";
+import { ResearchPanel } from "./ResearchPanel";
 
 type Props = {
   claim: ValidatedClaim;
   classified: boolean;
   onSeek: (seconds: number) => void;
 };
+
+type ResearchState =
+  | { kind: "idle" }
+  | { kind: "loading" }
+  | { kind: "done"; result: ResearchResult }
+  | { kind: "error"; message: string };
 
 function formatTimestamp(seconds: number): string {
   const total = Math.floor(seconds);
@@ -39,6 +49,45 @@ export function ClaimCard({ claim, classified, onSeek }: Props) {
   const googleQuery = claim.verifyQuestion ?? claim.claim;
   const scholarUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(scholarQuery)}`;
   const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(googleQuery)}`;
+
+  const [research, setResearch] = useState<ResearchState>({ kind: "idle" });
+
+  async function handleResearch() {
+    if (research.kind === "loading") return;
+    setResearch({ kind: "loading" });
+    try {
+      const response = await fetch("/api/research", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          claim: claim.claim,
+          verbatim: claim.matchedText,
+          searchQuery: scholarQuery,
+        }),
+      });
+      if (!response.ok) {
+        const data = (await response.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        setResearch({
+          kind: "error",
+          message:
+            data.error ?? `Research request failed (${response.status}).`,
+        });
+        return;
+      }
+      const result = (await response.json()) as ResearchResult;
+      setResearch({ kind: "done", result });
+    } catch (error) {
+      setResearch({
+        kind: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Network error during research.",
+      });
+    }
+  }
 
   return (
     <article className="flex flex-col gap-3 rounded-lg border border-foreground/10 bg-foreground/[0.02] p-4">
@@ -98,9 +147,23 @@ export function ClaimCard({ claim, classified, onSeek }: Props) {
             >
               Google
             </a>
+            <span aria-hidden className="text-foreground/30">
+              ·
+            </span>
+            <button
+              type="button"
+              onClick={handleResearch}
+              disabled={research.kind === "loading"}
+              className="cursor-pointer rounded border border-foreground/15 bg-foreground/[0.04] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-foreground/70 transition-colors hover:border-foreground/30 hover:bg-foreground/[0.08] hover:text-foreground disabled:cursor-wait disabled:opacity-60"
+              title="Retrieve abstracts from Semantic Scholar, then judge whether each supports, contradicts, or is tangential to this claim"
+            >
+              {research.kind === "loading" ? "researching…" : "research"}
+            </button>
           </div>
         )}
       </footer>
+
+      {research.kind !== "idle" && <ResearchPanel state={research} />}
     </article>
   );
 }

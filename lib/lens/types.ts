@@ -44,6 +44,31 @@ export type AuditResult =
   | { kind: "no-audit-applicable"; videoId: string; reason: string }
   | { kind: "no-transcript"; videoId: string; reason: string };
 
+export const PAPER_VERDICTS = [
+  "supports",
+  "contradicts",
+  "tangential",
+] as const;
+
+export type PaperVerdict = (typeof PAPER_VERDICTS)[number];
+
+export type ResearchedPaper = {
+  title: string;
+  authors: string; // formatted "Smith, J., Doe, A. et al."
+  year: number | null;
+  citationCount: number | null;
+  url: string; // DOI URL or Semantic Scholar URL
+  verdict: PaperVerdict;
+  reasoning: string; // one-line model justification
+};
+
+export type ResearchResult = {
+  papers: ResearchedPaper[];
+  // If the API returned papers but the model judged none of them
+  // strongly relevant, the array can still be empty. ClaimCard
+  // renders the "no relevant papers" empty state in that case.
+};
+
 export type LensName = "extraction" | "classification";
 
 export type AuditEvent =
