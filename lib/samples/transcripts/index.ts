@@ -1,7 +1,7 @@
 import type { TranscriptSegment } from "@/lib/youtube/transcript";
 
 import aircAruvnKk from "./aircAruvnKk.json";
-import dQw4w9WgXcQ from "./dQw4w9WgXcQ.json";
+import HEP88cRbFvI from "./HEP88cRbFvI.json";
 import iCvmsMzlF7o from "./iCvmsMzlF7o.json";
 import jEPgI3RvjSU from "./jEPgI3RvjSU.json";
 import lEXBxijQREo from "./lEXBxijQREo.json";
@@ -39,7 +39,7 @@ import WSKi8HfcxEk from "./WSKi8HfcxEk.json";
  */
 export const TRANSCRIPT_FIXTURES: Record<string, TranscriptSegment[]> = {
   aircAruvnKk: aircAruvnKk as TranscriptSegment[],
-  dQw4w9WgXcQ: dQw4w9WgXcQ as TranscriptSegment[],
+  HEP88cRbFvI: HEP88cRbFvI as TranscriptSegment[],
   iCvmsMzlF7o: iCvmsMzlF7o as TranscriptSegment[],
   jEPgI3RvjSU: jEPgI3RvjSU as TranscriptSegment[],
   lEXBxijQREo: lEXBxijQREo as TranscriptSegment[],

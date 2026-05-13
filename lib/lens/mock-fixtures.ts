@@ -80,20 +80,8 @@ const FIXTURE_KEYS: Record<string, Fixture> = {
   MOCK_MUSIC: { kind: "no-audit-applicable", reason: NO_AUDIT_REASON },
 };
 
-/**
- * Real YouTube videoIds we know to be non-informational. Hardcoded for the
- * Phase-1 demo set — Phase 2 replaces this with a Haiku-based classifier
- * that decides at runtime.
- */
-const NON_INFORMATIONAL_REAL_IDS = new Set<string>([
-  "dQw4w9WgXcQ", // Music video sample (curated empty-state proof)
-]);
-
 export function getMockFixture(videoId: string): Fixture | null {
   if (FIXTURE_KEYS[videoId]) return FIXTURE_KEYS[videoId];
-  if (NON_INFORMATIONAL_REAL_IDS.has(videoId)) {
-    return { kind: "no-audit-applicable", reason: NO_AUDIT_REASON };
-  }
   return null; // signal: synthesize from real transcript
 }
 
