@@ -36,15 +36,13 @@ flowchart LR
     UI -->|transcript| Transcript["<b>/api/transcript</b><br/>Node"]
     UI -->|SSE stream| Audit["<b>/api/audit</b><br/>Edge · 300s budget"]
     Oembed --> YT[YouTube oEmbed]
-    Transcript -->|tier 0| Fix[(build-time fixtures)]
-    Transcript -->|tier 1| IO[youtube-transcript.io]
-    Transcript -.->|tier 2 fallback| NPM[youtube-transcript npm]
+    Transcript --> IO[youtube-transcript.io]
     Audit -.-> Anthropic[Anthropic<br/>Messages API]
 ```
 
 Three endpoints, different runtimes. `/api/audit` is on Vercel's **Edge** runtime for the 300s streaming budget (Node functions cap at 10s on Hobby, which a real extraction + classification run blows past). The other endpoints stay on Node.
 
-**Transcript fetch is three-tier.** Curated samples ship as build-time JSON fixtures — instant, free, can't fail. Everything else routes through `youtube-transcript.io`, a paid third party that fetches from non-blocked egress. Direct YouTube fetches from Vercel IPs fail 9-of-10 popular videos.
+**Transcripts come from `youtube-transcript.io`** — a paid third party that fetches from non-blocked egress. Direct YouTube fetches from Vercel IPs fail 9-of-10 popular videos.
 
 ### Audit pipeline (inside `/api/audit`)
 
