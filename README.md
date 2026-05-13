@@ -70,7 +70,7 @@ Three invariants enforced server-side, not trusted to the model:
 2. **The matcher uses pigeonhole seeding.** Any match within k edits leaves at least one of (k+1) disjoint needle seeds untouched in the haystack — so candidate positions come from `String.indexOf` (memchr-speed), and only those positions get banded Levenshtein. ~100× faster than naive scan on long transcripts; the trust-spine test suite (43 cases) still passes.
 3. **Hedge flags get a locality check.** Haiku tends to flag direct assertions as `hedged` when the speaker hedges *elsewhere* in the transcript. A small server-side guard strips `hedged` from any claim whose matched span contains no hedge token (`i think`, `might`, `could`, `suggest`, etc.). Model emits, server enforces.
 
-See [`DESIGN.md`](./DESIGN.md) §6 for the timestamp algorithm in full.
+See [`DESIGN.md`](./DESIGN.md) for the timestamp algorithm in full.
 
 ---
 
@@ -82,7 +82,6 @@ No database, no accounts, no persistence beyond a 5-minute in-memory transcript 
 
 ## Decisions worth flagging
 
-- **Transcript fetch goes through a paid third party.** YouTube blocks transcript fetches from Vercel's serverless egress IPs (verified empirically: 9-of-10 popular videos fail from cloud regardless of runtime, library, or call signature). Alternatives considered: rotate residential proxies ourselves (anti-bot infrastructure, against the project's stated ethics), self-host on a residential IP (fragile for a hosted service), accept a curated-only flow (abandons the "any URL" affordance). Delegating to `youtube-transcript.io` as a customer is a different ethical position than running rotation ourselves. Curated samples ship as build-time fixtures so they never burn the third-party quota.
 - **Lens calls bypass the Anthropic SDK.** The SDK transitively imports `node:fs` / `node:path` for its OAuth credential chain, which Vercel's edge function validator rejects on deploy. The lens code calls `https://api.anthropic.com/v1/messages` directly via `fetch`, preserving prompt caching and structured output via `output_config.format`. ~40 lines per lens, fully edge-compatible.
 - **Seed-anchored fuzzy matcher** replaced naive O(N·W·L²) brute force in the timestamp validator — on long transcripts the difference is between *minutes* per claim and *milliseconds*. Same 31-case trust-spine suite passes unchanged.
 - **Server-side hedge-token guard** complements the Haiku classifier — model classifies broadly, server enforces locality. Same trust-spine pattern as the timestamp validator.
@@ -98,7 +97,6 @@ No database, no accounts, no persistence beyond a 5-minute in-memory transcript 
 | 2.1 | Live Sonnet 4.6 extraction with synthesizer fallback | ✅ wired |
 | 2.2 | Live Haiku 4.5 classification with mock-flag fallback | ✅ wired |
 | 2.3 | Prompt tuning across the curated sample set | ✅ tuned over 5 eval iterations |
-| 2.4 | 60-second demo recording | deferred |
 
 Both LLM lenses fall back gracefully on any API failure so the demo always works. When the Anthropic account has credits, real extraction and classification fire automatically — no redeploy required.
 
