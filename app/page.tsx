@@ -24,7 +24,8 @@ export default function Home() {
             Paste any YouTube URL. The auditor extracts every factual claim,
             timestamps each one word-for-word against the transcript, and flags
             the ones that hedge or skip sourcing. Click a timestamp to jump
-            there in the embedded player; click a flag to search Google Scholar.
+            there in the embedded player; click a flag to research the claim
+            against academic literature.
           </p>
         </header>
 

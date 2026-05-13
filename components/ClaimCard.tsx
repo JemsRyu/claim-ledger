@@ -30,24 +30,18 @@ function formatTimestamp(seconds: number): string {
 
 export function ClaimCard({ claim, classified, onSeek }: Props) {
   const hasFlags = classified && claim.flags.length > 0;
-  // Verify links go through the user's browser — we generate the search
-  // URLs but the actual retrieval is a click the user makes. No model
-  // citation, no hallucinated DOI, no judgment of "supports/refutes".
-  // The auditor still surfaces; the user still judges.
+  // Google's verify link uses the extraction model's verifyQuestion
+  // (a natural-language question, e.g. "Are humans actually apex
+  // predators?") — Google's question-form ranking surfaces journalism,
+  // fact-checks, and explainers well. Falls back to the paraphrase if
+  // the extraction model didn't emit it (synthesizer fallback path).
   //
-  // Two different transformations from the same claim, each tuned to
-  // the engine on the receiving end:
-  //   - Scholar gets searchQuery (academic keywords, e.g. "human
-  //     trophic level diet evolution") — Scholar matches paper titles
-  //     and abstracts, so keywords beat natural language.
-  //   - Google gets verifyQuestion (a real question, e.g. "Are humans
-  //     actually apex predators?") — Google indexes journalism, Reddit,
-  //     fact-checks, and surfaces them well for question-form queries.
-  // Both fall back to claim.claim when the extraction model didn't
-  // emit them (e.g., synthesizer fallback path).
-  const scholarQuery = claim.searchQuery ?? claim.claim;
+  // The other extraction field, searchQuery (academic keywords), still
+  // exists — but it's consumed internally by the research lens for
+  // OpenAlex retrieval rather than rendered as a Scholar link. The
+  // research button does everything a Scholar quick-search did, with
+  // judgment + verbatim-quote evidence on top.
   const googleQuery = claim.verifyQuestion ?? claim.claim;
-  const scholarUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(scholarQuery)}`;
   const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(googleQuery)}`;
 
   const [research, setResearch] = useState<ResearchState>({ kind: "idle" });
@@ -62,7 +56,7 @@ export function ClaimCard({ claim, classified, onSeek }: Props) {
         body: JSON.stringify({
           claim: claim.claim,
           verbatim: claim.matchedText,
-          searchQuery: scholarQuery,
+          searchQuery: claim.searchQuery ?? claim.claim,
         }),
       });
       if (!response.ok) {
@@ -146,18 +140,6 @@ export function ClaimCard({ claim, classified, onSeek }: Props) {
               title="Search Google for context on this claim"
             >
               Google
-            </a>
-            <span aria-hidden className="text-foreground/30">
-              ·
-            </span>
-            <a
-              href={scholarUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-foreground/25 underline-offset-2 transition-colors hover:text-foreground hover:decoration-foreground"
-              title="Search Google Scholar for academic sources on this claim"
-            >
-              Scholar
             </a>
           </div>
         )}

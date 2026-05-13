@@ -2,10 +2,10 @@ import { FlagBadge } from "./FlagBadge";
 
 /**
  * Static onboarding preview: a sample ledger entry with the two
- * clickable elements (timestamp pill + Scholar link) highlighted with
- * a colored ring, plus speech-bubble callouts positioned outside the
- * card on the right pointing at each. On mobile the callouts collapse
- * to a stack below the card.
+ * clickable elements (timestamp pill + research button) highlighted
+ * with a colored ring, plus speech-bubble callouts positioned outside
+ * the card on the right pointing at each. On mobile the callouts
+ * collapse to a stack below the card.
  *
  * The preview itself isn't interactive — the call to action is the
  * sample gallery directly below. The rings + bubbles teach the
@@ -55,12 +55,6 @@ export function SampleClaimPreview() {
               <span className="underline decoration-foreground/25 underline-offset-2">
                 Google
               </span>
-              <span aria-hidden className="text-foreground/30">
-                ·
-              </span>
-              <span className="underline decoration-foreground/25 underline-offset-2">
-                Scholar
-              </span>
             </div>
           </footer>
         </article>
@@ -74,8 +68,8 @@ export function SampleClaimPreview() {
         <div
           className={`absolute bottom-2 right-0 hidden w-48 -rotate-2 sm:block ${BUBBLE}`}
         >
-          ← three ways to verify — &lsquo;research&rsquo; uses AI to judge real
-          papers
+          ← &lsquo;research&rsquo; uses AI to judge real papers; Google for
+          quick context
         </div>
 
         {/* Mobile callouts — stacked below the card */}
@@ -84,8 +78,8 @@ export function SampleClaimPreview() {
             ↑ jumps to the moment the claim was said
           </div>
           <div className={BUBBLE}>
-            ↑ three ways to verify — &lsquo;research&rsquo; uses AI to judge
-            real papers
+            ↑ &lsquo;research&rsquo; uses AI to judge real papers; Google for
+            quick context
           </div>
         </div>
       </div>
