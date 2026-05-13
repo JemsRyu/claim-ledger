@@ -68,7 +68,7 @@ export function ResearchPanel({ state }: { state: State }) {
     >
       <header className="flex items-baseline justify-between">
         <h3 className="font-mono text-[10px] uppercase tracking-widest text-foreground/55">
-          Research · Semantic Scholar
+          Research · OpenAlex
         </h3>
         {state.kind === "done" && (
           <span className="font-mono text-[10px] tabular-nums text-foreground/35">

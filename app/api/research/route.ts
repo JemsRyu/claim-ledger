@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       const status =
         error.kind === "no-key" || error.kind === "bad-input"
           ? 400
-          : error.kind === "ss-rate-limited"
+          : error.kind === "search-rate-limited"
             ? 429
             : 502;
       return NextResponse.json(

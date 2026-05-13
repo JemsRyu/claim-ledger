@@ -11,15 +11,19 @@ const HAIKU_MAX_OUTPUT_TOKENS = 800;
 const HAIKU_URL = "https://api.anthropic.com/v1/messages";
 const HAIKU_VERSION = "2023-06-01";
 
-const SS_URL = "https://api.semanticscholar.org/graph/v1/paper/search";
-const SS_FIELDS =
-  "title,abstract,year,citationCount,externalIds,authors,openAccessPdf";
-const SS_LIMIT = 5;
-const SS_TIMEOUT_MS = 12_000;
+// OpenAlex — fully open, no key, 100K req/day per IP, ~250M works
+// indexed. We pick it over Semantic Scholar's unauthenticated tier
+// because SS aggressively 429s shared IPs (Vercel egress included)
+// even on first contact. If we want SS specifically (it has slightly
+// better CS / fringe-domain coverage), set SEMANTIC_SCHOLAR_API_KEY
+// — but the OpenAlex path stays the default.
+const OPENALEX_URL = "https://api.openalex.org/works";
+const OPENALEX_LIMIT = 5;
+const OPENALEX_TIMEOUT_MS = 12_000;
 
 const SYSTEM_PROMPT = `You are a research lens for a YouTube claim auditor.
 
-You will receive one factual claim made by a speaker, plus a short list of academic papers (title + abstract) retrieved from Semantic Scholar via a keyword search. Your job: judge whether each paper supports, contradicts, or is merely tangential to the claim.
+You will receive one factual claim made by a speaker, plus a short list of academic papers (title + abstract) retrieved via an academic-keyword search. Your job: judge whether each paper supports, contradicts, or is merely tangential to the claim.
 
 Verdicts:
 - "supports": The paper's findings, methods, or conclusions align with the claim.
@@ -54,8 +58,8 @@ const VERDICTS_SCHEMA = {
 
 export type ResearchErrorKind =
   | "no-key"
-  | "ss-rate-limited"
-  | "ss-failed"
+  | "search-rate-limited"
+  | "search-failed"
   | "haiku-failed"
   | "haiku-timeout"
   | "no-papers"
@@ -72,42 +76,81 @@ export class ResearchError extends Error {
   }
 }
 
-type SemanticScholarPaper = {
-  paperId?: string;
-  title?: string;
-  abstract?: string | null;
-  year?: number | null;
-  citationCount?: number | null;
-  externalIds?: { DOI?: string | null } | null;
-  authors?: { name?: string }[] | null;
-  openAccessPdf?: { url?: string } | null;
+type OpenAlexWork = {
+  id?: string;
+  title?: string | null;
+  display_name?: string | null;
+  publication_year?: number | null;
+  cited_by_count?: number | null;
+  doi?: string | null;
+  abstract_inverted_index?: Record<string, number[]> | null;
+  authorships?: { author?: { display_name?: string } | null }[] | null;
 };
 
-async function searchSemanticScholar(
-  query: string,
-): Promise<SemanticScholarPaper[]> {
-  const url = `${SS_URL}?query=${encodeURIComponent(query)}&limit=${SS_LIMIT}&fields=${SS_FIELDS}`;
-  const headers: Record<string, string> = { accept: "application/json" };
-  if (process.env.SEMANTIC_SCHOLAR_API_KEY) {
-    headers["x-api-key"] = process.env.SEMANTIC_SCHOLAR_API_KEY;
+/**
+ * OpenAlex returns abstracts as an inverted index — {word: [positions]} —
+ * to save bytes. Reconstruct into prose by walking positions in order.
+ * Returns "" if the index is null or empty.
+ */
+function reconstructAbstract(
+  inverted: Record<string, number[]> | null | undefined,
+): string {
+  if (!inverted) return "";
+  const positionToWord = new Map<number, string>();
+  for (const [word, positions] of Object.entries(inverted)) {
+    for (const pos of positions) positionToWord.set(pos, word);
   }
+  if (positionToWord.size === 0) return "";
+  const maxPos = Math.max(...positionToWord.keys());
+  const words: string[] = [];
+  for (let i = 0; i <= maxPos; i++) {
+    const w = positionToWord.get(i);
+    if (w !== undefined) words.push(w);
+  }
+  return words.join(" ");
+}
+
+type SearchedPaper = {
+  title: string;
+  abstract: string;
+  year: number | null;
+  citationCount: number | null;
+  url: string;
+  authors: { name?: string }[];
+};
+
+async function searchOpenAlex(query: string): Promise<SearchedPaper[]> {
+  // Polite-pool opt-in via mailto= adds a small priority boost in
+  // OpenAlex's queue. Optional — we work fine without it.
+  const contact = process.env.OPENALEX_CONTACT;
+  const params = new URLSearchParams({
+    search: query,
+    "per-page": String(OPENALEX_LIMIT),
+    select:
+      "id,title,display_name,publication_year,cited_by_count,doi,abstract_inverted_index,authorships",
+  });
+  if (contact) params.set("mailto", contact);
+  const url = `${OPENALEX_URL}?${params.toString()}`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), SS_TIMEOUT_MS);
+  const timeoutId = setTimeout(() => controller.abort(), OPENALEX_TIMEOUT_MS);
 
   let response: Response;
   try {
-    response = await fetch(url, { headers, signal: controller.signal });
+    response = await fetch(url, {
+      headers: { accept: "application/json" },
+      signal: controller.signal,
+    });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
       throw new ResearchError(
-        "ss-failed",
-        `Semantic Scholar request timed out after ${SS_TIMEOUT_MS}ms.`,
+        "search-failed",
+        `OpenAlex request timed out after ${OPENALEX_TIMEOUT_MS}ms.`,
       );
     }
     throw new ResearchError(
-      "ss-failed",
-      error instanceof Error ? error.message : "Semantic Scholar fetch failed.",
+      "search-failed",
+      error instanceof Error ? error.message : "OpenAlex fetch failed.",
     );
   } finally {
     clearTimeout(timeoutId);
@@ -115,27 +158,48 @@ async function searchSemanticScholar(
 
   if (response.status === 429) {
     throw new ResearchError(
-      "ss-rate-limited",
-      "Semantic Scholar rate-limited the request. Try again in a moment.",
+      "search-rate-limited",
+      "OpenAlex rate-limited the request. Try again in a moment.",
     );
   }
   if (!response.ok) {
     const body = await response.text().catch(() => "");
     throw new ResearchError(
-      "ss-failed",
-      `Semantic Scholar returned ${response.status}: ${body.slice(0, 200)}`,
+      "search-failed",
+      `OpenAlex returned ${response.status}: ${body.slice(0, 200)}`,
     );
   }
 
-  const data = (await response.json()) as { data?: SemanticScholarPaper[] };
-  return (data.data ?? []).filter(
-    // Drop entries without title or abstract — they can't be judged usefully.
-    (p) => p.title && p.abstract && p.abstract.length > 0,
-  );
+  const data = (await response.json()) as { results?: OpenAlexWork[] };
+  const works = data.results ?? [];
+  return works
+    .map((w): SearchedPaper => {
+      const title = (w.title ?? w.display_name ?? "").trim();
+      const abstract = reconstructAbstract(w.abstract_inverted_index);
+      const authors = (w.authorships ?? [])
+        .map((a) => ({ name: a.author?.display_name }))
+        .filter((a): a is { name: string } => !!a.name);
+      const url = w.doi
+        ? // OpenAlex returns DOIs as full https://doi.org/... URLs;
+          // some entries return bare DOIs. Handle both.
+          w.doi.startsWith("http")
+          ? w.doi
+          : `https://doi.org/${w.doi}`
+        : w.id ?? "https://openalex.org/";
+      return {
+        title,
+        abstract,
+        year: typeof w.publication_year === "number" ? w.publication_year : null,
+        citationCount:
+          typeof w.cited_by_count === "number" ? w.cited_by_count : null,
+        url,
+        authors,
+      };
+    })
+    .filter((p) => p.title.length > 0 && p.abstract.length > 0);
 }
 
-function formatAuthors(authors: { name?: string }[] | null | undefined): string {
-  if (!authors || authors.length === 0) return "Unknown";
+function formatAuthors(authors: { name?: string }[]): string {
   const names = authors
     .map((a) => a.name?.trim())
     .filter((n): n is string => !!n);
@@ -145,19 +209,10 @@ function formatAuthors(authors: { name?: string }[] | null | undefined): string 
   return `${names[0]} et al.`;
 }
 
-function paperUrl(p: SemanticScholarPaper): string {
-  const doi = p.externalIds?.DOI;
-  if (doi) return `https://doi.org/${doi}`;
-  const pdf = p.openAccessPdf?.url;
-  if (pdf) return pdf;
-  if (p.paperId) return `https://www.semanticscholar.org/paper/${p.paperId}`;
-  return "https://www.semanticscholar.org/";
-}
-
 async function judgePapers(
   claim: string,
   verbatim: string,
-  papers: SemanticScholarPaper[],
+  papers: SearchedPaper[],
 ): Promise<{ verdict: PaperVerdict; reasoning: string }[]> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -170,7 +225,7 @@ async function judgePapers(
   const paperBlock = papers
     .map(
       (p, i) =>
-        `[Paper ${i + 1}]\nTitle: ${p.title}\nYear: ${p.year ?? "unknown"}\nAbstract: ${(p.abstract ?? "").slice(0, 1200)}`,
+        `[Paper ${i + 1}]\nTitle: ${p.title}\nYear: ${p.year ?? "unknown"}\nAbstract: ${p.abstract.slice(0, 1200)}`,
     )
     .join("\n\n");
 
@@ -262,17 +317,17 @@ async function judgePapers(
 /**
  * Research a single claim against academic literature.
  *
- *  1. Search Semantic Scholar with the academic-keyword query the
- *     extraction model already emitted (searchQuery field). Top 5 papers
- *     with title + abstract.
+ *  1. Search OpenAlex with the academic-keyword query the extraction
+ *     model already emitted (searchQuery field). Top 5 papers with
+ *     title + abstract (reconstructed from OpenAlex's inverted index).
  *  2. Send those abstracts to Haiku 4.5 in one batched call: for each
  *     paper, supports / contradicts / tangential, plus a one-line
  *     reasoning that names the specific finding.
- *  3. Merge the SS metadata (authors, year, citation count, URL) with
- *     Haiku's verdicts and return ResearchResult.
+ *  3. Merge the search metadata (authors, year, citation count, URL)
+ *     with Haiku's verdicts and return ResearchResult.
  *
- * Cost: one SS call (free) + one Haiku call (~$0.0015). Latency: ~5-10s.
- * Lazy-fired from the client — never runs at audit time.
+ * Cost: one OpenAlex call (free) + one Haiku call (~$0.0015). Latency:
+ * ~5-10s. Lazy-fired from the client — never runs at audit time.
  */
 export async function researchClaim(input: {
   claim: string;
@@ -284,7 +339,7 @@ export async function researchClaim(input: {
     throw new ResearchError("bad-input", "Missing claim or searchQuery.");
   }
 
-  const papers = await searchSemanticScholar(searchQuery);
+  const papers = await searchOpenAlex(searchQuery);
   if (papers.length === 0) {
     return { papers: [] };
   }
@@ -292,12 +347,11 @@ export async function researchClaim(input: {
   const verdicts = await judgePapers(claim, verbatim, papers);
 
   const researched: ResearchedPaper[] = papers.map((p, i) => ({
-    title: p.title ?? "Untitled",
-    authors: formatAuthors(p.authors ?? null),
-    year: p.year ?? null,
-    citationCount:
-      typeof p.citationCount === "number" ? p.citationCount : null,
-    url: paperUrl(p),
+    title: p.title,
+    authors: formatAuthors(p.authors),
+    year: p.year,
+    citationCount: p.citationCount,
+    url: p.url,
     verdict: verdicts[i].verdict,
     reasoning: verdicts[i].reasoning,
   }));
