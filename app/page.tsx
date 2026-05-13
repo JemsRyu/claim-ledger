@@ -43,9 +43,12 @@ export default function Home() {
             into the ledger as each claim lands.
           </p>
           <p className="text-xs text-foreground/45">
-            The model never emits timestamps. Verbatim quotes are
-            fuzzy-matched against the transcript and spans are derived
-            deterministically server-side — click any timestamp to verify.
+            The model never emits timestamps or invented citations. Verbatim
+            quotes — for locating the claim in the transcript and for citing
+            evidence in the research lens — are server-validated before
+            display. Click any timestamp to verify; click{" "}
+            <code className="font-mono text-foreground/70">research</code> on a
+            flagged claim to see real papers with quoted evidence.
           </p>
         </section>
 
