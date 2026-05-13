@@ -45,17 +45,21 @@ export function SampleClaimPreview() {
             <div className="ml-auto flex items-center gap-2 text-[10px] tracking-wider text-foreground/45">
               <span className="font-mono uppercase">verify:</span>
               <span
-                className={`inline-flex rounded-full bg-amber-100/40 px-2 py-0.5 dark:bg-amber-950/40 ${RING}`}
+                className={`inline-flex rounded border border-foreground/15 bg-foreground/[0.04] px-1.5 py-0.5 font-mono uppercase tracking-wider text-foreground/70 ${RING}`}
               >
-                <span className="text-amber-900 underline decoration-amber-700/40 underline-offset-2 dark:text-amber-100">
-                  Scholar
-                </span>
+                research
               </span>
               <span aria-hidden className="text-foreground/30">
                 ·
               </span>
               <span className="underline decoration-foreground/25 underline-offset-2">
                 Google
+              </span>
+              <span aria-hidden className="text-foreground/30">
+                ·
+              </span>
+              <span className="underline decoration-foreground/25 underline-offset-2">
+                Scholar
               </span>
             </div>
           </footer>
@@ -68,9 +72,10 @@ export function SampleClaimPreview() {
           ← jumps to the moment the claim was said
         </div>
         <div
-          className={`absolute bottom-2 right-0 hidden w-44 -rotate-2 sm:block ${BUBBLE}`}
+          className={`absolute bottom-2 right-0 hidden w-48 -rotate-2 sm:block ${BUBBLE}`}
         >
-          ← links to a Scholar or Google search for the claim
+          ← three ways to verify — &lsquo;research&rsquo; uses AI to judge real
+          papers
         </div>
 
         {/* Mobile callouts — stacked below the card */}
@@ -79,7 +84,8 @@ export function SampleClaimPreview() {
             ↑ jumps to the moment the claim was said
           </div>
           <div className={BUBBLE}>
-            ↑ links to a Scholar or Google search for the claim
+            ↑ three ways to verify — &lsquo;research&rsquo; uses AI to judge
+            real papers
           </div>
         </div>
       </div>

@@ -126,15 +126,15 @@ export function ClaimCard({ claim, classified, onSeek }: Props) {
         {hasFlags && (
           <div className="ml-auto flex items-center gap-2 text-[10px] tracking-wider text-foreground/45">
             <span className="font-mono uppercase">verify:</span>
-            <a
-              href={scholarUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-foreground/25 underline-offset-2 transition-colors hover:text-foreground hover:decoration-foreground"
-              title="Search Google Scholar for academic sources on this claim"
+            <button
+              type="button"
+              onClick={handleResearch}
+              disabled={research.kind === "loading"}
+              className="cursor-pointer rounded border border-foreground/15 bg-foreground/[0.04] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-foreground/70 transition-colors hover:border-foreground/30 hover:bg-foreground/[0.08] hover:text-foreground disabled:cursor-wait disabled:opacity-60"
+              title="Retrieve abstracts from OpenAlex, then judge whether each supports, contradicts, or is tangential to this claim"
             >
-              Scholar
-            </a>
+              {research.kind === "loading" ? "researching…" : "research"}
+            </button>
             <span aria-hidden className="text-foreground/30">
               ·
             </span>
@@ -150,15 +150,15 @@ export function ClaimCard({ claim, classified, onSeek }: Props) {
             <span aria-hidden className="text-foreground/30">
               ·
             </span>
-            <button
-              type="button"
-              onClick={handleResearch}
-              disabled={research.kind === "loading"}
-              className="cursor-pointer rounded border border-foreground/15 bg-foreground/[0.04] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-foreground/70 transition-colors hover:border-foreground/30 hover:bg-foreground/[0.08] hover:text-foreground disabled:cursor-wait disabled:opacity-60"
-              title="Retrieve abstracts from Semantic Scholar, then judge whether each supports, contradicts, or is tangential to this claim"
+            <a
+              href={scholarUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-foreground/25 underline-offset-2 transition-colors hover:text-foreground hover:decoration-foreground"
+              title="Search Google Scholar for academic sources on this claim"
             >
-              {research.kind === "loading" ? "researching…" : "research"}
-            </button>
+              Scholar
+            </a>
           </div>
         )}
       </footer>

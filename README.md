@@ -14,6 +14,7 @@ Paste a YouTube URL. The auditor:
 - **Timestamps each claim word-for-word against the transcript.** The model never emits timestamps — the server fuzzy-matches the verbatim against the real transcript and derives the span deterministically. Claims that don't match are dropped silently.
 - **Flags claims adversarially** — `hedged`, `vague-sourced`, `unsourced`, `contradicted`, `un-credentialed` (Claude Haiku 4.5).
 - **Generates two verification queries per flagged claim** — an academic-keyword search for Google Scholar, and a natural-language question for Google. One click each.
+- **Researches any flagged claim against academic literature on demand.** Click `research` on a claim card — the lens retrieves the top 5 papers from OpenAlex matching the claim, then Claude Haiku judges each as `supports`, `contradicts`, or `tangential` with a one-line reasoning. Every paper links to its DOI for direct verification. RAG over a public 250M-paper index, no vector DB to maintain.
 - **Embeds the YouTube player on the page.** Clicking a timestamp jumps the embedded video in place — no new tab, no context switch.
 - **Stays silent on non-informational video.** Paste a music URL, get an explicit "no audit applicable" empty state. The tool knows when it shouldn't speak.
 
@@ -35,12 +36,15 @@ flowchart LR
     UI -->|metadata| Oembed["<b>/api/oembed</b><br/>Node"]
     UI -->|transcript| Transcript["<b>/api/transcript</b><br/>Node"]
     UI -->|SSE stream| Audit["<b>/api/audit</b><br/>Edge · 300s budget"]
+    UI -.->|lazy, per-claim| Research["<b>/api/research</b><br/>Node"]
     Oembed --> YT[YouTube oEmbed]
     Transcript --> IO[youtube-transcript.io]
     Audit -.-> Anthropic[Anthropic<br/>Messages API]
+    Research -.-> OpenAlex[OpenAlex]
+    Research -.-> Anthropic
 ```
 
-Three endpoints, different runtimes. `/api/audit` is on Vercel's **Edge** runtime for the 300s streaming budget (Node functions cap at 10s on the free tier, which a real extraction + classification run blows past). The other endpoints stay on Node.
+Four endpoints, different runtimes. `/api/audit` is on Vercel's **Edge** runtime for the 300s streaming budget (Node functions cap at 10s on the free tier, which a real extraction + classification run blows past). `/api/research` is **lazy** — it fires only when the user clicks `research` on a flagged claim, not during the audit itself. The other endpoints stay on Node.
 
 **Transcripts come from `youtube-transcript.io`** — a paid third party that fetches from non-blocked egress. Direct YouTube fetches from Vercel IPs fail 9-of-10 popular videos.
 
@@ -57,6 +61,17 @@ flowchart LR
 ```
 
 Four stages, two of which are deterministic server-side guards (#2 and #4). Each stage's output is the next stage's input; events stream to the client as they're produced.
+
+### Research lens (lazy, per-claim)
+
+```mermaid
+flowchart LR
+    Click([User clicks 'research'<br/>on a flagged claim]) --> Search["1 · OpenAlex search<br/>academic-keyword query"]
+    Search -->|top 5 papers<br/>with title + abstract| J["2 · Haiku 4.5<br/>batched judgment"]
+    J -->|per-paper verdict<br/>+ one-line reasoning| Render([Inline panel<br/>under claim card])
+```
+
+This is **RAG (retrieval-augmented generation)** — but with a public API as the retrieval backend rather than a self-hosted vector DB. One OpenAlex call (free, 250M papers indexed) + one batched Haiku call (~$0.0015) per click; latency ~5-10s. Real DOIs, real abstracts, real verdicts the user can verify by reading the source themselves. Never runs at audit time — zero ambient cost unless a user explicitly opts into the deeper read.
 
 ---
 
@@ -76,7 +91,7 @@ See [`DESIGN.md`](./DESIGN.md) for the timestamp algorithm in full.
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · Tailwind v4 · TypeScript · Anthropic Messages API via raw `fetch` (Sonnet 4.6 + Haiku 4.5) · YouTube oEmbed · `youtube-transcript.io` · Vercel (Edge runtime on `/api/audit`).
+Next.js 16 (App Router) · React 19 · Tailwind v4 · TypeScript · Anthropic Messages API via raw `fetch` (Sonnet 4.6 + Haiku 4.5) · YouTube oEmbed · `youtube-transcript.io` · OpenAlex (research lens) · Vercel (Edge runtime on `/api/audit`).
 
 No database, no accounts, no persistence beyond a 5-minute in-memory transcript cache. Every audit is computed fresh.
 
@@ -86,3 +101,4 @@ No database, no accounts, no persistence beyond a 5-minute in-memory transcript 
 - **Seed-anchored fuzzy matcher** replaced a naive `O(N·W·L²)` brute force in the timestamp validator — on long transcripts the difference is between *minutes* per claim and *milliseconds*. By pigeonhole, any fuzzy match with ≤*k* edits must contain at least one of *k+1* disjoint needle seeds *exactly*, so seeds are found via `String.indexOf` and only those candidate positions run the expensive Levenshtein DP.
 - **Server-side hedge-token guard** complements the classifier — Haiku marks claims broadly across the transcript, the server enforces locality against the actual matched span. Same trust-spine pattern as the timestamp validator: model emits, server verifies.
 - **Two queries per claim, one per engine.** Scholar gets academic keywords (matches paper titles and abstracts). Google gets a natural-language verification question (Google's question-form ranking surfaces fact-checks, journalism, and explainers). Both generated in the same extraction pass — zero extra API calls.
+- **RAG via a public API, not a self-hosted vector DB.** The research lens retrieves real papers from OpenAlex (250M works indexed, free, no key required) and grounds Haiku's verdict in the retrieved abstracts. Vector DBs shine for private corpora; for public academic search, OpenAlex already operates a high-quality retrieval pipeline — building our own would duplicate that work without improving the result. Architecturally simpler (no embedding pipeline, no chunking, no index to maintain), and every cited paper is a real DOI the user can click through to verify the model's read.
