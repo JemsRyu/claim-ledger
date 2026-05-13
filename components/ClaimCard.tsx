@@ -124,7 +124,7 @@ export function ClaimCard({ claim, classified, onSeek }: Props) {
               type="button"
               onClick={handleResearch}
               disabled={research.kind === "loading"}
-              className="cursor-pointer rounded border border-foreground/15 bg-foreground/[0.04] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-foreground/70 transition-colors hover:border-foreground/30 hover:bg-foreground/[0.08] hover:text-foreground disabled:cursor-wait disabled:opacity-60"
+              className="cursor-pointer font-mono text-[10px] font-semibold uppercase tracking-wider text-foreground/75 underline decoration-foreground/30 underline-offset-2 transition-colors hover:text-foreground hover:decoration-foreground disabled:cursor-wait disabled:opacity-60"
               title="Retrieve abstracts from OpenAlex, then judge whether each supports, contradicts, or is tangential to this claim"
             >
               {research.kind === "loading" ? "researching…" : "research"}
@@ -136,7 +136,7 @@ export function ClaimCard({ claim, classified, onSeek }: Props) {
               href={googleUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="underline decoration-foreground/25 underline-offset-2 transition-colors hover:text-foreground hover:decoration-foreground"
+              className="font-mono text-[10px] font-semibold uppercase tracking-wider text-foreground/75 underline decoration-foreground/30 underline-offset-2 transition-colors hover:text-foreground hover:decoration-foreground"
               title="Search Google for context on this claim"
             >
               Google

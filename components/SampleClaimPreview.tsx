@@ -45,14 +45,14 @@ export function SampleClaimPreview() {
             <div className="ml-auto flex items-center gap-2 text-[10px] tracking-wider text-foreground/45">
               <span className="font-mono uppercase">verify:</span>
               <span
-                className={`inline-flex rounded border border-foreground/15 bg-foreground/[0.04] px-1.5 py-0.5 font-mono uppercase tracking-wider text-foreground/70 ${RING}`}
+                className={`rounded font-mono text-[10px] font-semibold uppercase tracking-wider text-foreground/75 underline decoration-foreground/30 underline-offset-2 ${RING}`}
               >
                 research
               </span>
               <span aria-hidden className="text-foreground/30">
                 ·
               </span>
-              <span className="underline decoration-foreground/25 underline-offset-2">
+              <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-foreground/75 underline decoration-foreground/30 underline-offset-2">
                 Google
               </span>
             </div>
