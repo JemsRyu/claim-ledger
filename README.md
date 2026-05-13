@@ -10,10 +10,10 @@
 
 Paste a YouTube URL. The auditor:
 
-- **Extracts every factual claim** the speaker makes, with the verbatim quote (Sonnet 4.6).
+- **Extracts every factual claim** the speaker makes, with the verbatim quote (Claude Sonnet 4.6).
 - **Timestamps each claim word-for-word against the transcript.** The model never emits timestamps — the server fuzzy-matches the verbatim against the real transcript and derives the span deterministically. Claims that don't match are dropped silently.
-- **Flags claims adversarially** — `hedged`, `vague-sourced`, `unsourced`, `contradicted`, `un-credentialed` (Haiku 4.5).
-- **Generates two verification queries per flagged claim** — academic-keyword search for Google Scholar, natural-language question for Google. One click each, opens in a new tab.
+- **Flags claims adversarially** — `hedged`, `vague-sourced`, `unsourced`, `contradicted`, `un-credentialed` (Claude Haiku 4.5).
+- **Generates two verification queries per flagged claim** — an academic-keyword search for Google Scholar, and a natural-language question for Google. One click each.
 - **Embeds the YouTube player on the page.** Clicking a timestamp jumps the embedded video in place — no new tab, no context switch.
 - **Stays silent on non-informational video.** Paste a music URL, get an explicit "no audit applicable" empty state. The tool knows when it shouldn't speak.
 
@@ -40,7 +40,7 @@ flowchart LR
     Audit -.-> Anthropic[Anthropic<br/>Messages API]
 ```
 
-Three endpoints, different runtimes. `/api/audit` is on Vercel's **Edge** runtime for the 300s streaming budget (Node functions cap at 10s on Hobby, which a real extraction + classification run blows past). The other endpoints stay on Node.
+Three endpoints, different runtimes. `/api/audit` is on Vercel's **Edge** runtime for the 300s streaming budget (Node functions cap at 10s on the free tier, which a real extraction + classification run blows past). The other endpoints stay on Node.
 
 **Transcripts come from `youtube-transcript.io`** — a paid third party that fetches from non-blocked egress. Direct YouTube fetches from Vercel IPs fail 9-of-10 popular videos.
 
@@ -56,7 +56,7 @@ flowchart LR
     G -->|validated claim<br/>with flags| Stream([SSE event stream])
 ```
 
-Four stages, two of which are deterministic server-side guards (#2 and #4). Each stage's output is the next stage's input; events stream to the client as they're produced (SSE `claim`, `validated`, `classified`, `done`).
+Four stages, two of which are deterministic server-side guards (#2 and #4). Each stage's output is the next stage's input; events stream to the client as they're produced.
 
 ---
 
@@ -67,8 +67,8 @@ Four stages, two of which are deterministic server-side guards (#2 and #4). Each
 Three invariants enforced server-side, not trusted to the model:
 
 1. **The model never emits timestamps.** Sonnet returns a verbatim quote; the validator finds the quote in the transcript via fuzzy match and reads the span from the matched segment. If the quote doesn't match (or matches ambiguously across the transcript), the claim is dropped silently.
-2. **The matcher uses pigeonhole seeding.** Any match within k edits leaves at least one of (k+1) disjoint needle seeds untouched in the haystack — so candidate positions come from `String.indexOf` (memchr-speed), and only those positions get banded Levenshtein. ~100× faster than naive scan on long transcripts; the trust-spine test suite (43 cases) still passes.
-3. **Hedge flags get a locality check.** Haiku tends to flag direct assertions as `hedged` when the speaker hedges *elsewhere* in the transcript. A small server-side guard strips `hedged` from any claim whose matched span contains no hedge token (`i think`, `might`, `could`, `suggest`, etc.). Model emits, server enforces.
+2. **The matcher uses pigeonhole seeding.** Any match within *k* edits leaves at least one of *(k+1)* disjoint needle seeds untouched in the haystack — so candidate positions come from `String.indexOf` (memchr-speed), and only those positions get banded Levenshtein. ~100× faster than naive scan on long transcripts.
+3. **Hedge flags get a locality check.** Haiku tends to flag direct assertions as `hedged` when the speaker hedges *elsewhere* in the transcript. A server-side guard strips `hedged` from any claim whose matched span contains no hedge token. Model emits, server enforces.
 
 See [`DESIGN.md`](./DESIGN.md) for the timestamp algorithm in full.
 
@@ -76,44 +76,13 @@ See [`DESIGN.md`](./DESIGN.md) for the timestamp algorithm in full.
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · Tailwind v4 · TypeScript · Anthropic Messages API via raw `fetch` (Sonnet 4.6 + Haiku 4.5) · YouTube oEmbed · `youtube-transcript.io` (primary) · `youtube-transcript` npm (fallback) · Vercel (Edge runtime on `/api/audit`).
+Next.js 16 (App Router) · React 19 · Tailwind v4 · TypeScript · Anthropic Messages API via raw `fetch` (Sonnet 4.6 + Haiku 4.5) · YouTube oEmbed · `youtube-transcript.io` · Vercel (Edge runtime on `/api/audit`).
 
 No database, no accounts, no persistence beyond a 5-minute in-memory transcript cache. Every audit is computed fresh.
 
-## Decisions worth flagging
+## Design decisions
 
 - **Lens calls bypass the Anthropic SDK.** The SDK transitively imports `node:fs` / `node:path` for its OAuth credential chain, which Vercel's edge function validator rejects on deploy. The lens code calls `https://api.anthropic.com/v1/messages` directly via `fetch`, preserving prompt caching and structured output via `output_config.format`. ~40 lines per lens, fully edge-compatible.
-- **Seed-anchored fuzzy matcher** replaced naive O(N·W·L²) brute force in the timestamp validator — on long transcripts the difference is between *minutes* per claim and *milliseconds*. Same 31-case trust-spine suite passes unchanged.
-- **Server-side hedge-token guard** complements the Haiku classifier — model classifies broadly, server enforces locality. Same trust-spine pattern as the timestamp validator.
-- **Click-to-verify timestamps are honest even when extraction degrades.** The synthesizer fallback (on Anthropic API failure — no key, no credits, rate-limited) pulls real transcript substrings and runs them through the same validator. The "(demo)" prefix on synthesized claim text is the only visible signal that live extraction wasn't running.
-
----
-
-## Status
-
-| Phase | Scope | State |
-|---|---|---|
-| 1 | Scaffold, deploy, transcript fetch, lens UI, ledger, timestamp validator | ✅ complete |
-| 2.1 | Live Sonnet 4.6 extraction with synthesizer fallback | ✅ wired |
-| 2.2 | Live Haiku 4.5 classification with mock-flag fallback | ✅ wired |
-| 2.3 | Prompt tuning across the curated sample set | ✅ tuned over 5 eval iterations |
-
-Both LLM lenses fall back gracefully on any API failure so the demo always works. When the Anthropic account has credits, real extraction and classification fire automatically — no redeploy required.
-
-## Read more
-
-- [`DESIGN.md`](./DESIGN.md) — design of record. 9 sections, including the timestamp-mitigation algorithm (§6) and resolved open questions (§8).
-- [`PLAN.md`](./PLAN.md) — chunked implementation plan with status table.
-
-## Local dev
-
-```bash
-npm install
-npm run dev       # http://localhost:3000
-npm run build     # type-check + production build
-npm test          # vitest — 43 tests on validator + hedge guard
-npm run eval      # extract + validate + classify over the curated fixture set,
-                  # dumps JSON snapshots to eval-output/ for prompt iteration
-```
-
-Requires `ANTHROPIC_API_KEY` in `.env.local`. Local dev works without `YT_TRANSCRIPT_IO_TOKEN` — the `youtube-transcript` npm package fetches fine from residential IPs.
+- **Seed-anchored fuzzy matcher** replaced a naive `O(N·W·L²)` brute force in the timestamp validator — on long transcripts the difference is between *minutes* per claim and *milliseconds*. By pigeonhole, any fuzzy match with ≤*k* edits must contain at least one of *k+1* disjoint needle seeds *exactly*, so seeds are found via `String.indexOf` and only those candidate positions run the expensive Levenshtein DP.
+- **Server-side hedge-token guard** complements the classifier — Haiku marks claims broadly across the transcript, the server enforces locality against the actual matched span. Same trust-spine pattern as the timestamp validator: model emits, server verifies.
+- **Two queries per claim, one per engine.** Scholar gets academic keywords (matches paper titles and abstracts). Google gets a natural-language verification question (Google's question-form ranking surfaces fact-checks, journalism, and explainers). Both generated in the same extraction pass — zero extra API calls.
