@@ -61,6 +61,15 @@ function PaperRow({ paper }: { paper: ResearchedPaper }) {
 }
 
 export function ResearchPanel({ state }: { state: State }) {
+  const relevant =
+    state.kind === "done"
+      ? state.result.papers.filter((p) => p.verdict !== "tangential")
+      : [];
+  const tangential =
+    state.kind === "done"
+      ? state.result.papers.filter((p) => p.verdict === "tangential")
+      : [];
+
   return (
     <section
       aria-label="Research results"
@@ -72,8 +81,7 @@ export function ResearchPanel({ state }: { state: State }) {
         </h3>
         {state.kind === "done" && (
           <span className="font-mono text-[10px] tabular-nums text-foreground/35">
-            {state.result.papers.length} paper
-            {state.result.papers.length === 1 ? "" : "s"}
+            {relevant.length}/{state.result.papers.length} relevant
           </span>
         )}
       </header>
@@ -91,19 +99,46 @@ export function ResearchPanel({ state }: { state: State }) {
       )}
 
       {state.kind === "done" && state.result.papers.length === 0 && (
-        <p className="text-xs text-foreground/50">
-          No relevant papers found for this claim. Try the Scholar or Google
-          links above.
+        <p className="text-xs text-foreground/55">
+          No papers indexed for this query. Try the Scholar or Google links
+          above.
         </p>
       )}
 
-      {state.kind === "done" && state.result.papers.length > 0 && (
+      {state.kind === "done" &&
+        state.result.papers.length > 0 &&
+        relevant.length === 0 && (
+          <p className="text-xs text-foreground/55">
+            No clearly relevant papers found. {tangential.length} were retrieved
+            but the model judged each as tangential — they touch on related
+            topics without addressing this specific claim. Try the Scholar or
+            Google links above for broader verification.
+          </p>
+        )}
+
+      {state.kind === "done" && relevant.length > 0 && (
         <ul className="flex flex-col gap-2">
-          {state.result.papers.map((p, i) => (
-            <PaperRow key={i} paper={p} />
+          {relevant.map((p, i) => (
+            <PaperRow key={`r-${i}`} paper={p} />
           ))}
         </ul>
       )}
+
+      {state.kind === "done" &&
+        relevant.length > 0 &&
+        tangential.length > 0 && (
+          <details className="mt-1 text-[10px] text-foreground/45">
+            <summary className="cursor-pointer font-mono uppercase tracking-wider hover:text-foreground/70">
+              + {tangential.length} tangential{" "}
+              {tangential.length === 1 ? "paper" : "papers"}
+            </summary>
+            <ul className="mt-2 flex flex-col gap-2">
+              {tangential.map((p, i) => (
+                <PaperRow key={`t-${i}`} paper={p} />
+              ))}
+            </ul>
+          </details>
+        )}
     </section>
   );
 }
