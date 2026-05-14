@@ -58,7 +58,7 @@ This document is the design of record for the v1 build. The product decisions ar
 
 ---
 
-## 3. User flow & demo arc
+## 3. User flow & walkthrough
 
 ### User flow
 
