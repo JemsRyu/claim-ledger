@@ -2,7 +2,7 @@
 
 > Reads informational video adversarially. Surfaces *the structure of factual claims being made* — instead of summarizing them or fact-checking them.
 
-**Live:** https://claim-ledger-jemsryus-projects.vercel.app/
+**Live:** https://claim-ledger.vercel.app/
 
 ---
 
