@@ -88,7 +88,7 @@ Bonus work that landed alongside the plan:
 **Estimate.** 2–3h
 **Goal.** Ledger renders from a hardcoded fixture; click-to-verify timestamp links open YouTube at the correct moment.
 **Files.**
-- `lib/lens/types.ts` — `RawClaim`, `ValidatedClaim`, `AdversarialFlag`, `AuditResult` (per design §4)
+- `lib/lens/types.ts` — `RawClaim`, `ValidatedClaim`, `AdversarialFlag`, `AuditResult` (per design section 4)
 - `lib/lens/mock-fixtures.ts` — 2–3 hand-crafted `ValidatedClaim[]` keyed by `videoId`
 - `app/api/audit/route.ts` — POST handler, returns mocked SSE stream from fixture (real protocol shape, fake data)
 - `components/Ledger.tsx`, `components/ClaimCard.tsx`, `components/FlagBadge.tsx`
@@ -103,7 +103,7 @@ Bonus work that landed alongside the plan:
 
 ### P1.5 — Substring fuzzy-match + timestamp derivation
 **Estimate.** 2–3h
-**Goal.** Given a `RawClaim` and a `TranscriptSegment[]`, return either a `ValidatedClaim` or null. This is the trust-critical core (design §6).
+**Goal.** Given a `RawClaim` and a `TranscriptSegment[]`, return either a `ValidatedClaim` or null. This is the trust-critical core (design section 6).
 **Files.**
 - `lib/lens/timestamp-validator.ts` — pure function, no I/O
 - `lib/lens/timestamp-validator.test.ts` — extensive unit tests
@@ -212,21 +212,21 @@ Bonus work that landed alongside the plan:
   - 30-sec health short: at least one claim flagged `un-credentialed`.
   - Long-form interview clip: 6–15 claims (not so few it's empty, not so many it's noise).
 - Music video: returns `no-audit-applicable`. Confirm this with at least 3 trial runs (LLMs are nondeterministic; want consistent empty state).
-- Fuzzy-match threshold tuned: maximize recall subject to **zero false-grounded claims** in the curated set. Document the chosen threshold in `DESIGN.md` §8.
+- Fuzzy-match threshold tuned: maximize recall subject to **zero false-grounded claims** in the curated set. Document the chosen threshold in `DESIGN.md` section 8.
 
 ---
 
 ### P2.4 — Demo recording + final polish
 **Estimate.** 2h
-**Goal.** 60-second screen recording matching the demo arc in DESIGN.md §3, embedded in README. README points at the live URL.
+**Goal.** 60-second screen recording matching the demo arc in DESIGN.md section 3, embedded in README. README points at the live URL.
 **Files.**
 - `README.md` — final version with embedded video (`<video>` or animated GIF), screenshot fallback
 - Optional: `lib/cache/kv.ts` — Vercel KV cache by `videoId` if recordings feel slow on first paste
 **Acceptance.**
-- Screen recording follows the beats in DESIGN.md §3 exactly: misinformation open → live pipeline progress → click-verify proof → empty state → sample gallery.
+- Screen recording follows the beats in DESIGN.md section 3 exactly: misinformation open → live pipeline progress → click-verify proof → empty state → sample gallery.
 - Recording is ≤60s.
 - Live URL in README opens to the same experience the recording shows; a visitor clicking through can reproduce the flow on their own.
-- All open questions in DESIGN.md §8 are resolved or explicitly deferred with a one-line rationale.
+- All open questions in DESIGN.md section 8 are resolved or explicitly deferred with a one-line rationale.
 
 ---
 

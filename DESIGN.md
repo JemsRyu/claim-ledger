@@ -2,7 +2,7 @@
 
 > Paste any informational YouTube URL → get back a structured ledger of every factual claim being made, with verbatim quotes, timestamps you can verify in one click, and adversarial flags.
 
-This document is the design of record for the v1 build. Locked product decisions are in [memory](../.claude/projects/-Users-je-minryu-Desktop-claim-ledger/memory/project_youtube_brief.md); this doc derives the technical shape from those decisions.
+This document is the design of record for the v1 build. The product decisions are stated in section 1; the rest of the doc derives the technical shape from them.
 
 ---
 
@@ -54,7 +54,7 @@ This document is the design of record for the v1 build. Locked product decisions
 
 - **No data acquisition behind anti-bot walls.** Transcripts come from `youtube-transcript`, which calls YouTube's *public* `timedtext` endpoint — the same endpoint YouTube's own web player uses. Metadata comes from the *public* oEmbed endpoint. If YouTube ever closes those endpoints, the feature is cut, not worked around.
 - **No infrastructure beyond Vercel + serverless + KV.** No backend services, no Docker, no message queue.
-- **Model never emits timestamps.** See §6.
+- **Model never emits timestamps.** See section 6.
 
 ---
 
@@ -67,7 +67,7 @@ This document is the design of record for the v1 build. Locked product decisions
 3. App runs the **lens pipeline**: extraction pass → classification pass.
 4. Each claim emitted by extraction is validated against the transcript (substring fuzzy-match → derive timestamp). Unvalidated claims are dropped silently.
 5. Validated claims stream into the ledger UI as they emit. Each row has verbatim quote, timestamp link, adversarial flags.
-6. User clicks any timestamp → opens YouTube at that exact moment in a new tab.
+6. User clicks any timestamp → embedded YouTube player jumps to that moment in place. User clicks `research` on a flagged claim → on-demand RAG step retrieves academic papers and renders judged verdicts inline.
 
 ### First-run walkthrough
 
@@ -75,8 +75,9 @@ This document is the design of record for the v1 build. Locked product decisions
 |---|---|
 | **Open** | Sample gallery labeled by content type, plus a URL input. They paste a URL or click a sample. |
 | **Pipeline runs visibly** | Lens-progress UI: "extracting claims…" → "classifying…". Claims start populating the ledger one at a time, *not* a single popping spinner. |
-| **Click-to-verify** | User clicks a flagged claim's timestamp. YouTube opens at exactly that moment. Speaker is heard saying the verbatim quote. |
-| **Empty-state quality signal** | On a non-informational sample (music video), the app returns "Non-informational — no audit applicable." The tool demonstrates that it *knows* when it shouldn't speak. |
+| **Click-to-verify** | User clicks a flagged claim's timestamp. The embedded YouTube player jumps to that moment in place — speaker is heard saying the verbatim quote. |
+| **Research a flagged claim** | User clicks `research` on a flagged claim. The lens retrieves academic papers from OpenAlex, Haiku judges each, and a per-paper verdict (`supports` / `contradicts` / `tangential`) renders inline with a verbatim quote from the abstract. |
+| **Empty-state quality signal** | Paste any non-informational video (music, narrative, performance). Extraction returns zero claims; the app renders "Non-informational — no audit applicable." The tool *knows* when it shouldn't speak. |
 
 The walkthrough is designed to communicate the product's two key differentiators in the first interaction: structured claim output (not summarization) and verifiable timestamps (not hallucinated).
 
@@ -126,13 +127,13 @@ YouTube serves bot-detection HTML to most cloud-egress IPs (verified empirically
                           ▼
                   ┌───────────────┐
                   │ lens pipeline │
-                  │  (§5)         │
+                  │               │
                   └───────┬───────┘
                           ▼
                   ┌───────────────┐
                   │ timestamp     │
                   │  validator    │ <── drops unmatched claims
-                  │  (§6)         │
+                  │               │
                   └───────┬───────┘
                           ▼
                   validated claim
@@ -198,99 +199,174 @@ Two concrete lenses for v1: `ExtractionLens` and `ClassificationLens`. Future le
 
 ## 5. The lens pipeline
 
-Two passes, deliberately. One-pass extraction-plus-classification was considered and rejected: it bloats the prompt, degrades extraction quality, and forces the UI to wait for the entire result before showing anything. Two passes give clean separation of concerns and a streaming UX.
+The audit pipeline is **four stages eager** (run synchronously on every audit, streamed via SSE) plus **one stage lazy** (run on user click, per claim). Stages alternate between LLM passes and deterministic server-side guards — the agentic shape with verifications between calls.
+
+The eager pipeline:
+
+```
+extraction (Sonnet 4.6) → timestamp validator → classification (Haiku 4.5) → hedge guard → SSE stream
+```
+
+One-pass extraction-plus-classification was considered and rejected: it bloats the prompt, degrades extraction quality, and forces the UI to wait for the entire result before showing anything. Two-pass + intermediate validation gives clean separation of concerns, a streaming UX, and lets us validate each model's output before feeding it to the next.
 
 ### Pass 1 — Extraction (Sonnet 4.6)
 
 - **Input.** Full timestamped transcript (concatenated segment text, with segment indices preserved out-of-band so we can correlate matches back to seconds).
-- **Output.** Stream of `RawClaim` items.
-- **Prompt shape.** "Identify every factual claim made by the speaker. For each claim, return: (a) a natural-language paraphrase, and (b) the exact verbatim phrase the speaker used. Do not invent claims. Do not return timestamps." Structure is enforced via `output_config.format` with an inline JSON schema (`maxLength` on `verbatim` doubles as a length cap).
-- **Streaming.** Stream tokens; parse claims as JSON arrives. Claims emit to the timestamp validator one-by-one.
+- **Output.** Per claim: `{ claim, verbatim, searchQuery, verifyQuestion }`. The `searchQuery` is a 4-10 token academic-keyword string for the research lens; `verifyQuestion` is a natural-language fact-check question for the Google verify link.
+- **Prompt shape.** "Identify every factual claim made by the speaker. For each claim, return: (a) a natural-language paraphrase, (b) the exact verbatim phrase the speaker used, (c) an academic-keyword search query, (d) a verification question. Do not invent claims. Do not return timestamps." Structure is enforced via `output_config.format` with an inline JSON schema (`maxLength` on `verbatim` doubles as a length cap).
+- **Streaming.** Claims emit to the timestamp validator one-by-one as the model produces them.
 
 Why Sonnet, not Haiku, for this pass: extraction needs broad context awareness — knowing what's a claim vs. a question vs. a personal anecdote requires reading the surrounding speech. Haiku is too lossy on this judgment.
 
-### Pass 2 — Classification (Haiku 4.5)
+### Pass 2 — Timestamp validator (deterministic)
 
-- **Input.** Each `ValidatedClaim` (post-timestamp-derivation) + a window of surrounding transcript text.
+A server-side guard between extraction and classification. See section 6 for the algorithm and rationale. Summary: every claim's `verbatim` is fuzzy-matched against the real transcript (pigeonhole-seeded candidate search + banded Levenshtein); the timestamp is derived from where the match lands. Claims whose verbatim doesn't match — model hallucination, ambiguous match across the transcript, or paraphrase beyond fuzzy threshold — are dropped silently.
+
+### Pass 3 — Classification (Haiku 4.5)
+
+- **Input.** Each `ValidatedClaim` (post-timestamp-derivation) + the full transcript.
 - **Output.** `AdversarialFlag[]` for that claim.
-- **Prompt shape.** Single all-flags prompt per claim (not per-flag). The system prompt enumerates all five flag types with definitions and a few-shot calibration block; the model returns a JSON array via `output_config.format`. Per-flag fan-out was considered and rejected — Haiku reads the full transcript once for context, and a five-flag check fits comfortably in one call.
+- **Prompt shape.** Single all-flags prompt per claim (not per-flag). The system prompt enumerates all five flag types (`hedged`, `vague-sourced`, `unsourced`, `contradicted`, `un-credentialed`) with definitions and a five-example few-shot calibration block; the model returns a JSON array via `output_config.format`. Per-flag fan-out was considered and rejected — Haiku reads the full transcript once for context, and a five-flag check fits comfortably in one call.
 - **Parallelism.** All claims run as parallel Haiku calls (`Promise.all`). Cheap; latency ≈ slowest single call, not sum. Each call has its own prompt cache (transcript prefix cached, claim-specific text after the cache breakpoint), so per-claim overhead drops sharply for videos with many claims.
 
 Why Haiku for this pass: per-claim classification is well-bounded, has narrow context, and runs hundreds of times per video. Cost-shaped.
+
+### Pass 4 — Hedge guard (deterministic)
+
+Server-side post-processor on the classifier's output. Haiku is prone to attributing the speaker's *overall* hedging tone to specific direct assertions — e.g. flagging "Americans are the most in-debt cohort in U.S. history" as `hedged` because the surrounding TED talk is hedge-laced, even though that specific assertion contains no hedge tokens.
+
+The guard normalizes the matched-span text (lowercase, strip punctuation) and checks for any of ~17 hedge token patterns (`i think`, `might`, `could`, `possibly`, `maybe`, `suggest`, `seem`, `appear`, etc.). If `hedged` is in the model's flag list but none of the patterns appear in the local span, the flag is stripped. Other flags pass through unchanged. Tests in `lib/lens/hedge-guard.test.ts`.
+
+### Pass 5 (lazy) — Research lens (RAG against OpenAlex)
+
+Not part of the eager audit. Fires only when the user clicks `research` on a flagged claim. Separate endpoint (`/api/research`, Node runtime) — the audit endpoint stays stateless.
+
+```
+click → OpenAlex(searchQuery) → Haiku(claim, paper_abstracts) → quote validator → render
+```
+
+Three stages:
+
+1. **OpenAlex search** — keyword search on the extraction-emitted `searchQuery`. Top 5 papers with title + abstract (reconstructed from OpenAlex's inverted-index format) + DOI + citation count.
+2. **Haiku judgment** — one batched call: for each paper, the model emits `verdict` (`supports` / `contradicts` / `tangential`) + a `reasoning` line + a **verbatim quote from the abstract** that justifies the verdict. The prompt explicitly tells the model to interpret evidence *inferentially* — a paper finding "plant-based diets reduce mortality" contradicts "you don't need plants" even if the paper never uses the word "need".
+3. **Quote validator (deterministic)** — server checks each cited quote actually appears in the source abstract (same `normalizeForMatching` substring check the timestamp validator uses). If a `supports` or `contradicts` quote isn't in the abstract — model paraphrased, stitched fragments, or invented evidence — the verdict is demoted to `tangential` and the quote is dropped.
+
+Why this is RAG even without a vector DB: retrieval → augment → generate. The retrieval backend is a public API instead of a self-maintained vector index, because OpenAlex already operates a high-quality retrieval pipeline over the public-academic corpus we care about. Vector DBs shine for private corpora; for public academic search, building our own is duplicated work.
+
+Why lazy and not eager: the audit pipeline already runs 25-60s on a long transcript. Adding ~10s per flagged claim eagerly compounds that cost on every audit. Lazy means zero ambient cost — the user opts in to the deeper read on the claims that interest them.
 
 ### Streaming protocol
 
 `/api/audit` returns a Server-Sent Events stream:
 
 ```
-event: metadata        — title, channel, thumbnail (oEmbed)
 event: transcript-ready — number of segments
 event: lens-start      — { lens: "extraction" }
-event: claim           — RawClaim (one per claim, as they emit)
+event: claim           — RawClaim with searchQuery, verifyQuestion
 event: validated       — ValidatedClaim (after timestamp pass)
 event: lens-start      — { lens: "classification" }
-event: classified      — { claimId, flags } (per claim, as they emit)
+event: classified      — { claimId, flags } (post-hedge-guard)
 event: done
-event: error           — { kind, message }
+event: error           — { message }
 ```
 
-The UI subscribes via `EventSource` and updates the ledger reactively. Lens-start events drive the legible-progress UI (§3).
+Plus `: keepalive\n\n` SSE comment lines every 3 seconds, which defeat Vercel's edge-proxy buffering — without them, real events arrive in 10-15s clumps instead of streaming smoothly.
+
+The UI subscribes via `EventSource` and updates the ledger reactively. Lens-start events drive the legible-progress UI (section 3).
+
+`/api/research` is request/response (no SSE), Node runtime — single-shot retrieve + judge, returns the full `ResearchResult` once.
 
 ---
 
-## 6. Timestamp mitigation — the trust spine
+## 6. The trust spine
 
-This section is load-bearing. The whole product's credibility rides on click-to-verify being *actually correct*. A single wrong timestamp is fatal: the user clicks, the video plays the wrong moment, and the tool looks broken on the most important interaction it has.
+This section is load-bearing. The whole product's credibility depends on the model's user-visible output being verifiable against ground truth — a wrong click-to-verify, a fabricated paper citation, or a flag that doesn't apply locally would all break the trust contract that lets the rest of the UX work.
 
-**Rule: the model never emits timestamps.** Period. The model emits `verbatim` strings; the server derives timestamps deterministically.
+The trust-spine pattern is consistent across the pipeline: **the model emits, the server validates against the source.** Where the model can't be made deterministic, a server-side guard between LLM passes verifies the output against ground truth before downstream code (or the UI) sees it. Four invariants:
 
-### Algorithm
+### Invariant 1 — The model never emits timestamps
 
-1. **Normalize the transcript** before matching: lowercase, collapse whitespace, strip `[Music]` / `[Applause]` / `[inaudible]` markers, remove punctuation.
-2. **Concatenate segments** into one normalized string. Maintain a parallel `offsetMap: number[]` where `offsetMap[charIndex] = segmentIndex`.
-3. **Normalize the model's `verbatim`** the same way.
-4. **Fuzzy-match** the normalized verbatim against the normalized transcript. Algorithm: token-based sequence alignment with a similarity threshold of **≥0.90** (configurable; tune empirically — see §8).
-5. **Resolve match → timestamp.**
-   - Best match `≥0.90` and unique (no other match within 0.05 of the best score) → derive `startSeconds` from `transcript[offsetMap[matchStartChar]].startSeconds`.
+The extraction model returns `verbatim` strings — verbatim transcript substrings — and never an offset. The server derives the offset by fuzzy-matching the verbatim against the actual transcript.
+
+**Algorithm.**
+
+1. **Normalize the transcript** before matching: lowercase, collapse whitespace, strip `[Music]` / `[Applause]` / `[inaudible]` markers, remove punctuation. Same normalization on the model's `verbatim`.
+2. **Concatenate segments** into one normalized string with a parallel `offsetMap: number[]` where `offsetMap[charIndex] = segmentIndex`.
+3. **Fuzzy-match** the normalized verbatim against the normalized transcript. Similarity threshold **≥0.90**; ambiguity margin 0.05 (two matches within that range = ambiguous = drop).
+4. **Resolve match → timestamp.**
+   - Best match `≥0.90` and unique → derive `startSeconds` from `transcript[offsetMap[matchStartChar]].startSeconds`.
    - Best match `<0.90` → **drop the claim silently**.
-   - Multiple high-scoring matches in different parts of the transcript → **drop the claim silently** (ambiguous, can't trust).
-6. **Cross-segment spans.** If the matched span crosses segment boundaries, take `startSeconds` from the first matching segment; `endSeconds` from the last matching segment.
-7. **Display rule.** The UI shows `matchedText` (the actual transcript text in the matched span), *not* the model's `verbatim`. If the model paraphrased slightly, the user sees what was actually said.
+   - Multiple high-scoring matches → **drop the claim silently** (ambiguous, can't trust).
+5. **Cross-segment spans.** If the matched span crosses segment boundaries, take `startSeconds` from the first matching segment; `endSeconds` from the last.
+6. **Display rule.** The UI shows `matchedText` (the actual transcript text in the matched span), *not* the model's `verbatim`. If the model paraphrased slightly, the user sees what was actually said.
 
-### Why drop silently rather than show
+**Why drop silently rather than show.** We under-promise relentlessly. A claim shown without a timestamp leaks the failure mode visually. A dropped claim is just absent. We'd rather show 8 well-grounded claims than 12 mixed-quality ones.
 
-We under-promise relentlessly. A claim shown without a timestamp leaks the failure mode visually ("why is this one different?"). A dropped claim is just absent — the only signal is the total claim count, which is fine. We'd rather show 8 well-grounded claims than 12 mixed-quality ones.
+### Invariant 2 — Fuzzy matcher uses pigeonhole-seeded search
 
-### Why this is robust to the obvious failure modes
+This is a performance correctness story. A naive matcher would scan every starting position in the transcript with a Levenshtein DP at each — `O(N · W · L²)` where N is haystack length (~25K chars for a long transcript), W is window range, L is needle length. Hits minutes per claim on long transcripts.
 
-| Failure mode | Mitigation |
-|---|---|
-| Model hallucinates a claim that wasn't said | `verbatim` won't fuzzy-match → claim dropped |
-| Model paraphrases verbatim slightly | Fuzzy threshold absorbs minor edits; if too lossy, dropped |
-| Speaker repeats the same phrase in two places | Ambiguous match → dropped (we'd rather miss than mislocate) |
-| Auto-generated transcript is noisy | Normalization strips noise; Sonnet handles minor extraction errors |
-| Transcript missing entirely | Caught upstream — `kind: "no-transcript"` empty state |
+The seed-anchored approach uses the **pigeonhole principle**: any fuzzy match within *k* edits leaves at least one of *k+1* disjoint seed substrings of the needle *unedited* in the haystack. So:
+
+1. Split the needle into k+1 disjoint seed substrings.
+2. For each seed, find exact occurrences in the haystack via `String.indexOf` (native, memchr-speed).
+3. Each exact-seed hit gives a candidate window position. Dedupe.
+4. Run banded Levenshtein with early termination only at the candidate positions.
+
+Candidate positions drop from ~N to ~10-50 per claim. ~100× faster than the naive approach. The 31-case test suite in `lib/lens/timestamp-validator.test.ts` covers the trust-spine invariants this matcher must hold.
+
+### Invariant 3 — Hedge flags are locality-checked
+
+Haiku 4.5 tends to attribute the speaker's *overall* hedging tone to specific direct assertions — flagging a categorical claim as `hedged` because the surrounding transcript is laced with hedge words, even when the claim itself contains none. The classifier prompt explicitly says "the hedge must be on THIS claim", but Haiku doesn't reliably honor that.
+
+After classification, the **hedge-guard** post-processor normalizes the claim's matched-span text and checks for any of ~17 hedge token patterns (`i think`, `might`, `could`, `possibly`, `maybe`, `suggest`, `seem`, `appear`, `tend to`, `kind of`, `sort of`, etc.). If `hedged` is in the model's flag list but none of the patterns appear locally, the flag is stripped. Same pattern as the timestamp validator: model emits, server enforces against ground truth. Tests in `lib/lens/hedge-guard.test.ts` (12 cases).
+
+### Invariant 4 — Research-lens citations are validated against the source
+
+The research lens forces Haiku to point to a **verbatim sentence from the paper's abstract** that justifies any `supports` or `contradicts` verdict. The server normalizes both sides and verifies the quote actually appears in the abstract (same `normalizeForMatching` helper, same substring check). If the quote isn't there — the model paraphrased, stitched fragments from different sentences, or invented evidence — the verdict is **demoted to `tangential`** and the quote is dropped.
+
+Hallucinated citations are the canonical failure mode of RAG products in the wild. This validator makes them structurally impossible to ship to the user: a `supports`/`contradicts` badge in the UI is guaranteed to be backed by a sentence the user can find in the source by clicking the DOI.
+
+### Invariants taken together
+
+Three of the four are deterministic server-side guards executing *between* LLM passes. The fourth (the matcher's pigeonhole optimization) is a correctness-preserving performance change that lets invariant 1 run fast enough to be in the request path. None of the four trusts the model to police itself — the model says what it found, the server checks against source, the UI only renders what survived the check.
 
 ### What this design *does not* do
 
-- It doesn't try to recover the timestamp by querying the model again. The validation is one-way and final.
-- It doesn't show a "low confidence" badge. Either the timestamp is verifiable or the claim is gone.
+- No "low confidence" badges. Either the assertion is verifiable or it's gone.
+- No retry on failure. If a quote doesn't validate, the verdict demotes and we move on — re-prompting the model would just give it another chance to fabricate.
+- No human-in-the-loop. Validation is automated and final.
 
 ---
 
 ## 7. Failure modes & explicit under-promises
+
+### Audit pipeline (eager)
 
 | Scenario | Handled by |
 |---|---|
 | Video has no transcript (private, age-gated, no captions) | `kind: "no-transcript"` empty state with explanation |
 | Transcript is auto-generated and noisy | Normalization strips noise; lower-quality output is acceptable, not catastrophic |
 | Video is non-informational (music, vlog, narrative) | Extraction pass returns 0 claims → `kind: "no-audit-applicable"` empty state |
-| Lens model hallucinates a claim | Dropped by timestamp validator |
-| `youtube-transcript.io` quota exhausted (free tier: 25 lifetime) or outage | Fallback to direct npm fetch (works for ~10% of videos on Vercel); on full failure, `no-transcript` event with explanation |
-| Anthropic credit balance too low | Per-claim silent fallback: synthesizer for extraction, mock round-robin for classification. Demo continues working with visibly-mocked claim text. |
+| Extraction model hallucinates a claim | Dropped by timestamp validator (verbatim fails fuzzy-match against transcript) |
+| Classifier flags a claim `hedged` based on surrounding-talk tone | Hedge guard strips the flag when no hedge tokens appear in the matched span |
+| `youtube-transcript.io` quota exhausted (free tier: 25 lifetime) or outage | Fallback to direct `youtube-transcript` npm package (works locally / for some videos on Vercel); on full failure, `no-transcript` event with explanation |
+| Anthropic credit balance too low | Per-claim silent fallback: synthesizer for extraction, mock round-robin for classification. Demo continues working with visibly-mocked claim text (the `(demo)` prefix is the only signal). |
 | Anthropic rate limit / API outage | Same per-claim fallback as credit-too-low |
-| Vercel function timeout (10s on hobby tier) | See §8 — open question |
+| Vercel hobby Node function timeout (10s) | `/api/audit` is on the Edge runtime — 300s streaming budget |
 | User pastes a non-YouTube URL | URL parser rejects upstream of any network call |
+| Vercel edge proxy buffers SSE events into 10-15s clumps | `: keepalive\n\n` comment lines every 3s push past the proxy's buffer threshold; events arrive smoothly |
+
+### Research lens (lazy)
+
+| Scenario | Handled by |
+|---|---|
+| OpenAlex returns zero papers for the query | `ResearchResult.papers` is empty; UI renders "No papers indexed for this query — try the Google link" |
+| OpenAlex returns papers but all judged `tangential` | UI renders "No clearly relevant papers found. N retrieved but each was tangential" instead of listing five obviously-irrelevant papers. The relevant/tangential split is in `ResearchPanel`. |
+| OpenAlex rate-limits the request | `search-rate-limited` error surfaced in the panel with a "try again" message |
+| Haiku returns a `supports`/`contradicts` verdict with a quote that's not in the abstract | Quote validator demotes to `tangential` and drops the quote (invariant 4) |
+| Haiku returns a `supports`/`contradicts` verdict with no quote | Same demote — no quote means no load-bearing evidence |
+| Haiku times out or errors | Panel renders the error state; user can retry |
 
 ### What we explicitly do not claim
 
@@ -298,6 +374,7 @@ We under-promise relentlessly. A claim shown without a timestamp leaks the failu
 - We do not claim our adversarial flags are exhaustive — they're heuristic signals, not a misinformation verdict.
 - We do not claim every factual claim is captured — extraction may miss claims, especially in noisy auto-transcripts.
 - We do not claim adversarial flags will be perfect — Haiku will make calls a human reviewer might disagree with on edge cases.
+- We do not claim research-lens verdicts are authoritative — Haiku's reading of a paper abstract is one judgment, not the final word. The verbatim-quote requirement + DOI link exist precisely so the user can read the source themselves and judge whether Haiku read it correctly.
 
 The demo copy reflects this. The marketing copy reflects this. The README reflects this. There is no claim of objectivity, no claim of completeness, no claim of factuality.
 
@@ -308,7 +385,7 @@ The demo copy reflects this. The marketing copy reflects this. The README reflec
 1. ~~**Vercel tier.**~~ **Resolved (2026-05-10):** stayed on hobby. `/api/audit` runs on the Edge runtime, which gives a 300s streaming budget on hobby vs 10s for Node functions. Real Sonnet on the longest curated transcript (TED talk, 391 segments) extracts in ~25s well within budget. Pro tier ($20/mo) not needed for the v1 demo profile. Caveat: the Anthropic SDK pulled `node:fs`/`node:path` and was rejected by Vercel's edge bundler, so the lens calls were rewritten as raw `fetch` against the Messages API — see commit `36a7593`.
 2. ~~**Caching.**~~ **Resolved (2026-05-09):** in-memory `Map` cache (5-min TTL, 64-entry LRU) ships in `lib/youtube/transcript-cache.ts`. KV not needed at current traffic patterns.
 3. ~~**Sample set size.**~~ **Resolved (2026-05-08):** 6 curated samples ship in `lib/samples/curated.ts`. All have build-time fixture transcripts in `lib/samples/transcripts/`.
-4. ~~**Fuzzy threshold.**~~ **Resolved (2026-05-10):** 0.90 holds. Across all 5 informational curated samples (TED, 3Blue1Brown, Steve Jobs Stanford, Kurzgesagt, TED-Ed Sugar), the validator passes 100% of model-extracted claims with zero false-grounded matches in the eval harness (`scripts/eval.ts`). Lowering the threshold would only buy recall on claims where the model paraphrases beyond what the auditor should trust; raising it would start dropping clean matches. Documented in §6.
+4. ~~**Fuzzy threshold.**~~ **Resolved (2026-05-10):** 0.90 holds. Across all informational curated samples (TED talk on psychology, 3Blue1Brown neural networks, Kurzgesagt automation, TED-Ed sugar, Fauci COVID interview, the nutrition-claims Short), the validator passes 100% of model-extracted claims with zero false-grounded matches in the eval harness (`scripts/eval.ts`). Lowering the threshold would only buy recall on claims where the model paraphrases beyond what the auditor should trust; raising it would start dropping clean matches. Documented in section 6.
 5. ~~**Opinion-as-fact.**~~ **Resolved (2026-05-09):** extraction system prompt in `lib/lens/extract.ts` extracts both. Opinion-stated-as-fact gets flagged via the classifier; pure opinion-stated-as-opinion is excluded.
 6. ~~**Haiku for extraction.**~~ **Resolved (2026-05-09):** Sonnet 4.6 for extraction (`lib/lens/extract.ts`), Haiku 4.5 for classification (`lib/lens/classify.ts`). Final.
 
@@ -330,7 +407,7 @@ The product ships if:
 
 1. A user pastes a sample URL, sees the ledger build live, clicks any timestamp, and lands at the exact moment the speaker says the verbatim quote — every time, on every sample.
 2. The wellness/health-adjacent sample surfaces ≥3 clearly-flagged claims (`hedged`, `vague-sourced`, `unsourced`).
-3. The non-informational sample returns the empty state — the tool knows when it shouldn't speak.
+3. A non-informational video (paste any music URL) returns the empty state — the tool knows when it shouldn't speak.
 4. Total LLM cost per video ≤$0.05 average across the sample set.
 
 Anything beyond that — better prompts, more flags, prettier UI — is polish, not the bar.

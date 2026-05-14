@@ -150,7 +150,7 @@ describe("findFuzzyMatches", () => {
 });
 
 // =============================================================================
-// validateClaim — the trust-spine cases from DESIGN.md §6
+// validateClaim — the trust-spine cases from DESIGN.md section 6
 // =============================================================================
 describe("validateClaim — exact and fuzzy positive cases", () => {
   it("returns a claim on exact verbatim match", () => {
