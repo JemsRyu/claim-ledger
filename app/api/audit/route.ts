@@ -123,6 +123,7 @@ export async function GET(request: NextRequest) {
         // hard timeout. The fallback keeps the demo working regardless.
         let rawClaims: RawClaim[];
         let extractionMode: "live" | "synthesizer" = "live";
+        let failureReason: string | undefined;
         try {
           rawClaims = await withTimeout(
             extractClaims(transcript),
@@ -132,16 +133,18 @@ export async function GET(request: NextRequest) {
         } catch (error) {
           extractionMode = "synthesizer";
           if (error instanceof ExtractionError) {
+            failureReason = error.kind;
             console.warn(
               `[audit] live extraction failed (${error.kind}): ${error.message}. Falling back to synthesizer.`,
             );
           } else {
+            failureReason = "unknown";
             console.warn(
               "[audit] live extraction threw unexpectedly. Falling back to synthesizer.",
               error,
             );
           }
-          rawClaims = synthesizeRawClaims(transcript, 4);
+          rawClaims = synthesizeRawClaims(transcript, 4, failureReason);
         }
 
         if (rawClaims.length === 0) {

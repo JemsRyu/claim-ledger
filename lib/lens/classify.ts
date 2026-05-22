@@ -53,6 +53,13 @@ const FLAGS_SCHEMA = {
   additionalProperties: false,
 } as const;
 
+const EMIT_FLAGS_TOOL = {
+  name: "emit_flags",
+  description:
+    "Emit the list of adversarial flags that apply to this claim. Always call this tool exactly once with the full flags array.",
+  input_schema: FLAGS_SCHEMA,
+} as const;
+
 export type ClassificationErrorKind =
   | "no-key"
   | "no-credits"
@@ -79,7 +86,7 @@ function buildTranscriptText(transcript: TranscriptSegment[]): string {
 }
 
 type MessagesResponse = {
-  content?: { type: string; text?: string }[];
+  content?: ({ type: "text"; text?: string } | { type: "tool_use"; name?: string; input?: unknown })[];
 };
 
 /**
@@ -87,9 +94,11 @@ type MessagesResponse = {
  * Claude Haiku 4.5.
  *
  * Hits the Messages API directly via fetch — keeps the audit route edge-safe.
- * Prompt caching: the system prompt + transcript prefix are cached so
- * subsequent claims for the same video read at ~10% of input cost.
- * Claim-specific text comes after the cache breakpoint.
+ * Uses tool-use with a forced tool_choice so the response comes back as a
+ * structured tool_use block (no JSON.parse on free-form text). Prompt
+ * caching: the transcript prefix is cached so subsequent claims for the same
+ * video read at ~10% of input cost. Claim-specific text comes after the cache
+ * breakpoint.
  *
  * Throws ClassificationError on any failure; the audit route catches and
  * falls back to mockFlagsForIndex so the demo never breaks.
@@ -114,6 +123,8 @@ export async function classifyClaim(
     model: MODEL_ID,
     max_tokens: MAX_OUTPUT_TOKENS,
     system: SYSTEM_PROMPT,
+    tools: [EMIT_FLAGS_TOOL],
+    tool_choice: { type: "tool", name: EMIT_FLAGS_TOOL.name },
     messages: [
       {
         role: "user",
@@ -127,12 +138,6 @@ export async function classifyClaim(
         ],
       },
     ],
-    output_config: {
-      format: {
-        type: "json_schema",
-        schema: FLAGS_SCHEMA,
-      },
-    },
   };
 
   const controller = new AbortController();
@@ -189,21 +194,18 @@ export async function classifyClaim(
   }
 
   const data = (await response.json()) as MessagesResponse;
-  const textBlock = data.content?.find((b) => b.type === "text");
-  if (!textBlock?.text) {
-    throw new ClassificationError("unknown", "Haiku returned no text content.");
-  }
-
-  let parsed: { flags?: unknown };
-  try {
-    parsed = JSON.parse(textBlock.text);
-  } catch {
+  const toolUse = data.content?.find(
+    (b): b is { type: "tool_use"; name?: string; input?: unknown } =>
+      b.type === "tool_use" && b.name === EMIT_FLAGS_TOOL.name,
+  );
+  if (!toolUse || !toolUse.input || typeof toolUse.input !== "object") {
     throw new ClassificationError(
       "unknown",
-      "Haiku returned non-JSON despite the schema constraint.",
+      "Haiku did not return an emit_flags tool_use block.",
     );
   }
 
+  const parsed = toolUse.input as { flags?: unknown };
   if (!Array.isArray(parsed.flags)) return [];
 
   const validFlags = new Set<string>(ADVERSARIAL_FLAGS);

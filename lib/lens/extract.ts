@@ -94,6 +94,13 @@ const CLAIMS_SCHEMA = {
   additionalProperties: false,
 } as const;
 
+const EMIT_CLAIMS_TOOL = {
+  name: "emit_claims",
+  description:
+    "Emit the list of factual claims extracted from the transcript. Always call this tool exactly once with the full claims array.",
+  input_schema: CLAIMS_SCHEMA,
+} as const;
+
 export type ExtractionErrorKind =
   | "no-key"
   | "no-credits"
@@ -120,7 +127,7 @@ function buildTranscriptText(transcript: TranscriptSegment[]): string {
 }
 
 type MessagesResponse = {
-  content?: { type: string; text?: string }[];
+  content?: ({ type: "text"; text?: string } | { type: "tool_use"; name?: string; input?: unknown })[];
 };
 
 /**
@@ -130,10 +137,11 @@ type MessagesResponse = {
  * The official SDK transitively imports node:fs/node:path (its credentials
  * chain), which Vercel's edge function validator rejects on deploy.
  *
- * Uses output_config.format with a json_schema for guaranteed structure, and
- * top-level prompt caching so repeat audits of the same video read from cache
- * (~10% of input price). Throws ExtractionError on any failure; the audit
- * route catches and degrades gracefully.
+ * Uses tool-use with a forced tool_choice to get schema-validated JSON back
+ * as a tool_use block (no JSON.parse on free-form text). System prompt is
+ * cached so repeat audits read from cache (~10% of input price). Throws
+ * ExtractionError on any failure; the audit route catches and degrades
+ * gracefully.
  */
 export async function extractClaims(
   transcript: TranscriptSegment[],
@@ -151,20 +159,21 @@ export async function extractClaims(
   const body = {
     model: MODEL_ID,
     max_tokens: MAX_OUTPUT_TOKENS,
-    cache_control: { type: "ephemeral" },
-    system: SYSTEM_PROMPT,
+    system: [
+      {
+        type: "text",
+        text: SYSTEM_PROMPT,
+        cache_control: { type: "ephemeral" },
+      },
+    ],
+    tools: [EMIT_CLAIMS_TOOL],
+    tool_choice: { type: "tool", name: EMIT_CLAIMS_TOOL.name },
     messages: [
       {
         role: "user",
         content: `Transcript:\n\n${transcriptText}`,
       },
     ],
-    output_config: {
-      format: {
-        type: "json_schema",
-        schema: CLAIMS_SCHEMA,
-      },
-    },
   };
 
   const controller = new AbortController();
@@ -224,15 +233,18 @@ export async function extractClaims(
   }
 
   const data = (await response.json()) as MessagesResponse;
-  const textBlock = data.content?.find((b) => b.type === "text");
-  if (!textBlock?.text) {
+  const toolUse = data.content?.find(
+    (b): b is { type: "tool_use"; name?: string; input?: unknown } =>
+      b.type === "tool_use" && b.name === EMIT_CLAIMS_TOOL.name,
+  );
+  if (!toolUse || !toolUse.input || typeof toolUse.input !== "object") {
     throw new ExtractionError(
       "unknown",
-      "Claude returned no text content in the extraction response.",
+      "Claude did not return an emit_claims tool_use block.",
     );
   }
 
-  let parsed: {
+  const parsed = toolUse.input as {
     claims?: {
       claim: string;
       verbatim: string;
@@ -240,14 +252,6 @@ export async function extractClaims(
       verifyQuestion?: string;
     }[];
   };
-  try {
-    parsed = JSON.parse(textBlock.text);
-  } catch {
-    throw new ExtractionError(
-      "unknown",
-      "Claude's response was not valid JSON despite the schema constraint.",
-    );
-  }
 
   const claims = parsed.claims ?? [];
   return claims.map((c, i) => {

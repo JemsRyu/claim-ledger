@@ -95,13 +95,14 @@ export function getMockFixture(videoId: string): Fixture | null {
  * timestamp validator then derives spans correctly because the verbatim is
  * guaranteed to fuzzy-match.
  *
- * The claim text is a synthesized "(demo) The speaker states: …" — explicit
- * about being placeholder. Phase 2 replaces this whole function with the
- * Sonnet extraction lens.
+ * When `failureReason` is provided, the claim text reflects that the live
+ * extraction lens failed — so the UI clearly signals an error rather than
+ * presenting placeholder cards as if they were real claims.
  */
 export function synthesizeRawClaims(
   transcript: TranscriptSegment[],
   count = 4,
+  failureReason?: string,
 ): RawClaim[] {
   const usable = transcript.filter((s) => s.text.trim().length >= 12);
   if (usable.length === 0) return [];
@@ -110,6 +111,10 @@ export function synthesizeRawClaims(
   const stride = usable.length / target;
   const claims: RawClaim[] = [];
   const seen = new Set<number>();
+
+  const prefix = failureReason
+    ? `Error calling Claude API (${failureReason}) — showing raw transcript snippet`
+    : `(demo) The speaker states`;
 
   for (let i = 0; i < target; i++) {
     const idx = Math.min(
@@ -123,7 +128,7 @@ export function synthesizeRawClaims(
     const summary = text.length > 60 ? `${text.slice(0, 60)}…` : text;
     claims.push({
       id: `c-${i}`,
-      claim: `(demo) The speaker states: "${summary}"`,
+      claim: `${prefix}: "${summary}"`,
       verbatim: text,
     });
   }

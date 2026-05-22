@@ -66,6 +66,13 @@ const VERDICTS_SCHEMA = {
   additionalProperties: false,
 } as const;
 
+const EMIT_VERDICTS_TOOL = {
+  name: "emit_verdicts",
+  description:
+    "Emit one verdict per paper, in the same order the papers were provided. Always call this tool exactly once.",
+  input_schema: VERDICTS_SCHEMA,
+} as const;
+
 export type ResearchErrorKind =
   | "no-key"
   | "search-rate-limited"
@@ -263,18 +270,14 @@ async function judgePapers(
     model: HAIKU_MODEL,
     max_tokens: HAIKU_MAX_OUTPUT_TOKENS,
     system: SYSTEM_PROMPT,
+    tools: [EMIT_VERDICTS_TOOL],
+    tool_choice: { type: "tool", name: EMIT_VERDICTS_TOOL.name },
     messages: [
       {
         role: "user",
         content: `Claim to evaluate:\n  Paraphrase: ${claim}\n  Verbatim quote: "${verbatim}"\n\nPapers:\n\n${paperBlock}`,
       },
     ],
-    output_config: {
-      format: {
-        type: "json_schema",
-        schema: VERDICTS_SCHEMA,
-      },
-    },
   };
 
   const controller = new AbortController();
@@ -316,22 +319,20 @@ async function judgePapers(
   }
 
   const data = (await response.json()) as {
-    content?: { type: string; text?: string }[];
+    content?: ({ type: "text"; text?: string } | { type: "tool_use"; name?: string; input?: unknown })[];
   };
-  const textBlock = data.content?.find((b) => b.type === "text");
-  if (!textBlock?.text) {
-    throw new ResearchError("haiku-failed", "Haiku returned no text content.");
-  }
-
-  let parsed: { verdicts?: RawVerdict[] };
-  try {
-    parsed = JSON.parse(textBlock.text);
-  } catch {
+  const toolUse = data.content?.find(
+    (b): b is { type: "tool_use"; name?: string; input?: unknown } =>
+      b.type === "tool_use" && b.name === EMIT_VERDICTS_TOOL.name,
+  );
+  if (!toolUse || !toolUse.input || typeof toolUse.input !== "object") {
     throw new ResearchError(
       "haiku-failed",
-      "Haiku returned non-JSON despite the schema constraint.",
+      "Haiku did not return an emit_verdicts tool_use block.",
     );
   }
+
+  const parsed = toolUse.input as { verdicts?: RawVerdict[] };
   const verdicts = parsed.verdicts ?? [];
   if (verdicts.length !== papers.length) {
     throw new ResearchError(
